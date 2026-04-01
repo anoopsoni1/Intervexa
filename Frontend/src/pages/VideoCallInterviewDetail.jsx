@@ -1,0 +1,334 @@
+import React, { useState, useEffect, useRef } from "react";
+import { useDispatch } from "react-redux";
+import { clearUser, setUser } from "../slices/user.slice";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { FiVideo, FiCalendar, FiUser, FiAward, FiArrowLeft } from "react-icons/fi";
+import gsap from "gsap";
+import AppHeader from "../components/layout/AppHeader";
+import AppFooter from "../components/layout/AppFooter";
+
+import { API_BASE } from "../config";
+import { Skeleton } from "../components/ui/Skeleton.jsx";
+
+function VideoCallInterviewDetail() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [authChecking, setAuthChecking] = useState(true);
+  const [interview, setInterview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const mainRef = useRef(null);
+
+  const getHeaders = () => {
+    const t = localStorage.getItem("accessToken");
+    return t ? { Authorization: `Bearer ${t}` } : {};
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    async function checkAuth() {
+      setAuthChecking(true);
+      try {
+        const res = await fetch(`${API_BASE}/profile`, {
+          credentials: "include",
+          headers: getHeaders(),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        if (!res.ok || res.status === 401) {
+          dispatch(clearUser());
+          navigate("/login");
+          return;
+        }
+        const currentUser = data?.user || data?.data?.user;
+        if (currentUser) dispatch(setUser(currentUser));
+      } finally {
+        if (!cancelled) setAuthChecking(false);
+      }
+    }
+    checkAuth();
+    return () => { cancelled = true; };
+  }, [dispatch, navigate]);
+
+  const fetchInterview = React.useCallback(async () => {
+    try {
+      const res = await fetch(`${API_BASE}/interviews/${id}`, {
+        credentials: "include",
+        headers: getHeaders(),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json?.data) setInterview(json.data);
+      else setInterview(null);
+    } catch {
+      setInterview(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    if (!id || authChecking) return;
+    setLoading(true);
+    fetchInterview();
+  }, [id, authChecking, fetchInterview]);
+
+  // When status is "processing", poll so evaluation appears when ready
+  useEffect(() => {
+    if (!id || !interview || interview.status !== "processing") return;
+    const interval = setInterval(fetchInterview, 4000);
+    return () => clearInterval(interval);
+  }, [id, interview?.status, fetchInterview]);
+
+  useEffect(() => {
+    if (!interview || !mainRef.current) return;
+    const ctx = gsap.context(() => {
+      const sections = mainRef.current.querySelectorAll(".detail-section");
+      gsap.fromTo(sections, { y: 20, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.1, duration: 0.45, ease: "power2.out" });
+      const scoreBoxes = mainRef.current.querySelectorAll(".score-box");
+      if (scoreBoxes.length) {
+        gsap.fromTo(scoreBoxes, { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.08, duration: 0.4, delay: 0.2, ease: "back.out(1.2)" });
+      }
+    }, mainRef);
+    return () => ctx.revert();
+  }, [interview?._id, interview?.status]);
+
+  const formatDate = (d) => {
+    if (!d) return "—";
+    return new Date(d).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" });
+  };
+
+  const statusColor = (s) => {
+    if (s === "completed") return "text-emerald-400 bg-emerald-500/20";
+    if (s === "processing") return "text-amber-400 bg-amber-500/20";
+    if (s === "in_progress" || s === "started") return "text-blue-400 bg-blue-500/20";
+    return "text-slate-400 bg-slate-500/20";
+  };
+
+  const isProcessing = interview?.status === "processing";
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <AppHeader />
+        <main className="flex-1 px-4 py-8 max-w-3xl mx-auto w-full space-y-4">
+          <Skeleton className="h-8 w-56 rounded-lg" />
+          <Skeleton className="h-40 w-full rounded-2xl" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+        </main>
+        <AppFooter />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <AppHeader />
+        <main className="flex-1 px-4 py-8 max-w-3xl mx-auto w-full space-y-4">
+          <Skeleton className="h-8 w-64 rounded-lg" />
+          <Skeleton className="h-24 w-full rounded-2xl" />
+          <Skeleton className="h-48 w-full rounded-2xl" />
+        </main>
+        <AppFooter />
+      </div>
+    );
+  }
+
+  if (!interview) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
+        <p className="text-slate-400">Interview not found.</p>
+        <Link to="/dashboard/interviews" className="text-indigo-400 hover:text-indigo-300">Back to interviews</Link>
+      </div>
+    );
+  }
+
+  const rec = interview.recruiterId;
+  const cand = interview.candidateId;
+  const report = interview.aiReport;
+
+  return (
+    <div className="relative min-h-screen">
+      {isProcessing && (
+        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4 rounded-2xl border border-amber-400/40 bg-black/80 px-8 py-6 shadow-xl">
+            <div className="relative w-14 h-14">
+              <div className="absolute inset-0 rounded-full border-2 border-amber-400/30 animate-ping" />
+              <div
+                className="absolute inset-2 rounded-full border-2 border-amber-300/80 border-t-transparent animate-spin"
+                style={{ animationDuration: "1.1s" }}
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-amber-200 font-semibold">Generating your AI evaluation…</p>
+              <p className="text-slate-400 text-xs mt-1 max-w-xs">
+                We&apos;re processing your interview recording with AI. This can take up to a minute. Please stay on this page.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="flex flex-col min-h-screen">
+        <AppHeader />
+        <main className="flex-1 py-8 px-4">
+          <div ref={mainRef} className="max-w-7xl mx-auto">
+            <Link
+              to="/dashboard/interviews"
+              className="detail-section inline-flex items-center gap-2 text-sm mb-4 rounded-full border border-indigo-500/40 bg-indigo-500/10 px-3 py-1.5 text-indigo-200 hover:bg-indigo-500/20 hover:text-white hover:border-indigo-400/80 transition shadow-sm hover:shadow-indigo-500/20"
+            >
+              <FiArrowLeft className="w-4 h-4" />
+              <span>Back to interviews</span>
+            </Link>
+            <div className="detail-section flex flex-wrap items-center gap-3 mb-6">
+              <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                <FiVideo className="w-7 h-7 text-indigo-400" />
+                {interview.role || "Interview"}
+              </h1>
+              <span className={`rounded-full px-3 py-1 text-sm font-medium ${statusColor(interview.status)}`}>
+                {interview.status || "new"}
+              </span>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 mb-6">
+              <div className="detail-section">
+                <h2 className="text-lg font-semibold text-white mb-4">Details</h2>
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <FiCalendar className="w-4 h-4 text-slate-500" />
+                    <span>Created: {formatDate(interview.createdAt || interview.scheduledAt)}</span>
+                  </div>
+                  {interview.startedAt && (
+                    <div className="flex items-center gap-2 text-slate-300">
+                      <span>Started: {formatDate(interview.startedAt)}</span>
+                    </div>
+                  )}
+                  {interview.endedAt && (
+                    <div className="flex items-center gap-2 text-slate-300">
+                      <span>Ended: {formatDate(interview.endedAt)}</span>
+                    </div>
+                  )}
+                <div className="flex items-center gap-2 text-slate-300">
+                  <FiUser className="w-4 h-4 text-slate-500" />
+                  <span>Recruiter: Intervexa</span>
+                </div>
+                  {cand && (
+                    <div className="flex items-center gap-2 text-slate-300">
+                      <FiUser className="w-4 h-4 text-slate-500" />
+                      <span>Candidate: {cand.FirstName} {cand.LastName} ({cand.email})</span>
+                    </div>
+                  )}
+                  {interview.roomId != null && String(interview.roomId).trim() !== "" && String(interview.roomId) !== "0" && (
+                    <div className="text-slate-400">Room: {interview.roomId}</div>
+                  )}
+                </dl>
+              </div>
+              {!interview.endedAt && (
+                <div className="mt-4 pt-4 border-t border-white/10 flex flex-wrap gap-3">
+                  <Link
+                    to={`/dashboard/interviews/${interview._id}/ai-call`}
+                    className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-white font-semibold hover:bg-indigo-500 transition hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    <FiVideo className="w-5 h-5" />
+                    Start AI Interview (15 min)
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {interview.status === "processing" && (
+              <div className="detail-section rounded-2xl border border-amber-500/30 bg-amber-500/10 p-6 mb-6">
+                <p className="text-amber-200 font-medium">Generating your evaluation…</p>
+                <p className="text-slate-400 text-sm mt-1">We&apos;re analyzing your recording with AI. The page will update automatically.</p>
+              </div>
+            )}
+
+            {["ended", "completed"].includes(interview.status) && !interview.recordingUrl && !report && (
+              <div className="detail-section rounded-2xl border border-white/10 bg-white/5 p-6 mb-6">
+                <p className="text-amber-200 font-medium">Recording or evaluation not available</p>
+                <p className="text-slate-400 text-sm mt-1">
+                  The recording was not saved or the upload failed. Try ending the interview after speaking for at least a few seconds, and ensure your connection is stable. You can start another AI interview from this page.
+                </p>
+              </div>
+            )}
+
+            {["completed"].includes(interview.status) && interview.recordingUrl && !report && (
+              <div className="detail-section rounded-2xl border border-rose-500/40 bg-rose-500/10 p-6 mb-6">
+                <p className="text-rose-200 font-medium">AI evaluation could not be generated</p>
+                <p className="text-slate-300 text-sm mt-1">
+                  We were able to save your recording, but the AI analysis did not complete. This usually means the AI service is not configured
+                  (missing or invalid API key) or there was an internal error while processing the recording.
+                </p>
+                <p className="text-slate-500 text-xs mt-2">
+                  If you are the developer, check your backend logs and ensure <code className="px-1 py-0.5 rounded bg-black/40 text-[0.7rem]">GROQ_API_KEY</code> is set (Whisper + chat),
+                  and that Groq speech-to-text is enabled for your account, then try another interview.
+                </p>
+              </div>
+            )}
+
+            {report && (report.technicalScore != null || report.communicationScore != null || report.confidenceScore != null || (report.strengths && report.strengths.length) || (report.weaknesses && report.weaknesses.length) || (report.improvementPlan && report.improvementPlan.length)) && (
+              <div className="detail-section rounded-2xl border border-white/10 bg-white/5 p-6">
+                <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <FiAward className="w-5 h-5 text-amber-400" />
+                  AI Report
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                  {report.technicalScore != null && (
+                    <div className="score-box rounded-xl bg-white/5 p-3 border border-white/5">
+                      <p className="text-xs text-slate-500">Technical</p>
+                      <p className="text-xl font-bold text-white">{report.technicalScore}<span className="text-slate-500 font-normal text-sm">/10</span></p>
+                    </div>
+                  )}
+                  {report.communicationScore != null && (
+                    <div className="score-box rounded-xl bg-white/5 p-3 border border-white/5">
+                      <p className="text-xs text-slate-500">Communication</p>
+                      <p className="text-xl font-bold text-white">{report.communicationScore}<span className="text-slate-500 font-normal text-sm">/10</span></p>
+                    </div>
+                  )}
+                  {report.confidenceScore != null && (
+                    <div className="score-box rounded-xl bg-white/5 p-3 border border-white/5">
+                      <p className="text-xs text-slate-500">Confidence</p>
+                      <p className="text-xl font-bold text-white">{report.confidenceScore}<span className="text-slate-500 font-normal text-sm">/10</span></p>
+                    </div>
+                  )}
+                </div>
+                {report.strengths && report.strengths.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-sm font-medium text-emerald-400 mb-1">Strengths</p>
+                    <ul className="list-disc list-inside text-slate-300 text-sm space-y-0.5">
+                      {report.strengths.map((s, i) => (
+                        <li key={i}>{s}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {report.weaknesses && report.weaknesses.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-sm font-medium text-amber-400 mb-1">Areas to improve</p>
+                    <ul className="list-disc list-inside text-slate-300 text-sm space-y-0.5">
+                      {report.weaknesses.map((w, i) => (
+                        <li key={i}>{w}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {report.improvementPlan && report.improvementPlan.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-indigo-400 mb-1">Improvement plan</p>
+                    <ul className="list-disc list-inside text-slate-300 text-sm space-y-0.5">
+                      {report.improvementPlan.map((p, i) => (
+                        <li key={i}>{p}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </main>
+        <AppFooter />
+      </div>
+    </div>
+  );
+}
+
+export default VideoCallInterviewDetail;

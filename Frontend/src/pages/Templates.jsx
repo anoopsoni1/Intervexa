@@ -1,0 +1,291 @@
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FileText, Layout, Lock, Sparkles } from "lucide-react";
+import { useSelector } from "react-redux";
+import Particles from "../components/ui/Lighting.jsx";
+import AppHeader from "../components/layout/AppHeader";
+import AppFooter from "../components/layout/AppFooter";
+
+/** Resume template families that require an active Premium subscription (Modern stays free for signed-in users). */
+const PREMIUM_ONLY_TEMPLATE_IDS = new Set(["classic", "minimal", "premium"]);
+
+const TEMPLATES = [
+  {
+    id: "modern",
+    name: "Modern",
+    description: "Clean layout with strong typography. Best for tech and creative roles.",
+    accent: "indigo",
+    preview: "Modern",
+  },
+  {
+    id: "classic",
+    name: "Classic",
+    description: "Timeless, professional design. Ideal for corporate and traditional industries.",
+    accent: "slate",
+    preview: "Classic",
+  },
+  {
+    id: "minimal",
+    name: "Minimal",
+    description: "Simple and scannable. Great for ATS and minimalist aesthetics.",
+    accent: "gray",
+    preview: "Minimal",
+  },
+  {
+    id: "premium",
+    name: "Premium",
+    description: "Bold accents and clear sections. Stand out with orange highlights.",
+    accent: "orange",
+    preview: "Premium",
+  },
+];
+
+function Topbar() {
+  return <AppHeader />;
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
+function TemplateCard({
+  template,
+  onSelect,
+  isLocked,
+  lockHref = "/price",
+  lockCta = "Upgrade to unlock",
+  lockBadgeTitle = "Premium template",
+  index = 0,
+}) {
+  const handleCardKeyDown = (e) => {
+    if (isLocked) return;
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    onSelect(template.id);
+  };
+
+  const accentColors = {
+    indigo: "border-indigo-500/50 bg-indigo-500/10 hover:bg-indigo-500/20",
+    slate: "border-slate-500/50 bg-slate-500/10 hover:bg-slate-500/20",
+    gray: "border-gray-500/50 bg-gray-500/10 hover:bg-gray-500/20",
+    orange: "border-orange-500/50 bg-orange-500/10 hover:bg-orange-500/20",
+  };
+  const btnColors = {
+    indigo: "bg-indigo-600 hover:bg-indigo-700",
+    slate: "bg-slate-600 hover:bg-slate-700",
+    gray: "bg-gray-800 hover:bg-gray-700",
+    orange: "bg-orange-600 hover:bg-orange-700",
+  };
+  const accent = accentColors[template.accent] || accentColors.indigo;
+  const btn = btnColors[template.accent] || btnColors.indigo;
+
+  const card = (
+    <motion.div
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      custom={index}
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      className={`rounded-xl sm:rounded-2xl border p-4 sm:p-6 transition-all duration-300 ${accent} backdrop-blur-sm flex flex-col relative min-h-[200px] ${
+        isLocked
+          ? "opacity-90"
+          : "cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+      }`}
+      onClick={!isLocked ? () => onSelect(template.id) : undefined}
+      role={!isLocked ? "button" : undefined}
+      tabIndex={!isLocked ? 0 : undefined}
+      onKeyDown={!isLocked ? handleCardKeyDown : undefined}
+    >
+      {isLocked && (
+        <div
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 rounded-full bg-amber-500/20 p-1.5 border border-amber-400/40"
+          title={lockBadgeTitle}
+        >
+          <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-400" />
+        </div>
+      )}
+      <div className="mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
+        <div className="rounded-lg bg-white/10 p-1.5 sm:p-2 shrink-0">
+          <Layout className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+        </div>
+        <h3 className="text-lg sm:text-xl font-bold text-white truncate">{template.name}</h3>
+      </div>
+      <p className="text-xs sm:text-sm text-zinc-400 mb-4 sm:mb-6 flex-1 line-clamp-3">{template.description}</p>
+      <div className="rounded-lg bg-black/30 p-3 sm:p-4 mb-4 sm:mb-6 min-h-[64px] sm:min-h-[80px] flex items-center justify-center border border-white/10">
+        <span className="text-xs sm:text-sm font-medium text-white/80">{template.preview}</span>
+      </div>
+      {isLocked ? (
+        <motion.span
+          className={`w-full inline-flex items-center justify-center rounded-lg py-2.5 text-xs sm:text-sm font-semibold text-white gap-2 min-h-[44px] ${btn}`}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        >
+          <Lock className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+          {lockCta}
+        </motion.span>
+      ) : (
+        <motion.span
+          className={`w-full inline-flex items-center justify-center rounded-lg py-2.5 text-xs sm:text-sm font-semibold text-white min-h-[44px] ${btn}`}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        >
+          Use this template
+        </motion.span>
+      )}
+    </motion.div>
+  );
+
+  if (isLocked) {
+    return (
+      <Link
+        to={lockHref}
+        className="block cursor-pointer rounded-xl sm:rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+      >
+        {card}
+      </Link>
+    );
+  }
+
+  return card;
+}
+
+export default function TemplatesPage() {
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user?.userData);
+  const isLoggedIn =
+    typeof window !== "undefined" && Boolean(localStorage.getItem("accessToken")?.trim());
+  const isPremium = Boolean(user?.Premium);
+  const loginFromTemplates = `/login?from=${encodeURIComponent("/templates")}`;
+  const priceFromTemplates = `/price?from=${encodeURIComponent("/templates")}`;
+
+  const getCardLock = (templateId) => {
+    if (!isLoggedIn) {
+      return {
+        locked: true,
+        href: loginFromTemplates,
+        cta: "Sign in to unlock",
+        badge: "Sign in to use this template",
+      };
+    }
+    if (PREMIUM_ONLY_TEMPLATE_IDS.has(templateId) && !isPremium) {
+      return {
+        locked: true,
+        href: priceFromTemplates,
+        cta: "Upgrade to unlock",
+        badge: "Premium template",
+      };
+    }
+    return { locked: false };
+  };
+
+  const handleSelectTemplate = (templateId) => {
+    if (templateId === "modern") navigate("/templates/modern");
+    else if (templateId === "classic") navigate("/templates/classic");
+    else if (templateId === "minimal") navigate("/templates/minimal");
+    else if (templateId === "premium") navigate("/templates/premium");
+    else navigate("/templates");
+  };
+
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-black">
+      <div className="absolute inset-0 z-0 pointer-events-none min-h-screen w-full mix-blend-screen">
+        <Particles
+          particleColors={["#ffffff"]}
+          particleCount={200}
+          particleSpread={10}
+          speed={0.1}
+          particleBaseSize={100}
+          moveParticlesOnHover
+          alphaParticles={false}
+          disableRotation={false}
+          pixelRatio={1}
+        />
+      </div>
+
+      <div className="absolute inset-0 z-1 bg-black/30" />
+      <div className="relative z-10">
+        <Topbar />
+
+        <main className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 min-h-[60vh]">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8 sm:mb-10 flex flex-col items-center text-center px-1"
+          >
+            <div className="mb-2 sm:mb-3 flex items-center gap-2 rounded-full bg-orange-500/20 px-3 py-1.5 sm:px-4 text-orange-400">
+              <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+              <span className="text-xs sm:text-sm font-medium">ATS-friendly</span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white leading-tight">
+              Choose a template
+            </h1>
+            <p className="mt-2 sm:mt-3 max-w-xl text-sm sm:text-base md:text-lg text-zinc-400">
+              Professional layouts designed to pass ATS and impress recruiters. Pick one and start building.
+            </p>
+            {!isLoggedIn && (
+              <p className="mt-3 max-w-lg text-sm text-amber-200/90">
+                Sign in to unlock templates and use them with your resume.
+              </p>
+            )}
+            {isLoggedIn && !isPremium && (
+              <p className="mt-3 max-w-lg text-sm text-amber-200/90">
+                Modern is included with your account. Classic, Minimal, and Premium layouts require{" "}
+                <Link to={priceFromTemplates} className="text-amber-300 underline-offset-2 hover:underline">
+                  Premium
+                </Link>
+                .
+              </p>
+            )}
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {TEMPLATES.map((template, index) => {
+              const lock = getCardLock(template.id);
+              return (
+                <TemplateCard
+                  key={template.id}
+                  template={template}
+                  onSelect={handleSelectTemplate}
+                  isLocked={lock.locked}
+                  lockHref={lock.href}
+                  lockCta={lock.cta}
+                  lockBadgeTitle={lock.badge}
+                  index={index}
+                />
+              );
+            })}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="mt-10 sm:mt-12 flex justify-center"
+          >
+            <Link to={isLoggedIn ? "/upload" : `/login?from=${encodeURIComponent("/upload")}`}>
+              <motion.span
+                className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-3 sm:px-6 text-white font-semibold shadow-lg shadow-indigo-500/30 text-sm sm:text-base min-h-[44px] justify-center w-full sm:w-auto max-w-xs sm:max-w-none"
+                whileHover={{ scale: 1.05, boxShadow: "0 20px 40px -12px rgba(99, 102, 241, 0.35)" }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              >
+                <FileText className="h-5 w-5 shrink-0" />
+                Upload & edit your resume
+              </motion.span>
+            </Link>
+          </motion.div>
+        </main>
+
+        <AppFooter />
+      </div>
+    </div>
+  );
+}

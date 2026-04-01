@@ -1,0 +1,49 @@
+/**
+ * Handles redirect from backend after Google OAuth.
+ * URL: /auth/callback?token=...&user=...
+ * Stores token in localStorage, user in Redux, then redirects to dashboard.
+ */
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUser } from "../slices/user.slice";
+
+export default function AuthCallback() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = searchParams.get("token");
+    const userParam = searchParams.get("user");
+
+    if (token) {
+      localStorage.setItem("accessToken", token);
+      if (userParam) {
+        try {
+          const user = JSON.parse(decodeURIComponent(userParam));
+          dispatch(setUser(user));
+        } catch {
+          // ignore invalid user payload
+        }
+      }
+      const returnUrl = sessionStorage.getItem("loginReturnUrl");
+      if (returnUrl) sessionStorage.removeItem("loginReturnUrl");
+      const target = returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") && !returnUrl.startsWith("http") ? returnUrl : "/dashboard";
+      window.history.replaceState({}, "", target);
+      navigate(target, { replace: true });
+      return;
+    }
+
+    navigate("/login", { replace: true });
+  }, [searchParams, navigate, dispatch]);
+
+  return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm px-8 py-6 text-center">
+        <p className="text-white font-semibold">Signing you in…</p>
+        <p className="mt-1 text-sm text-slate-400">Please wait.</p>
+      </div>
+    </div>
+  );
+}
