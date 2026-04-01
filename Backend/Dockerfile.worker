@@ -1,0 +1,15 @@
+# Production Dockerfile for AI / queue worker
+FROM node:20
+
+WORKDIR /app
+
+# Copy dependency manifests
+COPY package.json package*.json ./
+
+# Install dependencies (worker needs same deps as API for handlers)
+RUN npm ci --omit=dev 2>/dev/null || npm install --omit=dev
+
+# Copy application source
+COPY . .
+
+CMD ["node", "src/workers/aiWorker.js"]
