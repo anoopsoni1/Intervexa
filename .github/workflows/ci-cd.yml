@@ -22,30 +22,30 @@ jobs:
     # ---------- FRONTEND ----------
     - name: Install Frontend
       run: |
-        cd frontend
+        cd Frontend
         npm install
 
     - name: Build Frontend
       run: |
-        cd frontend
+        cd Frontend
         npm run build
 
     # ---------- BACKEND ----------
     - name: Install Backend
       run: |
-        cd backend
+        cd Backend
         npm install
 
     - name: Run Backend
       run: |
-        cd backend
+        cd Backend
         node -e "console.log('Backend OK')"
 
     # ---------- DEPLOY FRONTEND ----------
     - name: Deploy Frontend to Vercel
       run: |
         npm install -g vercel
-        cd frontend
+        cd Frontend
         vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
 
     # ---------- DEPLOY BACKEND ----------
