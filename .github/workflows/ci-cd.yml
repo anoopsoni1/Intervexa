@@ -9,11 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Get code
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # 2. Setup Node
+    - name: Debug Files
+      run: ls -R
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
@@ -21,34 +22,29 @@ jobs:
 
     # ---------- FRONTEND ----------
     - name: Install Frontend
-      run: |
-        cd Frontend
-        npm install
+      working-directory: Frontend
+      run: npm install
 
     - name: Build Frontend
-      run: |
-        cd Frontend
-        npm run build
+      working-directory: Frontend
+      run: npm run build
 
     # ---------- BACKEND ----------
     - name: Install Backend
-      run: |
-        cd Backend
-        npm install
+      working-directory: Backend
+      run: npm install
 
     - name: Run Backend
-      run: |
-        cd Backend
-        node -e "console.log('Backend OK')"
+      working-directory: Backend
+      run: node -e "console.log('Backend OK')"
 
     # ---------- DEPLOY FRONTEND ----------
     - name: Deploy Frontend to Vercel
+      working-directory: Frontend
       run: |
         npm install -g vercel
-        cd Frontend
         vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
 
     # ---------- DEPLOY BACKEND ----------
     - name: Deploy Backend to Render
-      run: |
-        curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+      run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
