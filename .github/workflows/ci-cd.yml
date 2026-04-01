@@ -1,0 +1,54 @@
+name: Intervexa CI/CD
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Get code
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # 2. Setup Node
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    # ---------- FRONTEND ----------
+    - name: Install Frontend
+      run: |
+        cd frontend
+        npm install
+
+    - name: Build Frontend
+      run: |
+        cd frontend
+        npm run build
+
+    # ---------- BACKEND ----------
+    - name: Install Backend
+      run: |
+        cd backend
+        npm install
+
+    - name: Run Backend
+      run: |
+        cd backend
+        node -e "console.log('Backend OK')"
+
+    # ---------- DEPLOY FRONTEND ----------
+    - name: Deploy Frontend to Vercel
+      run: |
+        npm install -g vercel
+        cd frontend
+        vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+    # ---------- DEPLOY BACKEND ----------
+    - name: Deploy Backend to Render
+      run: |
+        curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}

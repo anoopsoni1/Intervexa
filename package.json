@@ -1,0 +1,16 @@
+{
+  "name": "resumeai-pinger",
+  "version": "1.0.0",
+  "description": "Keeps the ResumeAI backend awake by pinging the health endpoint every 5 minutes",
+  "main": "pinger.js",
+  "scripts": {
+    "ping": "node pinger.js",
+    "start": "node pinger.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
