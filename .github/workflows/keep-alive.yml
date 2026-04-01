@@ -14,4 +14,4 @@ jobs:
     steps:
       - name: Ping Backend
         run: |
-          curl -fsS https://intervexabackend-1.onrender.com/health || exit 1
+          curl -fsS https://intervexa.onrender.com/health || exit 1

@@ -38,13 +38,3 @@ jobs:
       working-directory: Backend
       run: node -e "console.log('Backend OK')"
 
-    # ---------- DEPLOY FRONTEND ----------
-    - name: Deploy Frontend to Vercel
-      working-directory: Frontend
-      run: |
-        npm install -g vercel
-        vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-    # ---------- DEPLOY BACKEND ----------
-    - name: Deploy Backend to Render
-      run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
