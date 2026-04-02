@@ -7,6 +7,7 @@ import { Server } from "socket.io";
 const SOCKET_CORS_ORIGINS = [
   "http://localhost:5173",
   "http://localhost:3000",
+  "https://intervexa.co-vid.in",
   "https://resume-ai-frontend-mj2p.vercel.app",
 ];
 

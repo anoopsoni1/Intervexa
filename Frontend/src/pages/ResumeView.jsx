@@ -174,6 +174,9 @@ export default function ResumeView() {
         const u = data?.user || data?.data?.user;
         if (u) dispatch(setUser(u));
       })
+      .catch(() => {
+        /* CORS / network — allow page to render with placeholder */
+      })
       .finally(() => {
         if (!cancelled) setPremiumAccessReady(true);
       });

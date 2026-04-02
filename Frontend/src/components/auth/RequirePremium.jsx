@@ -38,6 +38,9 @@ export default function RequirePremium() {
         const u = data?.user || data?.data?.user;
         if (u) dispatch(setUser(u));
       })
+      .catch(() => {
+        /* CORS / offline — still unblock UI */
+      })
       .finally(() => {
         if (!cancelled) setHydrated(true);
       });

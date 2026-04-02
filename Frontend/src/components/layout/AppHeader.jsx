@@ -62,30 +62,33 @@ export default function AppHeader() {
     if (user) return;
     if (!token) return;
     let cancelled = false;
-    fetch(`${API_BASE}/profile`, {
-      method: "GET",
-      credentials: "include",
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(async (res) => {
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/profile`, {
+          method: "GET",
+          credentials: "include",
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await res.json().catch(() => ({}));
-        return { status: res.status, data };
-      })
-      .then(({ status, data }) => {
         if (cancelled) return;
         const currentUser = data?.user || data?.data?.user;
         if (currentUser) dispatch(setUser(currentUser));
         else if (
-          status === 401 ||
-          status === 403 ||
+          res.status === 401 ||
+          res.status === 403 ||
           data?.statusCode === 401 ||
           data?.statuscode === 401
         ) {
           dispatch(clearUser());
           localStorage.removeItem("accessToken");
         }
-      });
-    return () => { cancelled = true; };
+      } catch {
+        /* network / CORS */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [user, token, dispatch]);
 
   useEffect(() => {
