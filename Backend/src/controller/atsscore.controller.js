@@ -3,6 +3,7 @@ import { Asynchandler } from "../utils/Asynchandler.js";
 import { ApiResponse } from "../utils/Apiresponse.js";
 import { Optimize } from "../models/Optimize.model.js";
 import { ApiError } from "../utils/ApiError.js";
+import { getAiOptimizeLimit } from "../config/featureLimits.js";
 // Create or update (upsert) ATS score for current user. Use after atscheck; retry = update.
 const createAtsscore = Asynchandler(async (req, res) => {
     const { score } = req.body;
@@ -52,13 +53,28 @@ const getOptimize = Asynchandler(async (req, res) => {
     const userId = req.user?._id;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
     const optimize = await Optimize.findOne({ userId }).sort({ updatedAt: -1 });
-    return res.status(200).json(new ApiResponse(200, optimize, "Optimize fetched successfully"));
+    const used = optimize?.number ?? 0;
+    const limit = getAiOptimizeLimit(req.user);
+    const payload = optimize
+        ? { ...optimize.toObject(), number: used, limit, allowed: used < limit }
+        : { number: 0, limit, allowed: true };
+    return res.status(200).json(new ApiResponse(200, payload, "Optimize fetched successfully"));
 });
 
 // Increment optimize count by 1 (called each time user uses "Optimize with AI").
 const incrementOptimize = Asynchandler(async (req, res) => {
     const userId = req.user?._id;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    const limit = getAiOptimizeLimit(req.user);
+    const current = await Optimize.findOne({ userId }).select("number").lean();
+    const used = current?.number ?? 0;
+    if (used >= limit) {
+        return res.status(429).json({
+            message: "AI optimize limit reached.",
+            limit,
+            used,
+        });
+    }
     const optimize = await Optimize.findOneAndUpdate(
         { userId },
         { $inc: { number: 1 } },

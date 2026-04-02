@@ -11,3 +11,12 @@ export const CODING_INTERVIEW_DAILY_LIMIT = 5;
 export const ROADMAP_DAILY_LIMIT = 15;
 /** Premium: portfolio deploys to Vercel per UTC day */
 export const PORTFOLIO_DEPLOY_DAILY_LIMIT_PREMIUM = 10;
+
+/** Lifetime AI resume optimizations per account (counted in Optimize.number). */
+export const AI_OPTIMIZE_LIMIT_NORMAL = 10;
+export const AI_OPTIMIZE_LIMIT_PREMIUM = 30;
+
+export function getAiOptimizeLimit(user) {
+  const isPremium = user?.plan === "premium" || user?.Premium === true;
+  return isPremium ? AI_OPTIMIZE_LIMIT_PREMIUM : AI_OPTIMIZE_LIMIT_NORMAL;
+}

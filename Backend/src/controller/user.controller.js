@@ -9,6 +9,7 @@ import {
   CODING_INTERVIEW_DAILY_LIMIT,
   ROADMAP_DAILY_LIMIT,
   PORTFOLIO_DEPLOY_DAILY_LIMIT_PREMIUM,
+  getAiOptimizeLimit,
 } from "../config/featureLimits.js";
 import { getDailyCount, nextUtcMidnightISOString } from "../utils/limitWindow.js";
 import { Optimize } from "../models/Optimize.model.js";
@@ -511,6 +512,10 @@ const getUsageStatus = Asynchandler(async (req, res) => {
   const isPremium = user.plan === "premium" || user.Premium === true;
   const resetsAt = nextUtcMidnightISOString();
 
+  const optimizeDoc = await Optimize.findOne({ userId }).select("number").lean();
+  const aiOptimizeUsed = optimizeDoc?.number ?? 0;
+  const aiOptimizeLimit = getAiOptimizeLimit(user);
+
   const resumeUsed = getDailyCount(user, "resumesDownloadedToday", "lastResumeDownloadDate");
   const resumeDownloadLimit = getResumeDownloadDailyLimit(user);
 
@@ -565,6 +570,12 @@ const getUsageStatus = Asynchandler(async (req, res) => {
           "lastPortfolioDeployDate",
           PORTFOLIO_DEPLOY_DAILY_LIMIT_PREMIUM
         ),
+        aiOptimize: {
+          limit: aiOptimizeLimit,
+          used: aiOptimizeUsed,
+          allowed: aiOptimizeUsed < aiOptimizeLimit,
+          premiumRequired: false,
+        },
       },
       "Usage status"
     )

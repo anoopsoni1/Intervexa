@@ -36,6 +36,7 @@ import {
   followUpQuestionRateLimit,
 } from "../middleware/resumeGenerateRateLimit.middleware.js";
 import { checkResumeDownloadLimit } from "../middleware/checkResumeDownloadLimit.middleware.js";
+import { checkAiOptimizeLimit } from "../middleware/checkAiOptimizeLimit.middleware.js";
 import { checkPortfolioDeployLimit } from "../middleware/checkPortfolioDeployLimit.middleware.js";
 import {
   checkLiveInterviewLimit,
@@ -76,7 +77,7 @@ router.route("/profile").get(verifyJWT, getCurrentUser).patch(verifyJWT, updateA
 router.route("/atscheck").post(verifyJWT, requireEmailVerified, enqueueAtscheck);
 router.route("/upload").post( verifyJWT, requireEmailVerified, upload.single("resume"), UploadResume);
 router.route("/upload-video").post(verifyJWT, requireEmailVerified, upload.single("video"), UploadVideo);
-router.route("/aiedit").post(verifyJWT, requireEmailVerified, enqueueAiEditResume);
+router.route("/aiedit").post(verifyJWT, requireEmailVerified, checkAiOptimizeLimit, enqueueAiEditResume);
 router.route("/docx").post( verifyJWT, requireEmailVerified, exportResume)
 router.route("/payment").post( verifyJWT, requireEmailVerified, Payment)
 router.route("/verify-payment").post( verifyJWT, requireEmailVerified, VerifyPayment)

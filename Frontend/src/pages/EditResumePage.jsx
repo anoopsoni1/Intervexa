@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Sparkles, Save, Loader2, FileText, ChevronRight, ArrowLeft } from "lucide-react";
@@ -33,8 +33,40 @@ export default function EditResumePage() {
   const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
   const charCount = text.length;
   const resumeTextFromRedux = useSelector((state) => state.resume?.resumeText || "");
+  const user = useSelector((state) => state.user?.userData);
+  /** null = unknown; object when GET /get-optimize succeeded */
+  const [aiOptimizeQuota, setAiOptimizeQuota] = useState(null);
+  const isPremiumUser = Boolean(user?.Premium || user?.plan === "premium");
+  const aiOptimizeBlocked = Boolean(
+    aiOptimizeQuota && aiOptimizeQuota.limit != null && !aiOptimizeQuota.allowed
+  );
 
   const token = () => localStorage.getItem("accessToken");
+
+  const refreshAiOptimizeQuota = useCallback(async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) return;
+    try {
+      const res = await fetch(`${API_BASE}/get-optimize`, {
+        credentials: "include",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json?.data || typeof json.data.number !== "number") {
+        setAiOptimizeQuota(null);
+        return;
+      }
+      const limit = typeof json.data.limit === "number" ? json.data.limit : null;
+      const allowed = typeof json.data.allowed === "boolean" ? json.data.allowed : true;
+      setAiOptimizeQuota({
+        used: json.data.number,
+        limit,
+        allowed,
+      });
+    } catch {
+      setAiOptimizeQuota(null);
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,6 +96,15 @@ export default function EditResumePage() {
     checkAuth();
     return () => { cancelled = true; };
   }, [dispatch, navigate]);
+
+  useEffect(() => {
+    if (authChecking) return;
+    if (!token()) {
+      setAiOptimizeQuota(null);
+      return;
+    }
+    refreshAiOptimizeQuota();
+  }, [authChecking, refreshAiOptimizeQuota, user?.plan, user?.Premium]);
 
   useEffect(() => {
     if (authChecking) return;
@@ -143,6 +184,10 @@ export default function EditResumePage() {
         navigate("/login");
         return;
       }
+      if (res.status === 429) {
+        setError(data?.message || "You have reached your AI optimization limit.");
+        return;
+      }
       if (!res.ok && res.status !== 202) throw new Error(data?.message || "AI edit failed");
       // 202 = job queued (poll for result). 200 = result returned directly (no Redis queue).
 
@@ -197,7 +242,11 @@ export default function EditResumePage() {
             method: "POST",
             credentials: "include",
             headers: { Authorization: `Bearer ${token()}` },
-          }).catch(() => {});
+          })
+            .then(async (incRes) => {
+              if (incRes.ok) await refreshAiOptimizeQuota();
+            })
+            .catch(() => {});
         }
       }
     } catch (err) {
@@ -341,7 +390,7 @@ export default function EditResumePage() {
                 <button
                   type="button"
                   onClick={handleAiImprove}
-                  disabled={aiLoading}
+                  disabled={aiLoading || (!!token() && aiOptimizeBlocked)}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
                 >
                   {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
@@ -357,6 +406,27 @@ export default function EditResumePage() {
                   {saveLoading ? "Saving…" : "Save to account"}
                 </button>
               </div>
+              {token() && aiOptimizeQuota && aiOptimizeQuota.limit != null && (
+                <p className="mt-3 text-xs text-zinc-400">
+                  AI improvements:{" "}
+                  <span className="text-zinc-300 font-medium">
+                    {aiOptimizeQuota.used} / {aiOptimizeQuota.limit}
+                  </span>
+                  {aiOptimizeBlocked && !isPremiumUser && (
+                    <>
+                      {" "}
+                      —{" "}
+                      <Link to="/price" className="text-indigo-400 hover:underline">
+                        Upgrade to Premium
+                      </Link>{" "}
+                      for more.
+                    </>
+                  )}
+                  {aiOptimizeBlocked && isPremiumUser && (
+                    <span className="text-amber-200/90"> — You have used all optimizations on your plan.</span>
+                  )}
+                </p>
+              )}
               {saveSuccess && (
                 <div className="mt-3 inline-flex items-center rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-emerald-300 text-sm font-medium">
                   Saved successfully

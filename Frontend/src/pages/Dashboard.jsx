@@ -16,10 +16,15 @@ function Topbar() {
   return <AppHeader />;
 }
 
-function StatCards({ atsScore, optimizeCount, user, usageStatus }) {
+function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus }) {
   const hasAts = atsScore != null && typeof atsScore === "number";
   const atsDisplay = hasAts ? `${atsScore}%` : "—";
-  const optimizeDisplay = optimizeCount != null && typeof optimizeCount === "number" ? String(optimizeCount) : "—";
+  const optimizeDisplay =
+    optimizeCount != null && typeof optimizeCount === "number"
+      ? optimizeLimit != null && typeof optimizeLimit === "number"
+        ? `${optimizeCount} / ${optimizeLimit}`
+        : String(optimizeCount)
+      : "—";
   const atsColor = hasAts
     ? atsScore >= 70
       ? "text-emerald-400"
@@ -49,7 +54,12 @@ function StatCards({ atsScore, optimizeCount, user, usageStatus }) {
       icon: <FiZap className="w-5 h-5" />,
       label: "AI Optimizes",
       value: optimizeDisplay,
-      sub: optimizeDisplay !== "—" ? "Times used" : "Not used yet",
+      sub:
+        optimizeDisplay !== "—"
+          ? optimizeLimit != null && typeof optimizeLimit === "number"
+            ? "Used / plan limit"
+            : "Times used"
+          : "Not used yet",
       link: "/edit-resume",
       valueClass: "text-white",
     },
@@ -241,6 +251,7 @@ export default function Dashboard() {
   const [authChecking, setAuthChecking] = useState(true);
   const [atsScore, setAtsScore] = useState(null);
   const [optimizeCount, setOptimizeCount] = useState(null);
+  const [optimizeLimit, setOptimizeLimit] = useState(null);
   const [deployments, setDeployments] = useState([]);
   const [deployNotice, setDeployNotice] = useState(null);
   const [copiedUrl, setCopiedUrl] = useState(null);
@@ -338,6 +349,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user) {
       setOptimizeCount(null);
+      setOptimizeLimit(null);
       return;
     }
     let cancelled = false;
@@ -352,8 +364,10 @@ export default function Dashboard() {
         if (cancelled) return;
         if (res.ok && json?.data != null && typeof json.data.number === "number") {
           setOptimizeCount(json.data.number);
+          setOptimizeLimit(typeof json.data.limit === "number" ? json.data.limit : null);
         } else {
           setOptimizeCount(null);
+          setOptimizeLimit(null);
         }
       } catch {
         if (!cancelled) setOptimizeCount(null);
@@ -777,6 +791,7 @@ export default function Dashboard() {
               <StatCards
                 atsScore={atsScore}
                 optimizeCount={optimizeCount}
+                optimizeLimit={optimizeLimit}
                 user={user}
                 usageStatus={usageStatus}
               />
