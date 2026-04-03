@@ -73,6 +73,7 @@ Return a JSON object with EXACTLY these fields:
 - missingSkills: array of strings. Important skills/keywords from the job description that are missing or very weak in the resume (max 20).
 - summary: string. 2–4 sentences, concise, objective explanation of the match quality.
 - improvementSuggestions: array of strings. 3–7 concrete, actionable suggestions to improve the resume for THIS job.
+- resumeMistakes: array of strings. 4–10 specific problems or weaknesses IN THE RESUME ITSELF (not just missing JD keywords). Include where relevant: unclear or missing dates, weak or vague bullets, grammar/spelling issues you can infer from the text, messy structure or missing sections (Experience, Education, Skills), walls of text, inconsistent formatting, tables/columns/icons that confuse ATS parsers, lack of measurable impact, unprofessional tone, wrong tense, keyword stuffing, or contact/header issues. Each item must be one clear, standalone sentence. Do not repeat the same point twice.
 
 The same concept or keyword must not appear in both matchedSkills and missingSkills.
 
@@ -82,7 +83,7 @@ Respond with ONLY valid JSON. No markdown, no comments, no code fences, no extra
 
 Use exactly this structure:
 
-{"score":<number>,"matchedSkills":["string"],"missingSkills":["string"],"summary":"string","improvementSuggestions":["string"]}
+{"score":<number>,"matchedSkills":["string"],"missingSkills":["string"],"summary":"string","improvementSuggestions":["string"],"resumeMistakes":["string"]}
 
 ---
 
@@ -108,6 +109,11 @@ ${resumeText}
         .json({ message: "Failed to parse ATS JSON" });
     }
 
+    const mistakes = Array.isArray(parsed.resumeMistakes) ? parsed.resumeMistakes : [];
+    const suggestions = Array.isArray(parsed.improvementSuggestions)
+      ? parsed.improvementSuggestions
+      : [];
+
     return res.json(
       new ApiResponse(
         200,
@@ -117,7 +123,8 @@ ${resumeText}
           matchedKeywords: parsed.matchedSkills,
           missingKeywords: parsed.missingSkills,
           summary: parsed.summary,
-          improvementSuggestions: parsed.improvementSuggestions,
+          improvementSuggestions: suggestions,
+          resumeMistakes: mistakes,
         },
         "ATS score generated successfully"
       )

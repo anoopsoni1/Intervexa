@@ -1,12 +1,13 @@
-import { Optimize } from "../models/Optimize.model.js";
+import { User } from "../models/User.model.js";
 import {
   getAiOptimizeLimit,
   AI_OPTIMIZE_LIMIT_PREMIUM,
 } from "../config/featureLimits.js";
+import { getDailyCount, nextUtcMidnightISOString } from "../utils/limitWindow.js";
 
 /**
- * Blocks POST /aiedit when the user has reached their lifetime AI optimize cap
- * (free 10, premium 30). Uses Optimize.number; must run after verifyJWT.
+ * Blocks POST /aiedit when the user has reached today's AI optimize cap (UTC day).
+ * Free: 10/day, Premium: 30/day. Must run after verifyJWT.
  */
 export async function checkAiOptimizeLimit(req, res, next) {
   try {
@@ -16,18 +17,26 @@ export async function checkAiOptimizeLimit(req, res, next) {
     }
 
     const limit = getAiOptimizeLimit(req.user);
-    const doc = await Optimize.findOne({ userId }).select("number").lean();
-    const used = doc?.number ?? 0;
+    const user = await User.findById(userId)
+      .select("plan Premium aiOptimizesToday lastAiOptimizeDate")
+      .lean();
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    const used = getDailyCount(user, "aiOptimizesToday", "lastAiOptimizeDate");
+    const resetsAt = nextUtcMidnightISOString();
 
     if (used >= limit) {
-      const isPremium = req.user?.plan === "premium" || req.user?.Premium === true;
+      const isPremium = user.plan === "premium" || user.Premium === true;
       return res.status(429).json({
         error: "AI optimize limit reached.",
         limit,
         used,
+        resetsAt,
         message: isPremium
-          ? `You've used all ${limit} AI resume optimizations on your plan. Contact support if you need more.`
-          : `You've used all ${limit} free AI resume optimizations. Upgrade to Premium for ${AI_OPTIMIZE_LIMIT_PREMIUM} total, or edit your resume manually.`,
+          ? `You've used all ${limit} AI resume optimizations for today (UTC). Your limit resets at the next UTC midnight.`
+          : `You've used all ${limit} free AI resume optimizations for today (UTC). Upgrade to Premium for ${AI_OPTIMIZE_LIMIT_PREMIUM} per day, or try again after UTC midnight.`,
       });
     }
 

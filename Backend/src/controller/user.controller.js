@@ -504,7 +504,7 @@ const getUsageStatus = Asynchandler(async (req, res) => {
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
   const user = await User.findById(userId)
     .select(
-      "plan Premium resumesDownloadedToday lastResumeDownloadDate liveInterviewsToday lastLiveInterviewDate codingInterviewsToday lastCodingInterviewDate roadmapSuggestionsToday lastRoadmapSuggestionDate portfolioDeploysToday lastPortfolioDeployDate"
+      "plan Premium resumesDownloadedToday lastResumeDownloadDate liveInterviewsToday lastLiveInterviewDate codingInterviewsToday lastCodingInterviewDate roadmapSuggestionsToday lastRoadmapSuggestionDate portfolioDeploysToday lastPortfolioDeployDate aiOptimizesToday lastAiOptimizeDate"
     )
     .lean();
   if (!user) return res.status(404).json({ message: "User not found" });
@@ -512,8 +512,7 @@ const getUsageStatus = Asynchandler(async (req, res) => {
   const isPremium = user.plan === "premium" || user.Premium === true;
   const resetsAt = nextUtcMidnightISOString();
 
-  const optimizeDoc = await Optimize.findOne({ userId }).select("number").lean();
-  const aiOptimizeUsed = optimizeDoc?.number ?? 0;
+  const aiOptimizeUsed = getDailyCount(user, "aiOptimizesToday", "lastAiOptimizeDate");
   const aiOptimizeLimit = getAiOptimizeLimit(user);
 
   const resumeUsed = getDailyCount(user, "resumesDownloadedToday", "lastResumeDownloadDate");
@@ -575,6 +574,7 @@ const getUsageStatus = Asynchandler(async (req, res) => {
           used: aiOptimizeUsed,
           allowed: aiOptimizeUsed < aiOptimizeLimit,
           premiumRequired: false,
+          resetsAt,
         },
       },
       "Usage status"

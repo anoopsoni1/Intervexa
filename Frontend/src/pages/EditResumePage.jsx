@@ -12,6 +12,7 @@ import { parseResume } from "../utils/parseResume.js";
 import { limitAchievements } from "../utils/resumeAchievements.js";
 
 import { API_BASE, JOB_API_BASE } from "../config";
+import { formatResetsLabel } from "../hooks/useUsageStatus.js";
 
 function Topbar() {
   return <AppHeader />;
@@ -58,10 +59,12 @@ export default function EditResumePage() {
       }
       const limit = typeof json.data.limit === "number" ? json.data.limit : null;
       const allowed = typeof json.data.allowed === "boolean" ? json.data.allowed : true;
+      const resetsAt = typeof json.data.resetsAt === "string" ? json.data.resetsAt : null;
       setAiOptimizeQuota({
         used: json.data.number,
         limit,
         allowed,
+        resetsAt,
       });
     } catch {
       setAiOptimizeQuota(null);
@@ -185,7 +188,8 @@ export default function EditResumePage() {
         return;
       }
       if (res.status === 429) {
-        setError(data?.message || "You have reached your AI optimization limit.");
+        setError(data?.message || "You have reached your AI optimization limit for today.");
+        await refreshAiOptimizeQuota();
         return;
       }
       if (!res.ok && res.status !== 202) throw new Error(data?.message || "AI edit failed");
@@ -408,10 +412,13 @@ export default function EditResumePage() {
               </div>
               {token() && aiOptimizeQuota && aiOptimizeQuota.limit != null && (
                 <p className="mt-3 text-xs text-zinc-400">
-                  AI improvements:{" "}
+                  AI improvements today (UTC):{" "}
                   <span className="text-zinc-300 font-medium">
                     {aiOptimizeQuota.used} / {aiOptimizeQuota.limit}
                   </span>
+                  {aiOptimizeQuota.resetsAt && !aiOptimizeBlocked && (
+                    <span className="text-zinc-500"> · {formatResetsLabel(aiOptimizeQuota.resetsAt)}</span>
+                  )}
                   {aiOptimizeBlocked && !isPremiumUser && (
                     <>
                       {" "}
@@ -419,11 +426,16 @@ export default function EditResumePage() {
                       <Link to="/price" className="text-indigo-400 hover:underline">
                         Upgrade to Premium
                       </Link>{" "}
-                      for more.
+                      for a higher daily limit on Premium.{" "}
+                      {aiOptimizeQuota.resetsAt ? formatResetsLabel(aiOptimizeQuota.resetsAt) : ""}
                     </>
                   )}
                   {aiOptimizeBlocked && isPremiumUser && (
-                    <span className="text-amber-200/90"> — You have used all optimizations on your plan.</span>
+                    <span className="text-amber-200/90">
+                      {" "}
+                      — Daily limit reached.{" "}
+                      {aiOptimizeQuota.resetsAt ? formatResetsLabel(aiOptimizeQuota.resetsAt) : ""}
+                    </span>
                   )}
                 </p>
               )}

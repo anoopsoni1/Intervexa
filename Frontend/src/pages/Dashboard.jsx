@@ -57,8 +57,8 @@ function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus }
       sub:
         optimizeDisplay !== "—"
           ? optimizeLimit != null && typeof optimizeLimit === "number"
-            ? "Used / plan limit"
-            : "Times used"
+            ? "Used today (UTC) / daily cap"
+            : "Times used today"
           : "Not used yet",
       link: "/edit-resume",
       valueClass: "text-white",

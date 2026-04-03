@@ -10,6 +10,10 @@ function normalizeAtsResult(raw) {
       : Number(scoreRaw);
   const matched = Array.isArray(raw.matchedKeywords) ? raw.matchedKeywords : [];
   const missing = Array.isArray(raw.missingKeywords) ? raw.missingKeywords : [];
+  const improvementSuggestions = Array.isArray(raw.improvementSuggestions)
+    ? raw.improvementSuggestions
+    : [];
+  const resumeMistakes = Array.isArray(raw.resumeMistakes) ? raw.resumeMistakes : [];
   const dedupe = (arr) => {
     const seen = new Set();
     const out = [];
@@ -28,6 +32,8 @@ function normalizeAtsResult(raw) {
     score: Number.isFinite(score) ? score : raw.score,
     matchedKeywords: dedupe(matched),
     missingKeywords: dedupe(missing),
+    improvementSuggestions: dedupe(improvementSuggestions),
+    resumeMistakes: dedupe(resumeMistakes),
   };
 }
 

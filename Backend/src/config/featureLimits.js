@@ -12,7 +12,7 @@ export const ROADMAP_DAILY_LIMIT = 15;
 /** Premium: portfolio deploys to Vercel per UTC day */
 export const PORTFOLIO_DEPLOY_DAILY_LIMIT_PREMIUM = 10;
 
-/** Lifetime AI resume optimizations per account (counted in Optimize.number). */
+/** AI resume optimizations per UTC calendar day (counted on User: aiOptimizesToday / lastAiOptimizeDate). */
 export const AI_OPTIMIZE_LIMIT_NORMAL = 10;
 export const AI_OPTIMIZE_LIMIT_PREMIUM = 30;
 

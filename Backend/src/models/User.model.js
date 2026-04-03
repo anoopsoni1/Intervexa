@@ -59,6 +59,9 @@ const userschema = new mongoose.Schema({
       // Premium: portfolio Vercel deploys per day (UTC)
       portfolioDeploysToday : { type : Number , default : 0 },
       lastPortfolioDeployDate : { type : Date , default : null },
+      // AI resume optimize uses per UTC day (see getAiOptimizeLimit)
+      aiOptimizesToday : { type : Number , default : 0 },
+      lastAiOptimizeDate : { type : Date , default : null },
        refreshtoken : {
         type : String 
        },

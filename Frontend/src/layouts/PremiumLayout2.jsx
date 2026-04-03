@@ -6,7 +6,7 @@
 import { limitAchievements } from "../utils/resumeAchievements";
 
 const DOCUMENT_CLASS =
-  "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col antialiased";
+  "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none  flex-1 min-h-0 flex flex-col antialiased";
 
 const DOC_FONT = { fontFamily: "var(--font-resume-premium-2)" };
 
@@ -27,7 +27,7 @@ function parseExperienceEntryDetailed(entry) {
     jobTitle: lines[0] || "",
     company: lines[1] || "",
     datesOrLocation: lines[2] || "",
-    bullets: lines.slice(3).map((b) => b.replace(/^\s*[•\-]\s*/, "").trim()).filter(Boolean),
+    bullets: lines.slice(0).map((b) => b.replace(/^\s*[•\-]\s*/, "").trim()).filter(Boolean),
   };
 }
 
@@ -51,7 +51,7 @@ function parseEducationBlocks(education) {
       degree: lines[0] || "",
       institution: lines[1] || "",
       meta: lines[2] || "",
-      rest: lines.slice(3),
+      rest: lines.slice(2),
     };
   });
 }
@@ -64,7 +64,7 @@ function skillLabel(s) {
 function parseProjectBlock(p) {
   if (typeof p === "string") {
     const lines = p.split("\n").map((l) => l.trim()).filter(Boolean);
-    return { title: lines[0] || "", bullets: lines.slice(1) };
+    return { title: lines[0] || "", bullets: lines.slice(0) };
   }
   const title = String(p?.title || "").trim();
   const desc = p?.description;
@@ -83,15 +83,15 @@ function parseProjectBlock(p) {
 function SectionRule({ title, children }) {
   if (children == null) return null;
   return (
-    <section className="mb-2 print:mb-1.5 resume-section-avoid-break">
+    <section className="mb-2 print:mb-1.5 print:m-2 resume-section-avoid-break">
       <h2
-        className="text-[9px] font-bold uppercase tracking-wide text-black mb-0 leading-none"
+        className="text-[12px] font-bold uppercase tracking-wide text-black mb-0 leading-none"
         style={DOC_FONT}
       >
         {title}
       </h2>
       <hr className="border-0 border-t border-black m-0 mt-0.5 mb-1" />
-      <div className="text-[9px] leading-[1.28] text-black" style={DOC_FONT}>
+      <div className="text-[11px] leading-[1.28] text-black" style={DOC_FONT}>
         {children}
       </div>
     </section>
@@ -102,14 +102,14 @@ function ExperienceWhartonRow({ company, title, location, dates, bullets }) {
   const head = [company, title, location].filter(Boolean).join(", ");
   return (
     <div className="mb-1.5 last:mb-0 resume-section-avoid-break">
-      <div className="flex flex-wrap justify-between gap-x-2 gap-y-0 text-[9px] leading-tight">
+      <div className="flex flex-wrap justify-between gap-x-2 gap-y-0 text-[11px] leading-tight">
         <span className="font-bold min-w-0 flex-1">{head || title || company || "Role"}</span>
         {dates ? (
           <span className="font-bold shrink-0 whitespace-nowrap text-right">{dates}</span>
         ) : null}
       </div>
       {bullets.length > 0 ? (
-        <ul className="mt-0.5 mb-0 ml-3 list-disc pl-0.5 space-y-0 text-[9px] leading-[1.28]">
+        <ul className="mt-0.5 mb-0 ml-3 list-disc pl-0.5 space-y-0 text-[10px] leading-[1.28]">
           {bullets.map((b, i) => (
             <li key={i} className="pl-0.5">
               {typeof b === "string" ? b : String(b)}
@@ -150,11 +150,11 @@ export default function PremiumLayout2({ data }) {
       className={`${DOCUMENT_CLASS} max-w-3xl px-3 py-3 sm:px-4 sm:py-3 print:px-2 print:py-2 print:max-w-none bg-white text-black`}
       style={DOC_FONT}
     >
-      <header className="text-center mb-2 print:mb-1.5 resume-section-avoid-break">
-        <h1 className="text-base sm:text-lg font-bold tracking-tight text-black leading-tight">{name}</h1>
-        {role ? <p className="text-[9px] italic text-black mt-0.5 leading-snug">{role}</p> : null}
+      <header className="text-center print:mt-2 print:mb-1.5 resume-section-avoid-break">
+        <h1 className="text-[10px] sm:text-[18px] font-bold tracking-tight text-black mt-2 leading-tight">{name}</h1>
+        {role ? <p className="text-[10px] italic text-black mt-0.5 leading-snug">{role}</p> : null}
         {(email || phone) && (
-          <p className="mt-1 text-[9px] leading-snug text-black">
+          <p className="mt-1 text-[10px] leading-snug text-black">
             {email ? (
               <a href={mailHref} className="text-blue-700 underline decoration-blue-700 print:text-black print:underline">
                 {email}
@@ -164,7 +164,7 @@ export default function PremiumLayout2({ data }) {
             {phone ? <span>{phone}</span> : null}
           </p>
         )}
-        {location ? <p className="text-[9px] leading-snug mt-0.5">{location}</p> : null}
+        {location ? <p className="text-[10px] leading-snug mt-0.5">{location}</p> : null}
         {showAddrLine ? <p className="text-[9px] leading-snug mt-0.5">{address}</p> : null}
         {data?.linkedin || data?.website ? (
           <p className="text-[9px] mt-0.5 break-all">
@@ -243,8 +243,8 @@ export default function PremiumLayout2({ data }) {
       ) : null}
 
       {projects.length > 0 ? (
-        <SectionRule title="Projects">
-          <div>
+        <SectionRule title="Projects ">
+          <div className="text-[10px] leading-[1.28]">
             {projects.map((p, i) => {
               const { title, bullets } = parseProjectBlock(p);
               return (
@@ -264,7 +264,7 @@ export default function PremiumLayout2({ data }) {
 
       {achievementsLines.length > 0 ? (
         <SectionRule title="Honors and Awards">
-          <ul className="ml-3 list-disc pl-0.5 space-y-0 text-[9px] leading-[1.28]">
+          <ul className="ml-3 list-disc pl-0.5 space-y-0.5 text-[10px] leading-[1.28]">
             {achievementsLines.map((line, i) => (
               <li key={i} className="pl-0.5 resume-section-avoid-break">
                 {line}
@@ -276,20 +276,20 @@ export default function PremiumLayout2({ data }) {
 
       {langOneLine || skillStrings.length > 0 || passions ? (
         <SectionRule title="Skills and Interests">
-          <div className="space-y-0.5">
+          <div className="space-y-1">
             {langOneLine ? (
-              <p className="text-[9px] leading-[1.35]">
-                <span className="font-bold">Language:</span> {langOneLine}
+              <p className="text-[10px] leading-[1.35]">
+                <span className="font-bold text-[10.5px]">Language:</span> {langOneLine}
               </p>
             ) : null}
             {skillStrings.length > 0 ? (
-              <p className="text-[9px] leading-[1.35]">
-                <span className="font-bold">Computer Skills:</span> {skillStrings.join(", ")}
+              <p className="text-[10px] leading-[1.35]">
+                <span className="font-bold text-[10.5px]">Skills:</span> {skillStrings.join(", ")}
               </p>
             ) : null}
             {passions ? (
-              <p className="text-[9px] leading-[1.35]">
-                <span className="font-bold">Interests:</span>{" "}
+              <p className="text-[10px] leading-[1.35]">
+                <span className="font-bold text-[10.5px]">Interests:</span>{" "}
                 {passions
                   .split(/\n/)
                   .map((s) => s.trim())

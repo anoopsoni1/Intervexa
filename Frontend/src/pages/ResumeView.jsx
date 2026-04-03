@@ -26,6 +26,7 @@ import {
 import ClassicLayout from "../layouts/ClassicLayout";
 import PremiumLayout from "../layouts/PremiumLayout";
 import PremiumLayout2 from "../layouts/PremiumLayout2";
+import PremiumLayout3 from "../layouts/PremiumLayout3";
 import MinimalLayout from "../layouts/MinimalLayout";
 
 import { API_BASE } from "../config";
@@ -516,7 +517,11 @@ export default function ResumeView() {
                 const premiumIvy =
                   num === 2 ||
                   /\bpremium\s*2\b|wharton|\bivy\b/.test(name);
+                const premiumThree =
+                  num === 3 ||
+                  /\bpremium\s*3\b/.test(name);
                 if (premiumIvy) return <PremiumLayout2 data={displayData} />;
+                if (premiumThree) return <PremiumLayout3 data={displayData} />;
                 return <PremiumLayout data={displayData} />;
               }
               if (style === "minimal" || (!style && name.includes("minimal"))) return <MinimalLayout data={displayData} />;

@@ -59,6 +59,8 @@ function AtsScoreResult({ result }) {
   const tier = getScoreTier(scoreNum);
   const matched = result?.matchedKeywords ?? [];
   const missing = result?.missingKeywords ?? [];
+  const mistakes = result?.resumeMistakes ?? [];
+  const suggestions = result?.improvementSuggestions ?? [];
   const totalKw = matched.length + missing.length;
   const coverage = totalKw > 0 ? Math.round((matched.length / totalKw) * 100) : null;
   const stops = gradientStops(scoreNum);
@@ -168,12 +170,52 @@ function AtsScoreResult({ result }) {
         </div>
       </div>
 
+      {mistakes.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/8 p-5 sm:p-6 shadow-lg shadow-amber-500/5">
+          <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+            <AlertCircle size={20} className="shrink-0 text-amber-400" />
+            Resume mistakes and issues
+            <span className="ml-auto rounded-full bg-amber-500/30 px-2.5 py-0.5 text-xs font-medium text-amber-100">
+              {mistakes.length}
+            </span>
+          </h4>
+          <ul className="space-y-2.5 text-sm leading-relaxed text-amber-100/95">
+            {mistakes.map((line, i) => (
+              <li key={i} className="flex gap-2.5">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400/90" aria-hidden />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {result.summary && (
         <div className="mt-6 rounded-2xl border border-white/10 bg-white/6 p-5 sm:p-6">
           <p className="mb-2 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
             AI summary
           </p>
           <p className="mx-auto max-w-2xl text-center text-sm leading-relaxed text-slate-300">{result.summary}</p>
+        </div>
+      )}
+
+      {suggestions.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-indigo-500/25 bg-indigo-500/8 p-5 sm:p-6 shadow-lg shadow-indigo-500/5">
+          <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+            <Sparkles size={20} className="shrink-0 text-indigo-300" />
+            Suggestions for this job
+            <span className="ml-auto rounded-full bg-indigo-500/30 px-2.5 py-0.5 text-xs font-medium text-indigo-100">
+              {suggestions.length}
+            </span>
+          </h4>
+          <ul className="space-y-2.5 text-sm leading-relaxed text-slate-300">
+            {suggestions.map((line, i) => (
+              <li key={i} className="flex gap-2.5">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-400/80" aria-hidden />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
