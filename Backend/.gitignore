@@ -40,3 +40,6 @@ coverage
 # Misc
 *.local
 .cache
+
+# Puppeteer Chromium (installed at deploy; do not commit binaries)
+.puppeteer-cache
