@@ -1,0 +1,97 @@
+/* Shared: ResumeView screen + Puppeteer PDF (print media). */
+@page {
+  size: letter;
+  margin: 0;
+}
+@media print {
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  main {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .resume-one-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    page-break-after: auto !important;
+    page-break-inside: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+  }
+  .resume-content-fit {
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+  }
+  .resume-document {
+    box-shadow: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+    justify-content: flex-start !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .resume-document .flex-1,
+  .resume-document [class*="min-h-0"] {
+    min-height: 0 !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+  .resume-document section,
+  .resume-document article > div {
+    break-inside: auto !important;
+    page-break-inside: auto !important;
+  }
+  .resume-section-avoid-break {
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
+  }
+  .resume-document h1,
+  .resume-document h2,
+  .resume-document h3 {
+    break-after: avoid-page !important;
+    page-break-after: avoid !important;
+  }
+  .resume-document p,
+  .resume-document li {
+    orphans: 3;
+    widows: 3;
+  }
+  .resume-doc-footer {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin-top: 8px !important;
+  }
+}

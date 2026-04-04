@@ -4,6 +4,7 @@ import parseFormData from "../middleware/parse.middlerware.js";
 import {CheckATSScore} from "../controller/atschecker.controller.js"
 import { upload, uploadRecording as multerRecording } from "../middleware/multer.middleware.js"
 import { exportResume, UploadResume, UploadVideo } from "../controller/Uploadresume.controller.js";
+import { generateResumePDF } from "../controller/downloadpdf.controller.js";
 import { Payment, VerifyPayment } from "../controller/payment.controller.js";
  import { verifyJWT, requireAdmin, requireEmailVerified } from "../middleware/auth.middleware.js";
  import { uploadAudioToCloudinary } from "../utils/Cloudinary.js";
@@ -26,6 +27,7 @@ import { createDetail, saveUserData, getDetail, updateDetail, deleteDetail } fro
 import { getEditedResume, saveEditedResume } from "../controller/editedResume.controller.js";
 import { deployPortfolio, getDeployments, deleteDeployment } from "../controller/deployment.controller.js";
 import { recordResumeDownload } from "../controller/resume.controller.js";
+import { checkResumeGenerateLimit } from "../middleware/checkResumeGenerateLimit.middleware.js";
 import {
   downloadResumeRateLimit,
   loginAndRegisterRateLimit,
@@ -35,7 +37,6 @@ import {
   codeReviewRateLimit,
   followUpQuestionRateLimit,
 } from "../middleware/resumeGenerateRateLimit.middleware.js";
-import { checkResumeDownloadLimit } from "../middleware/checkResumeDownloadLimit.middleware.js";
 import { checkAiOptimizeLimit } from "../middleware/checkAiOptimizeLimit.middleware.js";
 import { checkPortfolioDeployLimit } from "../middleware/checkPortfolioDeployLimit.middleware.js";
 import {
@@ -78,7 +79,19 @@ router.route("/atscheck").post(verifyJWT, requireEmailVerified, enqueueAtscheck)
 router.route("/upload").post( verifyJWT, requireEmailVerified, upload.single("resume"), UploadResume);
 router.route("/upload-video").post(verifyJWT, requireEmailVerified, upload.single("video"), UploadVideo);
 router.route("/aiedit").post(verifyJWT, requireEmailVerified, checkAiOptimizeLimit, enqueueAiEditResume);
-router.route("/docx").post( verifyJWT, requireEmailVerified, exportResume)
+router
+  .route("/docx")
+  .post(verifyJWT, requireEmailVerified, downloadResumeRateLimit, exportResume);
+
+router
+  .route("/resume-visual-pdf")
+  .post(
+    verifyJWT,
+    requireEmailVerified,
+    downloadResumeRateLimit,
+    checkResumeGenerateLimit,
+    generateResumePDF
+  );
 router.route("/payment").post( verifyJWT, requireEmailVerified, Payment)
 router.route("/verify-payment").post( verifyJWT, requireEmailVerified, VerifyPayment)
 router.route("/mail").post(verifyJWT, Mail)
@@ -117,7 +130,7 @@ router.route("/delete-detail/:id").delete(verifyJWT, requireEmailVerified, delet
 // router.route("/resume/generate").post(verifyJWT, resumeGenerateRateLimit, checkResumeLimit, createResume)
 router
   .route("/record-resume-download")
-  .post(verifyJWT, requireEmailVerified, downloadResumeRateLimit, checkResumeDownloadLimit, recordResumeDownload);
+  .post(verifyJWT, requireEmailVerified, downloadResumeRateLimit, recordResumeDownload);
 router.route("/get-edited-resume").get(verifyJWT, requireEmailVerified, getEditedResume)
 router.route("/save-edited-resume").post(verifyJWT, requireEmailVerified, saveEditedResume)
 router

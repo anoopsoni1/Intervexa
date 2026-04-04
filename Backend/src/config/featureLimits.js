@@ -1,11 +1,12 @@
-/** Daily caps (UTC calendar day). Resume downloads: normal 30/day, premium 100/day — use getResumeDownloadDailyLimit(user). */
-export const RESUME_DOWNLOAD_DAILY_LIMIT_NORMAL = 30;
-export const RESUME_DOWNLOAD_DAILY_LIMIT_PREMIUM = 100;
+/** Visual resume PDF exports per UTC calendar day. */
+export const RESUME_GENERATE_DAILY_LIMIT_NORMAL = 5;
+export const RESUME_GENERATE_DAILY_LIMIT_PREMIUM = 20;
 
-export function getResumeDownloadDailyLimit(user) {
+export function getResumeGenerateDailyLimit(user) {
   const isPremium = user?.plan === "premium" || user?.Premium === true;
-  return isPremium ? RESUME_DOWNLOAD_DAILY_LIMIT_PREMIUM : RESUME_DOWNLOAD_DAILY_LIMIT_NORMAL;
+  return isPremium ? RESUME_GENERATE_DAILY_LIMIT_PREMIUM : RESUME_GENERATE_DAILY_LIMIT_NORMAL;
 }
+
 export const LIVE_INTERVIEW_DAILY_LIMIT = 5;
 export const CODING_INTERVIEW_DAILY_LIMIT = 5;
 export const ROADMAP_DAILY_LIMIT = 15;

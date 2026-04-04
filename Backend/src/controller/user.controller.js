@@ -4,7 +4,7 @@ import { ApiResponse } from "../utils/Apiresponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/User.model.js";
 import {
-  getResumeDownloadDailyLimit,
+  getResumeGenerateDailyLimit,
   LIVE_INTERVIEW_DAILY_LIMIT,
   CODING_INTERVIEW_DAILY_LIMIT,
   ROADMAP_DAILY_LIMIT,
@@ -504,7 +504,7 @@ const getUsageStatus = Asynchandler(async (req, res) => {
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
   const user = await User.findById(userId)
     .select(
-      "plan Premium resumesDownloadedToday lastResumeDownloadDate liveInterviewsToday lastLiveInterviewDate codingInterviewsToday lastCodingInterviewDate roadmapSuggestionsToday lastRoadmapSuggestionDate portfolioDeploysToday lastPortfolioDeployDate aiOptimizesToday lastAiOptimizeDate"
+      "plan Premium resumesGeneratedToday lastResumeDate liveInterviewsToday lastLiveInterviewDate codingInterviewsToday lastCodingInterviewDate roadmapSuggestionsToday lastRoadmapSuggestionDate portfolioDeploysToday lastPortfolioDeployDate aiOptimizesToday lastAiOptimizeDate"
     )
     .lean();
   if (!user) return res.status(404).json({ message: "User not found" });
@@ -515,8 +515,8 @@ const getUsageStatus = Asynchandler(async (req, res) => {
   const aiOptimizeUsed = getDailyCount(user, "aiOptimizesToday", "lastAiOptimizeDate");
   const aiOptimizeLimit = getAiOptimizeLimit(user);
 
-  const resumeUsed = getDailyCount(user, "resumesDownloadedToday", "lastResumeDownloadDate");
-  const resumeDownloadLimit = getResumeDownloadDailyLimit(user);
+  const resumeGenerateUsed = getDailyCount(user, "resumesGeneratedToday", "lastResumeDate");
+  const resumeGenerateLimit = getResumeGenerateDailyLimit(user);
 
   function premiumSlot(countField, dateField, limit) {
     if (!isPremium) {
@@ -542,10 +542,10 @@ const getUsageStatus = Asynchandler(async (req, res) => {
     new ApiResponse(
       200,
       {
-        resumeDownload: {
-          limit: resumeDownloadLimit,
-          used: resumeUsed,
-          allowed: resumeUsed < resumeDownloadLimit,
+        resumeGenerate: {
+          limit: resumeGenerateLimit,
+          used: resumeGenerateUsed,
+          allowed: resumeGenerateUsed < resumeGenerateLimit,
           premiumRequired: false,
           resetsAt,
         },
@@ -584,18 +584,30 @@ const getUsageStatus = Asynchandler(async (req, res) => {
 
 /** Get current user's resume generation and download stats (for dashboard). */
 const getResumeStats = Asynchandler(async (req, res) => {
-    const userId = req.user?._id;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
-    const user = await User.findById(userId)
-        .select("resumesGeneratedToday lastResumeDate resumesDownloadedToday lastResumeDownloadDate")
-        .lean();
-    if (!user) return res.status(404).json({ message: "User not found" });
-    return res.status(200).json(
-        new ApiResponse(200, {
-            resumesGeneratedToday: user.resumesGeneratedToday ?? 0,
-            resumesDownloadedToday: user.resumesDownloadedToday ?? 0,
-        }, "Resume stats fetched")
-    );
+  const userId = req.user?._id;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+  const user = await User.findById(userId)
+    .select(
+      "plan Premium resumesGeneratedToday lastResumeDate resumesDownloadedToday lastResumeDownloadDate"
+    )
+    .lean();
+  if (!user) return res.status(404).json({ message: "User not found" });
+  const generateUsed = getDailyCount(user, "resumesGeneratedToday", "lastResumeDate");
+  const downloadUsed = getDailyCount(user, "resumesDownloadedToday", "lastResumeDownloadDate");
+  const generateLimit = getResumeGenerateDailyLimit(user);
+  const resetsAt = nextUtcMidnightISOString();
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        resumesGeneratedToday: generateUsed,
+        resumesDownloadedToday: downloadUsed,
+        resumeGenerateLimit: generateLimit,
+        resetsAt,
+      },
+      "Resume stats fetched"
+    )
+  );
 });
 
 export {

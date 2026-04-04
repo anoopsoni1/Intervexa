@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef, useLayoutEffect } from "react
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { ArrowLeft, Printer, Download } from "lucide-react";
+import { ArrowLeft, FileDown } from "lucide-react";
 import AppHeader from "../components/layout/AppHeader";
 import AppFooter from "../components/layout/AppFooter";
 import { useToast } from "../context/ToastContext";
@@ -33,16 +33,8 @@ import { API_BASE } from "../config";
 import { setUser } from "../slices/user.slice";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
 import { Skeleton } from "../components/ui/Skeleton.jsx";
-
-/** Dedupe rapid double afterprint from window + document in some engines. */
-const AFTERPRINT_RECORD_DEDUPE_MS = 700;
-
-/** If `(print)` never matched, only count after the dialog was open at least this long (Save/PDF fallback). */
-const MIN_DWELL_NO_MEDIA_MS = 8000;
-
-function nowMonoMs() {
-  return typeof performance !== "undefined" ? performance.now() : Date.now();
-}
+import resumePrintCss from "../styles/resumePrintPdf.css?raw";
+import { buildVisualResumePdfPayload } from "../utils/resumeVisualExport.js";
 
 /** Placeholder data so logged-out users can still view template designs */
 const PLACEHOLDER_RESUME_DATA = {
@@ -126,24 +118,19 @@ export default function ResumeView() {
   const canRecordDownload =
     isLoggedIn && !!(user?.emailVerified || user?.googleId);
   const { status: usageStatus, refresh: refreshUsage } = useUsageStatus(canRecordDownload);
-  const downloadBlocked = isUsageBlocked(usageStatus?.resumeDownload);
-  const refreshUsageRef = useRef(() => {});
-  refreshUsageRef.current = refreshUsage;
+  const exportBlocked = isUsageBlocked(usageStatus?.resumeGenerate);
   const [template, setTemplate] = useState(null);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fitScale, setFitScale] = useState(1);
+  const [exportBusy, setExportBusy] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(() =>
     typeof window !== "undefined" ? window.matchMedia(MOBILE_MAX_WIDTH_MQ).matches : false
   );
   const wrapperRef = useRef(null);
   const contentRef = useRef(null);
-  /** Print flow: only count after dialog closes, and avoid counting instant Cancel when possible. */
-  const printFlowActiveRef = useRef(false);
-  const printMediaMatchedRef = useRef(false);
-  const printFlowStartedAtRef = useRef(0);
 
   const needsPremiumAccess = !!(template && templateRecordRequiresPremium(template));
   const [premiumAccessReady, setPremiumAccessReady] = useState(false);
@@ -236,93 +223,70 @@ export default function ResumeView() {
     return () => { cancelled = true; };
   }, []);
 
-  const handlePrint = useCallback(() => {
-    if (downloadBlocked) return;
-    printFlowActiveRef.current = true;
-    printMediaMatchedRef.current = false;
-    printFlowStartedAtRef.current = nowMonoMs();
-    window.print();
-  }, [downloadBlocked]);
-
-  /**
-   * Record download only after the system print / Save-as-PDF dialog closes — not when it opens.
-   * Browsers do not expose Save vs Cancel; we skip counting when the dialog was dismissed very
-   * quickly and print media never matched (typical instant Cancel). If print CSS applied, or the
-   * dialog stayed open long enough, we count (covers real Save/PDF and mobile where media is flaky).
-   */
-  useEffect(() => {
-    let lastRecordAt = 0;
-
-    const postRecord = () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
-      const now = Date.now();
-      if (now - lastRecordAt < AFTERPRINT_RECORD_DEDUPE_MS) return;
-      lastRecordAt = now;
-      fetch(`${API_BASE}/record-resume-download`, {
+  const handleVisualPdfDownload = useCallback(async () => {
+    if (exportBlocked) return;
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      toast.error("Sign in to download a PDF.");
+      return;
+    }
+    if (!canRecordDownload) {
+      toast.error("Verify your email to download your resume.");
+      return;
+    }
+    const host = contentRef.current;
+    if (!host) {
+      toast.error("Nothing to export yet.");
+      return;
+    }
+    setExportBusy(true);
+    try {
+      const { html, css } = await buildVisualResumePdfPayload(
+        host,
+        ONE_PAGE_WRAPPER_CLASS,
+        resumePrintCss
+      );
+      const res = await fetch(`${API_BASE}/resume-visual-pdf`, {
         method: "POST",
         credentials: "include",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: "{}",
-      })
-        .then(async (res) => {
-          const j = await res.json().catch(() => ({}));
-          if (res.status === 429) {
-            const base = j?.message || j?.error || "Daily resume download limit reached.";
-            const hint = j?.resetsAt ? ` ${formatResetsLabel(j.resetsAt)}` : "";
-            toast.error(base + hint);
-          }
-          if (res.ok || res.status === 429) refreshUsageRef.current();
-        })
-        .catch(() => {});
-    };
-
-    const onBeforePrint = () => {
-      printFlowActiveRef.current = true;
-      printMediaMatchedRef.current = false;
-      printFlowStartedAtRef.current = nowMonoMs();
-    };
-
-    const onPrintMediaChange = (e) => {
-      if (printFlowActiveRef.current && e.matches) printMediaMatchedRef.current = true;
-    };
-
-    const onAfterPrint = () => {
-      if (!printFlowActiveRef.current) return;
-      printFlowActiveRef.current = false;
-      const hadPrintMedia = printMediaMatchedRef.current;
-      printMediaMatchedRef.current = false;
-      const dwellMs = nowMonoMs() - printFlowStartedAtRef.current;
-      if (hadPrintMedia || dwellMs >= MIN_DWELL_NO_MEDIA_MS) postRecord();
-    };
-
-    window.addEventListener("beforeprint", onBeforePrint);
-    window.addEventListener("afterprint", onAfterPrint);
-    document.addEventListener("beforeprint", onBeforePrint);
-    document.addEventListener("afterprint", onAfterPrint);
-
-    const mq = window.matchMedia("(print)");
-    if (typeof mq.addEventListener === "function") {
-      mq.addEventListener("change", onPrintMediaChange);
-    } else {
-      mq.addListener(onPrintMediaChange);
-    }
-
-    return () => {
-      window.removeEventListener("beforeprint", onBeforePrint);
-      window.removeEventListener("afterprint", onAfterPrint);
-      document.removeEventListener("beforeprint", onBeforePrint);
-      document.removeEventListener("afterprint", onAfterPrint);
-      if (typeof mq.removeEventListener === "function") {
-        mq.removeEventListener("change", onPrintMediaChange);
-      } else {
-        mq.removeListener(onPrintMediaChange);
+        body: JSON.stringify({ html, css }),
+      });
+      const ct = (res.headers.get("Content-Type") || "").toLowerCase();
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        const base = j?.message || j?.error || `PDF failed (${res.status})`;
+        const hint = j?.resetsAt ? ` ${formatResetsLabel(j.resetsAt)}` : "";
+        toast.error(res.status === 429 ? base + hint : base);
+        refreshUsage();
+        return;
       }
-    };
-  }, [toast]);
+      if (!ct.includes("pdf")) {
+        const j = await res.json().catch(() => ({}));
+        toast.error(j?.message || j?.error || "Unexpected response from server.");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Resume.pdf";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success("PDF downloaded.");
+      refreshUsage();
+    } catch (e) {
+      toast.error(e?.message || "PDF export failed.");
+    } finally {
+      setExportBusy(false);
+    }
+  }, [canRecordDownload, exportBlocked, toast, refreshUsage]);
 
   const isLoading = loading || detailLoading;
   if (isLoading) {
@@ -456,28 +420,25 @@ export default function ResumeView() {
             </span>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap">
-            <span className="text-[10px] sm:text-xs text-zinc-500 hidden sm:inline">No date on PDF: uncheck &quot;Headers and footers&quot; in Print dialog</span>
+            <span className="text-[10px] sm:text-xs text-zinc-500 hidden lg:inline max-w-[240px]">
+              PDF matches what you see. Free: 5/day · Premium: 20/day (UTC).
+            </span>
             <button
               type="button"
-              onClick={handlePrint}
-              disabled={downloadBlocked}
-              title={downloadBlocked ? formatResetsLabel(usageStatus?.resumeDownload?.resetsAt) : undefined}
-              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg bg-white/10 border border-white/20 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium hover:bg-white/15 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-white/10"
-            >
-              <Printer size={14} className="sm:w-4 sm:h-4" /> <span className="max-sm:hidden">Print / PDF</span><span className="sm:hidden">Print</span>
-            </button>
-            <button
-              type="button"
-              onClick={handlePrint}
-              disabled={downloadBlocked}
-              title={downloadBlocked ? formatResetsLabel(usageStatus?.resumeDownload?.resetsAt) : undefined}
+              onClick={handleVisualPdfDownload}
+              disabled={exportBusy || exportBlocked}
+              title={
+                exportBlocked
+                  ? formatResetsLabel(usageStatus?.resumeGenerate?.resetsAt)
+                  : "Download PDF (same layout as on screen)"
+              }
               className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg bg-indigo-600 px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-45 disabled:cursor-not-allowed disabled:hover:bg-indigo-600"
             >
-              <Download size={14} className="sm:w-4 sm:h-4" /> <span className="max-sm:hidden">Download PDF</span><span className="sm:hidden">PDF</span>
+              <FileDown size={14} className="sm:w-4 sm:h-4" /> <span className="max-sm:hidden">PDF</span><span className="sm:hidden">PDF</span>
             </button>
-            {downloadBlocked && canRecordDownload ? (
+            {exportBlocked && canRecordDownload ? (
               <p className="w-full basis-full text-center text-[10px] text-amber-300/95 sm:text-left sm:mt-0">
-                Daily PDF download limit reached. {formatResetsLabel(usageStatus?.resumeDownload?.resetsAt)}
+                Daily PDF export limit reached. {formatResetsLabel(usageStatus?.resumeGenerate?.resetsAt)}
               </p>
             ) : null}
           </div>
@@ -546,94 +507,7 @@ export default function ResumeView() {
         </div>
       </main>
 
-      <style>{`
-        @page { size: letter; margin: 0; }
-        @media print {
-          html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; width: 100% !important; height: auto !important; }
-          .print\\:hidden { display: none !important; }
-          main {
-            background: transparent !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            overflow: visible !important;
-            width: 100% !important;
-            max-width: 100% !important;
-          }
-          /* Multi-page: do not lock to one sheet — fixed 11in + break-inside:avoid caused clipping and bad breaks. */
-          .resume-one-page {
-            width: 100% !important;
-            max-width: 100% !important;
-            height: auto !important;
-            min-height: 0 !important;
-            max-height: none !important;
-            overflow: visible !important;
-            page-break-after: auto !important;
-            page-break-inside: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            justify-content: flex-start !important;
-            align-items: stretch !important;
-          }
-          .resume-content-fit {
-            transform: none !important;
-            width: 100% !important;
-            max-width: 100% !important;
-            position: relative !important;
-            left: auto !important;
-            top: auto !important;
-            justify-content: flex-start !important;
-            align-items: stretch !important;
-          }
-          .resume-document {
-            box-shadow: none !important;
-            height: auto !important;
-            min-height: 0 !important;
-            max-height: none !important;
-            max-width: 100% !important;
-            width: 100% !important;
-            overflow: visible !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            break-inside: auto !important;
-            page-break-inside: auto !important;
-            justify-content: flex-start !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          /* Let two-column layouts break across pages instead of clipping. */
-          .resume-document .flex-1,
-          .resume-document [class*="min-h-0"] {
-            min-height: 0 !important;
-            overflow: visible !important;
-            max-height: none !important;
-          }
-          .resume-document section,
-          .resume-document article > div {
-            break-inside: auto !important;
-            page-break-inside: auto !important;
-          }
-          .resume-section-avoid-break {
-            break-inside: avoid-page !important;
-            page-break-inside: avoid !important;
-          }
-          .resume-document h1,
-          .resume-document h2,
-          .resume-document h3 {
-            break-after: avoid-page !important;
-            page-break-after: avoid !important;
-          }
-          .resume-document p,
-          .resume-document li {
-            orphans: 3;
-            widows: 3;
-          }
-          .resume-doc-footer {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-            margin-top: 8px !important;
-          }
-        }
-      `}</style>
+      <style>{resumePrintCss}</style>
       <div className="print:hidden">
         <AppFooter />
       </div>

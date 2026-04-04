@@ -312,6 +312,7 @@ Rules:
 - Keep projects concise—short title and 1-2 bullet points or 1-3 lines per project; never expand projects into long paragraphs.
 - If achievements/accomplishments are not present in the resume, return achievements as an empty array [].
 - Do not use markdown (no **bold** or __italic__ markers) in any string field—output plain text only.
+-do not merge the section to other section.
 - Return ONLY valid JSON. All string values must be properly escaped (e.g. newlines as \\n, quotes escaped).${isReoptimize ? " Focus on elevating the existing content (more impact, better keywords, tighter phrasing) rather than restructuring." : ""}
 
 
@@ -374,6 +375,18 @@ const TEMPLATE_CONFIG = {
 
 const JOB_REGEX = /(developer|engineer|intern|designer|manager)/i;
 
+const SECTION_HEADERS = new Set([
+  "SUMMARY",
+  "SKILLS",
+  "EXPERIENCE",
+  "ACHIEVEMENTS",
+  "EDUCATION",
+  "PROJECTS",
+  "REFERENCES",
+  "LANGUAGE PROFICIENCY",
+  "CERTIFICATIONS",
+]);
+
 export const exportResume = Asynchandler(async (req, res) => {
   const {
     resumeText,
@@ -386,7 +399,7 @@ export const exportResume = Asynchandler(async (req, res) => {
     return res.status(400).json({ message: "resumeText required" });
   }
 
-  const config = TEMPLATE_CONFIG[template];
+  const config = TEMPLATE_CONFIG[template] || TEMPLATE_CONFIG.modern;
   const lines = resumeText.split("\n").map(l => l.trim()).filter(Boolean);
 
   /* ================= DOCX ================= */
@@ -401,7 +414,7 @@ export const exportResume = Asynchandler(async (req, res) => {
         return;
       }
 
-      if (["SUMMARY","SKILLS","EXPERIENCE","ACHIEVEMENTS","EDUCATION","PROJECTS","REFERENCES"].includes(line.toUpperCase())) {
+      if (SECTION_HEADERS.has(line.toUpperCase())) {
         children.push(new Paragraph({
           spacing: { before: 300 },
           children: [new TextRun({ text: line, bold: true, size: config.heading })],
@@ -428,7 +441,8 @@ export const exportResume = Asynchandler(async (req, res) => {
 
     res.setHeader("Content-Disposition", "attachment; filename=Resume.docx");
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-    return res.send(buffer);
+    res.send(buffer);
+    return;
   }
 
   /* ================= PDF ================= */
@@ -446,7 +460,7 @@ export const exportResume = Asynchandler(async (req, res) => {
         return;
       }
 
-      if (["SUMMARY","SKILLS","EXPERIENCE","ACHIEVEMENTS","EDUCATION","PROJECTS","REFERENCES"].includes(line.toUpperCase())) {
+      if (SECTION_HEADERS.has(line.toUpperCase())) {
         doc.moveDown().fontSize(14).text(line, { underline: true });
         return;
       }
@@ -456,5 +470,8 @@ export const exportResume = Asynchandler(async (req, res) => {
     });
 
     doc.end();
+    return;
   }
+
+  return res.status(400).json({ message: "format must be docx or pdf" });
 });

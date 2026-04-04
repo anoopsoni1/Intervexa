@@ -47,6 +47,15 @@ const userschema = new mongoose.Schema({
         type : Date ,
         default : null ,
       },
+      /** Visual PDF / resume exports per UTC day (see getResumeGenerateDailyLimit). */
+      resumesGeneratedToday : {
+        type : Number ,
+        default : 0 ,
+      },
+      lastResumeDate : {
+        type : Date ,
+        default : null ,
+      },
       // Premium: 5 live interviews per day
       liveInterviewsToday : { type : Number , default : 0 },
       lastLiveInterviewDate : { type : Date , default : null },

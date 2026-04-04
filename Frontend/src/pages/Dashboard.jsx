@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiGlobe, FiZap, FiTarget, FiUsers, FiVideo, FiTrash2, FiMap, FiCode, FiAward, FiLock, FiMail } from "react-icons/fi";
+import { FiGlobe, FiZap, FiTarget, FiUsers, FiVideo, FiTrash2, FiMap, FiCode, FiAward, FiLock, FiMail, FiDownload } from "react-icons/fi";
 import { MdAutoAwesome } from "react-icons/md";
 import { AiOutlineFileText } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +16,7 @@ function Topbar() {
   return <AppHeader />;
 }
 
-function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus }) {
+function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus, resumePdfStats }) {
   const hasAts = atsScore != null && typeof atsScore === "number";
   const atsDisplay = hasAts ? `${atsScore}%` : "—";
   const optimizeDisplay =
@@ -43,12 +43,26 @@ function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus }
       valueClass: atsColor,
     },
     {
-      icon: <AiOutlineFileText className="w-5 h-5" />,
-      label: "Resume Status",
-      value: "Optimized",
-      sub: "Ready for applications",
+      icon: <FiDownload className="w-5 h-5" />,
+      label: "Resume PDF (UTC today)",
+      value:
+        resumePdfStats &&
+        typeof resumePdfStats.resumesGeneratedToday === "number" &&
+        typeof resumePdfStats.resumeGenerateLimit === "number"
+          ? `${resumePdfStats.resumesGeneratedToday} / ${resumePdfStats.resumeGenerateLimit}`
+          : "—",
+      sub:
+        resumePdfStats && typeof resumePdfStats.resumesDownloadedToday === "number"
+          ? `${resumePdfStats.resumesDownloadedToday} PDF download(s) today`
+          : "Exports & downloads reset at UTC midnight",
       link: "/templates",
-      valueClass: "text-emerald-400",
+      valueClass:
+        resumePdfStats &&
+        typeof resumePdfStats.resumesGeneratedToday === "number" &&
+        typeof resumePdfStats.resumeGenerateLimit === "number" &&
+        resumePdfStats.resumesGeneratedToday >= resumePdfStats.resumeGenerateLimit
+          ? "text-rose-400"
+          : "text-emerald-400",
     },
     {
       icon: <FiZap className="w-5 h-5" />,
@@ -252,6 +266,7 @@ export default function Dashboard() {
   const [atsScore, setAtsScore] = useState(null);
   const [optimizeCount, setOptimizeCount] = useState(null);
   const [optimizeLimit, setOptimizeLimit] = useState(null);
+  const [resumePdfStats, setResumePdfStats] = useState(null);
   const [deployments, setDeployments] = useState([]);
   const [deployNotice, setDeployNotice] = useState(null);
   const [copiedUrl, setCopiedUrl] = useState(null);
@@ -343,6 +358,43 @@ export default function Dashboard() {
     }
     fetchAtsScore();
     return () => { cancelled = true; };
+  }, [user]);
+
+  // Resume PDF downloads / daily export quota (UTC)
+  useEffect(() => {
+    if (!user) {
+      setResumePdfStats(null);
+      return;
+    }
+    let cancelled = false;
+    async function fetchResumePdfStats() {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        const res = await fetch(`${API_BASE}/get-resume-stats`, {
+          credentials: "include",
+          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+        });
+        const json = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        if (res.ok && json?.data) {
+          const d = json.data;
+          setResumePdfStats({
+            resumesDownloadedToday: d.resumesDownloadedToday ?? 0,
+            resumesGeneratedToday: d.resumesGeneratedToday ?? 0,
+            resumeGenerateLimit: d.resumeGenerateLimit ?? 5,
+            resetsAt: d.resetsAt,
+          });
+        } else {
+          setResumePdfStats(null);
+        }
+      } catch {
+        if (!cancelled) setResumePdfStats(null);
+      }
+    }
+    fetchResumePdfStats();
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   // Fetch optimize count for dashboard when user is logged in
@@ -794,6 +846,7 @@ export default function Dashboard() {
                 optimizeLimit={optimizeLimit}
                 user={user}
                 usageStatus={usageStatus}
+                resumePdfStats={resumePdfStats}
               />
             )}
             {needsEmailVerification && (

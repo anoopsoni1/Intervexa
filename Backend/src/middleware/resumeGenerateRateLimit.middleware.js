@@ -12,7 +12,7 @@ function userOrIpKey(req) {
 
 /**
  * Rate limiter for resume download recording: max 10 requests per minute per user (anti-abuse).
- * Daily download cap (normal 30 / premium 100 per UTC day) is enforced by checkResumeDownloadLimit middleware.
+ * Per-minute cap on record-resume-download requests only (anti-abuse). No daily download quota.
  * Use after verifyJWT so req.user is set.
  */
 export const downloadResumeRateLimit = rateLimit({

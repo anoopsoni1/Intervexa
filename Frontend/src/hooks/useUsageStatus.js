@@ -15,7 +15,7 @@ export function formatResetsLabel(resetsAtIso) {
 
 /**
  * Fetches GET /usage-status when `enabled` (e.g. logged-in + email verified).
- * Shape matches backend: resumeDownload, liveInterview, codingInterview, roadmap.
+ * Shape matches backend: resumeGenerate, liveInterview, codingInterview, roadmap.
  */
 export function useUsageStatus(enabled) {
   const [status, setStatus] = useState(null);
