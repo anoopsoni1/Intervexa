@@ -1,6 +1,6 @@
 /**
- * On Render/CI, install Chromium into .puppeteer-cache (included in the slug).
- * Skip locally so dev machines keep using the default user cache unless they run `npm run build`.
+ * On Render/CI, install Chromium into node_modules/.cache/puppeteer (included in the slug).
+ * Skip locally unless you set RENDER/CI or run `npm run build`.
  */
 import { execSync } from "child_process";
 import path from "path";

@@ -1,15 +1,7 @@
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import "../config/puppeteerCacheEnv.js";
 import puppeteer from "puppeteer";
 import { Asynchandler } from "../utils/Asynchandler.js";
 import { incrementResumePdfExportCounts } from "./resume.controller.js";
-
-const backendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const puppeteerProjectCache = path.join(backendRoot, ".puppeteer-cache");
-if (fs.existsSync(puppeteerProjectCache) && !process.env.PUPPETEER_CACHE_DIR) {
-  process.env.PUPPETEER_CACHE_DIR = puppeteerProjectCache;
-}
 
 /**
  * POST body: { html: string, css?: string }
