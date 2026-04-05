@@ -24,6 +24,7 @@ import {
   Resume13Layout,
 } from "../layouts/modernResumeLayouts";
 import ClassicLayout from "../layouts/ClassicLayout";
+import ClassicLayout1 from "../layouts/ClassicLayout1";
 import PremiumLayout from "../layouts/PremiumLayout";
 import PremiumLayout2 from "../layouts/PremiumLayout2";
 import PremiumLayout3 from "../layouts/PremiumLayout3";
@@ -474,7 +475,13 @@ export default function ResumeView() {
               const style = (template?.style || "").toLowerCase();
               const name = (template?.name || "").toLowerCase();
               const num = resolvedNum;
-              if (style === "classic" || (!style && name.includes("classic"))) return <ClassicLayout data={displayData} />;
+              if (style === "classic" || (!style && name.includes("classic"))) {
+                const classicOne =
+                  num === 1 ||
+                  /\bclassic\s*1\b|\bresume\s*1\b/.test(name);
+                if (classicOne) return <ClassicLayout1 data={displayData} />;
+                return <ClassicLayout data={displayData} />;
+              }
               if (style === "premium" || (!style && name.includes("premium"))) {
                 const premiumIvy =
                   num === 2 ||
