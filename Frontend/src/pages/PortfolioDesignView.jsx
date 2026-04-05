@@ -117,12 +117,30 @@ function Portfolio2Layout({ data }) {
   const contactHref = email ? `mailto:${email}` : "#contact";
 
   const socials = [
-    { href: linkedin || "#", icon: Linkedin, label: "LinkedIn" },
-    { href: website ? (website.startsWith("http") ? website : `https://${website}`) : "#", icon: ArrowUpRight, label: "Website" },
-    { href: github ? (github.startsWith("http") ? github : `https://${github}`) : "#", icon: Github, label: "GitHub" },
-    { href: email ? `mailto:${email}` : "#", icon: Mail, label: "Email" },
-    { href: phone ? `tel:${phone}` : "#", icon: Phone, label: "Phone" },
-  ];
+    linkedin
+      ? {
+          href: linkedin.startsWith("http") ? linkedin : `https://${linkedin}`,
+          icon: Linkedin,
+          label: "LinkedIn",
+        }
+      : null,
+    website
+      ? {
+          href: website.startsWith("http") ? website : `https://${website}`,
+          icon: Globe,
+          label: "Website",
+        }
+      : null,
+    github
+      ? {
+          href: github.startsWith("http") ? github : `https://${github}`,
+          icon: Github,
+          label: "GitHub",
+        }
+      : null,
+    email ? { href: `mailto:${email}`, icon: Mail, label: "Email" } : null,
+    phone ? { href: `tel:${phone}`, icon: Phone, label: "Phone" } : null,
+  ].filter(Boolean);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -329,6 +347,19 @@ function Portfolio2Layout({ data }) {
                 <Phone size={18} /> {phone}
               </motion.a>
             )}
+            {website && (
+              <motion.a
+                href={website.startsWith("http") ? website : `https://${website}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border-2 border-cyan-400/60 px-5 py-3 text-sm font-medium text-cyan-400 hover:bg-cyan-400/10 transition-colors"
+                variants={fadeUp}
+                whileHover={{ scale: 1.05 }}
+                whileTap={buttonTap}
+              >
+                <Globe size={18} /> Website
+              </motion.a>
+            )}
             {linkedin && (
               <motion.a href={linkedin.startsWith("http") ? linkedin : `https://${linkedin}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border-2 border-cyan-400/60 px-5 py-3 text-sm font-medium text-cyan-400 hover:bg-cyan-400/10 transition-colors" variants={fadeUp} whileHover={{ scale: 1.05 }} whileTap={buttonTap}>
                 <Linkedin size={18} /> LinkedIn
@@ -475,7 +506,7 @@ function Portfolio1StaticLayout({ data }) {
               </div>
               <div className="p1-hero-item mt-10">
                 <p className="text-sm text-neutral-500 mb-3">Find me on</p>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   {email && (
                     <a href={`mailto:${email}`} className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-neutral-300 text-neutral-600 hover:border-emerald-500 hover:text-emerald-600 transition-colors" aria-label="Email">
                       <Mail size={18} />
@@ -486,18 +517,39 @@ function Portfolio1StaticLayout({ data }) {
                       <Phone size={18} />
                     </a>
                   )}
-                  <a href={linkedin || "https://linkedin.com"} target="_blank" rel="noopener noreferrer" className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white hover:opacity-90 transition-opacity" aria-label="LinkedIn">
-                    <Linkedin size={18} />
-                  </a>
-                  <a
-                    href={github || "https://github.com"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white hover:opacity-90 transition-opacity"
-                    aria-label="GitHub"
-                  >
-                    <Github size={18} />
-                  </a>
+                  {linkedin && (
+                    <a
+                      href={linkedin.startsWith("http") ? linkedin : `https://${linkedin}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white hover:opacity-90 transition-opacity"
+                      aria-label="LinkedIn"
+                    >
+                      <Linkedin size={18} />
+                    </a>
+                  )}
+                  {github && (
+                    <a
+                      href={github.startsWith("http") ? github : `https://${github}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500 text-white hover:opacity-90 transition-opacity"
+                      aria-label="GitHub"
+                    >
+                      <Github size={18} />
+                    </a>
+                  )}
+                  {website && (
+                    <a
+                      href={website.startsWith("http") ? website : `https://${website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 transition-colors"
+                      aria-label="Website"
+                    >
+                      <Globe size={18} />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
@@ -615,6 +667,20 @@ function Portfolio1StaticLayout({ data }) {
                 <motion.a href={`tel:${phone}`} className="inline-flex items-center gap-2 rounded-lg border-2 border-white/30 px-5 py-3 text-sm font-medium hover:bg-white/10 transition-colors" variants={fadeUp} whileHover={{ scale: 1.05 }} whileTap={buttonTap}>
                   <Phone size={18} />
                   {phone}
+                </motion.a>
+              )}
+              {linkedin && (
+                <motion.a
+                  href={linkedin.startsWith("http") ? linkedin : `https://${linkedin}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg border-2 border-white/30 px-5 py-3 text-sm font-medium hover:bg-white/10 transition-colors"
+                  variants={fadeUp}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={buttonTap}
+                >
+                  <Linkedin size={18} />
+                  LinkedIn
                 </motion.a>
               )}
               {website && (

@@ -1,4 +1,4 @@
-import { Phone, Mail } from "lucide-react";
+import { Phone, Mail, Linkedin, Github, ExternalLink } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 
@@ -202,6 +202,39 @@ export default function Resume3Layout({ data }) {
                 <Mail size={14} className="shrink-0 text-zinc-600" /> hello@reallygreatsite.com
               </span>
             </>
+          )}
+          {data?.linkedin && (
+            <a
+              href={String(data.linkedin).startsWith("http") ? data.linkedin : `https://${data.linkedin}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 break-all max-w-full"
+            >
+              <Linkedin size={14} className="shrink-0 text-zinc-600" />
+              <span className="underline">{String(data.linkedin).replace(/^https?:\/\//i, "")}</span>
+            </a>
+          )}
+          {data?.github && (
+            <a
+              href={String(data.github).startsWith("http") ? data.github : `https://${data.github}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 break-all max-w-full"
+            >
+              <Github size={14} className="shrink-0 text-zinc-600" />
+              <span className="underline">{String(data.github).replace(/^https?:\/\//i, "")}</span>
+            </a>
+          )}
+          {data?.website && (
+            <a
+              href={String(data.website).startsWith("http") ? data.website : `https://${data.website}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 break-all max-w-full"
+            >
+              <ExternalLink size={14} className="shrink-0 text-zinc-600" />
+              <span className="underline">{String(data.website).replace(/^https?:\/\//i, "")}</span>
+            </a>
           )}
         </div>
       </header>

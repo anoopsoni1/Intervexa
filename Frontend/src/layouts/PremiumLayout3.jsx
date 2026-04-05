@@ -1,5 +1,5 @@
 
-import { Mail, MapPin, Linkedin, Calendar, Phone, TrendingUp, BarChart3, Award, FolderOpen } from "lucide-react";
+import { Mail, MapPin, Linkedin, Github, Globe, Calendar, Phone, TrendingUp, BarChart3, Award, FolderOpen } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 
@@ -173,6 +173,7 @@ export default function PremiumLayout3({ data }) {
   const phone = (data?.phone || "").trim();
   const location = (data?.location || data?.address || "").trim();
   const linkedin = cleanLink(data?.linkedin || "");
+  const github = cleanLink(data?.github || "");
   const website = cleanLink(data?.website || "");
   const photo =
     (data?.photo && String(data.photo).trim()) ||
@@ -222,9 +223,16 @@ export default function PremiumLayout3({ data }) {
                   <Linkedin size={12} className="shrink-0 text-neutral-400" />
                   <span className="break-all">{linkedin}</span>
                 </span>
-              ) : website ? (
+              ) : null}
+              {github ? (
                 <span className="inline-flex items-center gap-1.5 min-w-0">
-                  <Linkedin size={12} className="shrink-0 text-neutral-400" />
+                  <Github size={12} className="shrink-0 text-neutral-400" />
+                  <span className="break-all">{github}</span>
+                </span>
+              ) : null}
+              {website ? (
+                <span className="inline-flex items-center gap-1.5 min-w-0">
+                  <Globe size={12} className="shrink-0 text-neutral-400" />
                   <span className="break-all">{website}</span>
                 </span>
               ) : null}

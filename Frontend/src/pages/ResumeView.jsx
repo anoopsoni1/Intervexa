@@ -54,6 +54,7 @@ const PLACEHOLDER_RESUME_DATA = {
   phone: "+1 234 567 8900",
   location: "City, Country",
   website: "www.example.com",
+  linkedin: "linkedin.com/in/yourprofile",
   github: "github.com/yourhandle",
 };
 

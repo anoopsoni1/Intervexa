@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, User, GraduationCap, Briefcase, FolderOpen, ListChecks, Award } from "lucide-react";
+import { Phone, Mail, MapPin, User, GraduationCap, Briefcase, FolderOpen, ListChecks, Award, ExternalLink, Linkedin, Github } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 
 const DOCUMENT_CLASS =
@@ -60,6 +60,45 @@ export default function Resume1Layout({ data }) {
             {(data?.location || data?.address) && (
               <p className="flex items-center gap-2">
                 <MapPin size={14} className="shrink-0 text-white" /> {data.location || data.address}
+              </p>
+            )}
+            {data?.website && (
+              <p className="flex items-center gap-2 break-all">
+                <ExternalLink size={14} className="shrink-0 text-white" />
+                <a
+                  href={String(data.website).startsWith("http") ? data.website : `https://${data.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-200 underline decoration-white/40 hover:text-white"
+                >
+                  {String(data.website).replace(/^https?:\/\//i, "")}
+                </a>
+              </p>
+            )}
+            {data?.linkedin && (
+              <p className="flex items-center gap-2 break-all">
+                <Linkedin size={14} className="shrink-0 text-white" />
+                <a
+                  href={String(data.linkedin).startsWith("http") ? data.linkedin : `https://${data.linkedin}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-200 underline decoration-white/40 hover:text-white"
+                >
+                  {String(data.linkedin).replace(/^https?:\/\//i, "")}
+                </a>
+              </p>
+            )}
+            {data?.github && (
+              <p className="flex items-center gap-2 break-all">
+                <Github size={14} className="shrink-0 text-white" />
+                <a
+                  href={String(data.github).startsWith("http") ? data.github : `https://${data.github}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-zinc-200 underline decoration-white/40 hover:text-white"
+                >
+                  {String(data.github).replace(/^https?:\/\//i, "")}
+                </a>
               </p>
             )}
           </div>
