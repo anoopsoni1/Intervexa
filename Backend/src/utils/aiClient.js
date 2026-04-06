@@ -23,7 +23,8 @@ const api2Client =
   process.env.API2_API_KEY 
     ? new OpenAI({
         apiKey: process.env.API2_API_KEY,
-        baseURL: "https://api.groq.com/openai/v1",
+        baseURL:
+          process.env.API2_BASE_URL?.trim() || "https://api.groq.com/openai/v1",
       })
     : null;
 
@@ -31,9 +32,22 @@ const api3Client =
   process.env.API3_API_KEY
     ? new OpenAI({
         apiKey: process.env.API3_API_KEY,
-        baseURL: "https://api.groq.com/openai/v1",
+        baseURL:
+          process.env.API3_BASE_URL?.trim() || "https://api.groq.com/openai/v1",
       })
     : null;
+
+/** API4: OpenAI-compatible provider (OpenAI, OpenRouter, etc.) — set API4_BASE_URL + API4_MODEL to match your key. */
+const api4Base =
+  process.env.API4_BASE_URL?.trim() || "https://api.openai.com/v1";
+const api4Client = process.env.API4_API_KEY
+  ? new OpenAI({
+      apiKey: process.env.API4_API_KEY.trim(),
+      baseURL: api4Base,
+    })
+  : null;
+const API4_MODEL =
+  process.env.API4_MODEL?.trim() || "gpt-4o-mini";
 
 const API2_MODEL = "llama-3.3-70b-versatile";
 const API3_MODEL = "llama-3.1-8b-instant";
@@ -130,6 +144,10 @@ export async function callAPI3(prompt) {
   return callProvider(api3Client, API3_MODEL, prompt, "API3");
 }
 
+export async function callAPI4(prompt) {
+  return callProvider(api4Client, API4_MODEL, prompt, "API4");
+}
+
 export async function generateResponse(prompt) {
   const now = Date.now();
   const api1InCooldown = now < api1CooldownUntil;
@@ -160,6 +178,12 @@ export async function generateResponse(prompt) {
     console.error("[aiClient] API3 failed:", api3Error?.message || api3Error);
   }
 
+  try {
+    return await retryWithBackoff(() => callAPI4(prompt), "API4", MAX_RETRIES);
+  } catch (api4Error) {
+    console.error("[aiClient] API4 failed:", api4Error?.message || api4Error);
+  }
+
   throw new Error("All LLM APIs failed");
 }
 
@@ -178,7 +202,7 @@ export async function getAiResponse(prompt) {
 }
 
 export function hasAnyAiProvider() {
-  return Boolean(aiClient || api2Client || api3Client);
+  return Boolean(aiClient || api2Client || api3Client || api4Client);
 }
 
 /** True when Groq primary key is set (required for Whisper transcription on Groq). */
