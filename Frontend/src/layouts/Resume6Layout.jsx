@@ -1,6 +1,8 @@
 import { Phone, Mail, MapPin, Globe, Linkedin, Github, Briefcase, GraduationCap, Sparkles, FolderOpen, Award } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col";
@@ -68,7 +70,9 @@ export default function Resume6Layout({ data }) {
   const experiences = toList(data?.experience).map(parseExperienceEntry);
   const educationEntries = parseEducationEntries(data?.education);
   const skills = toList(data?.skills);
-  const projects = toList(data?.projects);
+  const projects = (Array.isArray(data?.projects) ? data.projects : [])
+    .map(parseProjectForResume)
+    .filter((p) => p.title || p.description || p.link);
   const certifications = toList(data?.certifications);
   const languages = parseLanguageProficiencyList(data?.languageProficiency);
   const achievements = limitAchievements(toList(data?.achievements));
@@ -234,7 +238,17 @@ export default function Resume6Layout({ data }) {
                 {projects.slice(0, 6).map((project, idx) => (
                   <li key={idx} className="flex gap-1.5 leading-snug">
                     <span className="w-1 h-1 rounded-full bg-blue-600 shrink-0 mt-1.5" aria-hidden />
-                    <span className="whitespace-pre-wrap">{project}</span>
+                    <div className="min-w-0">
+                      {project.title ? <span className="font-semibold text-slate-900">{project.title}</span> : null}
+                      {project.link ? (
+                        <span className="block mt-0.5">
+                          <ResumeProjectLink url={project.link} className="text-blue-700 underline print:text-black font-normal" />
+                        </span>
+                      ) : null}
+                      {project.description ? (
+                        <span className="block mt-0.5 whitespace-pre-wrap font-normal">{project.description}</span>
+                      ) : null}
+                    </div>
                   </li>
                 ))}
               </ul>

@@ -1,5 +1,7 @@
 /** Normalize resume `data` from get-detail / portfolio view into structured sections. */
 
+import { formExperienceToString, normalizeExperienceFormItem } from "../../../../utils/experienceForm.js";
+
 /**
  * Detail API may return `experience` as strings (upload flow) or `{ role, bullets }[]` (form flow).
  */
@@ -10,6 +12,10 @@ export function normalizeExperienceToStrings(raw) {
       if (item == null) return "";
       if (typeof item === "string") return String(item).trim();
       if (typeof item === "object") {
+        const o = normalizeExperienceFormItem(item);
+        if (o.jobTitle || o.company || o.dates || o.location || o.arrangement !== "onsite") {
+          return formExperienceToString(item);
+        }
         const lines = [];
         if (item.role) lines.push(String(item.role).trim());
         if (item.company) lines.push(String(item.company).trim());

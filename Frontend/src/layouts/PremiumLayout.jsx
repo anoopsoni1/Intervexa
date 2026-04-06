@@ -1,6 +1,8 @@
 import { Phone, Mail, MapPin, Linkedin, Github, Settings, Factory, Award, FolderOpen } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col";
@@ -202,14 +204,21 @@ export default function PremiumLayout({ data }) {
               <h2 className={SECTION_HEAD}>Projects</h2>
               <div className="space-y-2">
                 {projectsList.slice(0, 5).map((item, i) => {
-                  const title = typeof item === "string" ? item : item?.title ?? item?.name ?? "";
-                  const desc = typeof item === "object" && item?.description ? item.description : "";
+                  const p = parseProjectForResume(item);
+                  if (!p.title && !p.description && !p.link) return null;
                   return (
                     <div key={i} className="flex gap-2">
                       <FolderOpen size={14} className={`shrink-0 mt-0.5 ${ACCENT}`} />
-                      <div>
-                        {title && <p className="text-[11px] font-bold text-black leading-snug">{title}</p>}
-                        {desc && <p className="text-[10px] text-neutral-600 leading-snug mt-0.5">{desc}</p>}
+                      <div className="min-w-0">
+                        {p.title && <p className="text-[11px] font-bold text-black leading-snug">{p.title}</p>}
+                        {p.link && (
+                          <p className="text-[10px] mt-0.5">
+                            <ResumeProjectLink url={p.link} className="text-blue-700 underline print:text-black" />
+                          </p>
+                        )}
+                        {p.description && (
+                          <p className="text-[10px] text-neutral-600 leading-snug mt-0.5 whitespace-pre-wrap">{p.description}</p>
+                        )}
                       </div>
                     </div>
                   );

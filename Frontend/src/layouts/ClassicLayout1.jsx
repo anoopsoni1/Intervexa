@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col antialiased relative";
@@ -79,22 +81,6 @@ function parseEducationBlocks(education) {
         location,
       };
     });
-}
-
-function parseProject(project) {
-  if (typeof project === "object" && project !== null) {
-    const title = String(project.title || project.name || "").trim();
-    const description = String(project.description || project.summary || project.details || "").trim();
-    return { title, description };
-  }
-  const lines = String(project || "")
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean);
-  return {
-    title: lines[0] || "",
-    description: lines.slice(1).join("\n"),
-  };
 }
 
 function parseAchievementLine(s) {
@@ -198,8 +184,8 @@ export default function ClassicLayout1({ data }) {
     .filter((e) => e.jobTitle || e.company || e.meta || e.bullets.length > 0);
 
   const projectItems = (Array.isArray(data?.projects) ? data.projects : [])
-    .map(parseProject)
-    .filter((p) => p.title || p.description);
+    .map(parseProjectForResume)
+    .filter((p) => p.title || p.description || p.link);
 
   const educationBlocks = parseEducationBlocks(data?.education);
   const achievements = limitAchievements(data?.achievements);
@@ -318,6 +304,14 @@ export default function ClassicLayout1({ data }) {
                   <article key={idx} className="min-w-0">
                     {project.title ? (
                       <p className="text-[12px] font-bold text-black leading-snug">{project.title}</p>
+                    ) : null}
+                    {project.link ? (
+                      <p className="mt-0.5 text-[10px]">
+                        <ResumeProjectLink
+                          url={project.link}
+                          className="font-semibold text-violet-800 underline print:text-black"
+                        />
+                      </p>
                     ) : null}
                     {project.description ? (
                       <p className="mt-1 text-[11px] leading-relaxed text-black whitespace-pre-wrap">{project.description}</p>

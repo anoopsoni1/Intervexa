@@ -1,6 +1,8 @@
 import { Phone, Mail, MapPin, ExternalLink, GraduationCap, Sparkles } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col";
@@ -102,9 +104,8 @@ export default function Resume5Layout({ data }) {
 
   const languages = parseLanguageProficiencyList(data?.languageProficiency);
   const projects = (Array.isArray(data?.projects) ? data.projects : [])
-    .map((p) => (typeof p === "string" ? p : p?.title || p?.description || ""))
-    .map((p) => p.trim())
-    .filter(Boolean);
+    .map(parseProjectForResume)
+    .filter((p) => p.title || p.description || p.link);
   const achievementsList = limitAchievements(data?.achievements);
 
   return (
@@ -271,7 +272,17 @@ export default function Resume5Layout({ data }) {
                 {projects.map((p, i) => (
                   <li key={i} className="flex gap-2 leading-snug">
                     <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0" aria-hidden />
-                    <span className="whitespace-pre-wrap">{p}</span>
+                    <div className="min-w-0">
+                      {p.title ? <span className="font-semibold text-slate-900">{p.title}</span> : null}
+                      {p.link ? (
+                        <span className="block mt-0.5">
+                          <ResumeProjectLink url={p.link} className="text-indigo-700 underline print:text-black font-normal" />
+                        </span>
+                      ) : null}
+                      {p.description ? (
+                        <span className="block mt-0.5 whitespace-pre-wrap font-normal text-slate-700">{p.description}</span>
+                      ) : null}
+                    </div>
                   </li>
                 ))}
               </ul>

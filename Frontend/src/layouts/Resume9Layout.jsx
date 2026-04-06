@@ -2,6 +2,8 @@ import { Phone, Mail, MapPin, Linkedin, Github, Link2 } from "lucide-react";
 
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col antialiased";
@@ -243,14 +245,9 @@ function SkillsSidebarGrid({ skillBuckets }) {
 }
 
 function projectToTitleDesc(p) {
-  const raw = typeof p === "string" ? p : p?.title || p?.description || "";
-  const t = String(raw).trim();
-  if (!t) return null;
-  const nl = t.indexOf("\n");
-  if (nl > 0) {
-    return { title: t.slice(0, nl).trim(), desc: t.slice(nl + 1).trim() };
-  }
-  return { title: t, desc: "" };
+  const n = parseProjectForResume(p);
+  if (!n.title && !n.description && !n.link) return null;
+  return { title: n.title, desc: n.description, link: n.link };
 }
 
 function WorkExperienceBlock({ job }) {
@@ -512,6 +509,14 @@ export default function Resume9Layout({ data }) {
                 {projParsed.map((proj, index) => (
                   <div key={index} className="resume-section-avoid-break">
                     <p className={`text-[12px] font-bold ${TEXT_PRIMARY} leading-tight`}>{proj.title}</p>
+                    {proj.link ? (
+                      <p className={`mt-0.5 text-[10px] ${TEXT_SEC}`}>
+                        <ResumeProjectLink
+                          url={proj.link}
+                          className="underline print:text-black text-[#B87333] font-medium"
+                        />
+                      </p>
+                    ) : null}
                     {proj.desc ? (
                       <p className={`mt-1 text-[11px] leading-[1.55] ${TEXT_SEC}`}>{proj.desc}</p>
                     ) : null}

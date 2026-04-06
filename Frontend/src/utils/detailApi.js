@@ -8,6 +8,18 @@
 import { API_BASE } from "../config";
 import { sanitizeProjectsArray } from "./stripMarkdownMarkers.js";
 import { RESUME_ACHIEVEMENTS_MAX, limitAchievements } from "./resumeAchievements.js";
+import {
+  emptyExperienceEntry,
+  experienceStringToFormEntry,
+  formExperienceToString,
+  normalizeExperienceFormItem,
+} from "./experienceForm.js";
+import {
+  emptyProjectEntry,
+  formProjectToString,
+  normalizeProjectFormItem,
+  projectStringToFormEntry,
+} from "./projectForm.js";
 
 /** Default Add Details form shape */
 const INITIAL_FORM = {
@@ -17,8 +29,8 @@ const INITIAL_FORM = {
   phone: "",
   summary: "",
   skills: [""],
-  experience: [{ role: "", bullets: [""] }],
-  projects: [""],
+  experience: [emptyExperienceEntry()],
+  projects: [emptyProjectEntry()],
   achievements: [""],
   education: "",
   languageProficiency: "",
@@ -68,17 +80,34 @@ export function buildResumeTextFromForm(form) {
   if (form.experience?.length) {
     lines.push("EXPERIENCE");
     (form.experience || []).forEach((exp) => {
-      if (exp?.role?.trim()) lines.push(exp.role.trim());
-      (exp.bullets || []).filter(Boolean).forEach((b) => lines.push(`• ${(b || "").trim()}`));
-      lines.push("");
+      const e = normalizeExperienceFormItem(exp);
+      if (
+        !e.jobTitle &&
+        !e.company &&
+        !e.dates &&
+        !e.location &&
+        e.arrangement === "onsite" &&
+        !e.bullets.some((b) => (b || "").trim())
+      ) {
+        return;
+      }
+      const block = formExperienceToString(exp);
+      if (block) {
+        block.split("\n").forEach((line) => lines.push(line));
+        lines.push("");
+      }
     });
   }
   if (form.projects?.length) {
-    const projectTexts = form.projects.filter((p) => (p || "").trim());
-    if (projectTexts.length) {
+    const blocks = (form.projects || [])
+      .map(normalizeProjectFormItem)
+      .filter((p) => p.title || p.link || p.description)
+      .map(formProjectToString)
+      .filter(Boolean);
+    if (blocks.length) {
       lines.push("PROJECTS");
-      projectTexts.forEach((p) => {
-        lines.push((p || "").trim());
+      blocks.forEach((block) => {
+        block.split("\n").forEach((line) => lines.push(line));
         lines.push("");
       });
     }
@@ -124,17 +153,23 @@ export function buildResumeTextFromDetail(d) {
  */
 export function detailLikeToForm(d) {
   if (!d) return { ...INITIAL_FORM };
-  const experience = (d.experience && d.experience.length > 0)
-    ? d.experience.map((str) => {
-        const lines = (str || "").split("\n").map((l) => l.replace(/^\s*[•\-]\s*/, "").trim()).filter(Boolean);
-        const role = lines[0] || "";
-        const bullets = lines.slice(1).length ? lines.slice(1) : [""];
-        return { role, bullets };
-      })
-    : [{ role: "", bullets: [""] }];
+  const experience =
+    d.experience && d.experience.length > 0
+      ? d.experience.map((item) =>
+          typeof item === "string"
+            ? experienceStringToFormEntry(item)
+            : normalizeExperienceFormItem(item)
+        )
+      : [emptyExperienceEntry()];
   const skills = Array.isArray(d.skills) && d.skills.length > 0 ? d.skills : [""];
   const projects =
-    Array.isArray(d.projects) && d.projects.length > 0 ? sanitizeProjectsArray(d.projects) : [""];
+    Array.isArray(d.projects) && d.projects.length > 0
+      ? sanitizeProjectsArray(
+          d.projects.map((item) =>
+            typeof item === "string" ? projectStringToFormEntry(item) : normalizeProjectFormItem(item)
+          )
+        )
+      : [emptyProjectEntry()];
   const achievements =
     Array.isArray(d.achievements) && d.achievements.length > 0
       ? d.achievements.slice(0, RESUME_ACHIEVEMENTS_MAX)

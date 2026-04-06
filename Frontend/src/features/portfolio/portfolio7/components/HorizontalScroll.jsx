@@ -1,3 +1,5 @@
+import ResumeProjectLink from "../../../../components/resume/ResumeProjectLink";
+
 /**
  * Pinned horizontal strip — showcases **projects** only (experience lives in ExperienceSection).
  */
@@ -9,6 +11,7 @@ export default function HorizontalScroll({ projects }) {
           {
             title: "Project spotlight",
             description: "Add projects in your profile — each one becomes a full-width slide you scroll through sideways.",
+            link: "",
           },
         ];
 
@@ -33,6 +36,11 @@ export default function HorizontalScroll({ projects }) {
             <div className="relative">
               <h3 className="text-2xl font-semibold leading-tight text-white md:text-3xl">{entry.title}</h3>
               <p className="mt-5 text-sm leading-relaxed text-white/70 md:text-base">{entry.description || "—"}</p>
+              {entry.link ? (
+                <p className="mt-4 text-sm">
+                  <ResumeProjectLink url={entry.link} className="text-[#e85b25] underline hover:text-orange-300" />
+                </p>
+              ) : null}
             </div>
             <p className="relative text-xs uppercase tracking-[0.2em] text-white/45">Keep scrolling →</p>
           </div>

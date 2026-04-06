@@ -12,6 +12,7 @@ import Work from "./Work.jsx";
 import About from "./About.jsx";
 import Contact from "./Contact.jsx";
 import SidebarSocial from "./SidebarSocial.jsx";
+import { parseProjectForResume } from "../../../utils/projectForm";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,19 +23,24 @@ const stripBullet = (line) =>
     .trim();
 
 function normalizeProject(p, index) {
-  const raw = String(p || "").trim();
-  if (!raw) return { title: `Project ${index + 1}`, description: "" };
-  if (raw.includes("|")) {
+  if (typeof p === "string" && String(p).includes("|")) {
+    const raw = String(p || "").trim();
     const [titlePart, ...rest] = raw.split("|").map((x) => x.trim());
     return {
       title: titlePart || `Project ${index + 1}`,
       description: rest.join(" | ").trim(),
+      link: "",
     };
   }
-  const lines = raw.split(/\r?\n/).map(stripBullet).filter(Boolean);
-  const title = lines[0] || `Project ${index + 1}`;
-  const description = lines.slice(1, 6).join(" ");
-  return { title, description };
+  const n = parseProjectForResume(p);
+  if (!n.title && !n.description && !n.link) {
+    return { title: `Project ${index + 1}`, description: "", link: "" };
+  }
+  return {
+    title: n.title || `Project ${index + 1}`,
+    description: n.description,
+    link: n.link || "",
+  };
 }
 
 function parseExperienceBlock(block) {

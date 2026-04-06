@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 
 import { limitAchievements } from "../utils/resumeAchievements";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col antialiased";
@@ -108,14 +110,9 @@ function parseLanguagesBlock(raw) {
 }
 
 function projectToTitleDesc(p) {
-  const raw = typeof p === "string" ? p : p?.title || p?.description || "";
-  const t = String(raw).trim();
-  if (!t) return null;
-  const nl = t.indexOf("\n");
-  if (nl > 0) {
-    return { title: t.slice(0, nl).trim(), desc: t.slice(nl + 1).trim() };
-  }
-  return { title: t, desc: "" };
+  const n = parseProjectForResume(p);
+  if (!n.title && !n.description && !n.link) return null;
+  return { title: n.title, desc: n.description, link: n.link };
 }
 
 function SectionRule({ title }) {
@@ -410,6 +407,11 @@ export default function Resume8Layout({ data }) {
                     className={`resume-section-avoid-break ${index < projParsed.length - 1 ? `border-b border-dotted ${DOTTED} pb-3 mb-3` : ""}`}
                   >
                     <p className={`text-[10px] sm:text-[11px] font-bold ${TEXT} leading-tight`}>{proj.title}</p>
+                    {proj.link ? (
+                      <p className={`mt-0.5 text-[9px] sm:text-[10px] ${TEXT_SEC}`}>
+                        <ResumeProjectLink url={proj.link} className="text-cyan-800 underline print:text-black" />
+                      </p>
+                    ) : null}
                     {proj.desc ? (
                       <p className={`mt-0.5 text-[9px] sm:text-[10px] leading-normal ${TEXT_SEC}`}>{proj.desc}</p>
                     ) : null}

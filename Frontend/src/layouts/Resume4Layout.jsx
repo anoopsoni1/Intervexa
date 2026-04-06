@@ -1,6 +1,8 @@
 import { Phone, Mail, MapPin, Linkedin, Github, FolderOpen } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col";
@@ -222,16 +224,25 @@ export default function Resume4Layout({ data }) {
                 <FolderOpen size={14} className="shrink-0 text-orange-500" /> Projects
               </h2>
               <div className="space-y-3">
-                {projectsList.map((project, i) => (
-                  <div key={i}>
-                    <p className={`text-xs font-bold ${TEXT_DARK}`}>
-                      {typeof project === "string" ? project : project?.title || project?.description || "Achievement"}
-                    </p>
-                    {(typeof project === "object" ? project?.description : null) && (
-                      <p className={`text-xs ${TEXT_DARK} mt-0.5 leading-relaxed`}>{project.description}</p>
-                    )}
-                  </div>
-                ))}
+                {projectsList.map((project, i) => {
+                  const p = parseProjectForResume(project);
+                  if (!p.title && !p.description && !p.link) return null;
+                  return (
+                    <div key={i}>
+                      {p.title ? <p className={`text-xs font-bold ${TEXT_DARK}`}>{p.title}</p> : null}
+                      {p.link ? (
+                        <p className="text-[10px] mt-0.5">
+                          <ResumeProjectLink url={p.link} className="text-orange-700 underline print:text-black" />
+                        </p>
+                      ) : null}
+                      {p.description ? (
+                        <p className={`text-xs ${TEXT_DARK} mt-0.5 leading-relaxed whitespace-pre-wrap`}>
+                          {p.description}
+                        </p>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             </section>
           )}

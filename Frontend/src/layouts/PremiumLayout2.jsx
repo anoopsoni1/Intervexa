@@ -4,6 +4,8 @@
  */
 
 import { limitAchievements } from "../utils/resumeAchievements";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none  flex-1 min-h-0 flex flex-col antialiased";
@@ -62,22 +64,17 @@ function skillLabel(s) {
 }
 
 function parseProjectBlock(p) {
-  if (typeof p === "string") {
-    const lines = p.split("\n").map((l) => l.trim()).filter(Boolean);
-    return { title: lines[0] || "", bullets: lines.slice(0) };
+  if (typeof p === "object" && p !== null && Array.isArray(p.bullets) && p.bullets.length) {
+    const title = String(p?.title || "").trim();
+    const link = String(p?.link || p?.url || "").trim();
+    const bullets = p.bullets.map((x) => String(x).trim()).filter(Boolean);
+    return { title, link, bullets };
   }
-  const title = String(p?.title || "").trim();
-  const desc = p?.description;
-  let bullets = [];
-  if (Array.isArray(desc)) bullets = desc.map((x) => String(x).trim()).filter(Boolean);
-  else if (typeof desc === "string")
-    bullets = desc.split("\n").map((l) => l.trim()).filter(Boolean);
-  const fallback = String(p?.title || p?.description || "").trim();
-  if (!title && !bullets.length && fallback) {
-    const lines = fallback.split("\n").map((l) => l.trim()).filter(Boolean);
-    return { title: lines[0] || "", bullets: lines.slice(1) };
-  }
-  return { title, bullets };
+  const n = parseProjectForResume(p);
+  const bullets = n.description
+    ? n.description.split("\n").map((l) => l.trim()).filter(Boolean)
+    : [];
+  return { title: n.title, link: n.link, bullets };
 }
 
 function SectionRule({ title, children }) {
@@ -257,16 +254,22 @@ export default function PremiumLayout2({ data }) {
         <SectionRule title="Projects ">
           <div className="text-[10px] leading-[1.28]">
             {projects.map((p, i) => {
-              const { title, bullets } = parseProjectBlock(p);
+              const { title, link, bullets } = parseProjectBlock(p);
               return (
-                <ExperienceWhartonRow
-                  key={i}
-                  company={title}
-                  title=""
-                  location=""
-                  dates=""
-                  bullets={bullets.length ? bullets : title ? [] : []}
-                />
+                <div key={i} className="resume-section-avoid-break">
+                  <ExperienceWhartonRow
+                    company={title}
+                    title=""
+                    location=""
+                    dates=""
+                    bullets={bullets.length ? bullets : []}
+                  />
+                  {link ? (
+                    <p className="text-[9px] mt-0.5 mb-0.5">
+                      <ResumeProjectLink url={link} className="text-blue-700 underline print:text-black" />
+                    </p>
+                  ) : null}
+                </div>
               );
             })}
           </div>

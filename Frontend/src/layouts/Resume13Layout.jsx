@@ -1,4 +1,6 @@
 import { MapPin, Phone, Mail, Globe, Linkedin, Github } from "lucide-react";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col antialiased";
@@ -68,22 +70,6 @@ function parseExperience(entry) {
   };
 }
 
-function parseProject(project) {
-  if (typeof project === "object" && project !== null) {
-    const title = String(project.title || project.name || "").trim();
-    const description = String(project.description || project.summary || project.details || "").trim();
-    return { title, description };
-  }
-  const lines = String(project || "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-  return {
-    title: lines[0] || "",
-    description: lines.slice(1).join(" "),
-  };
-}
-
 function SectionTitle({ children }) {
   return (
     <h2 className="text-[35px] leading-none font-semibold text-[#0b4870] mb-2 border-b border-[#d7dce2] pb-2">
@@ -119,8 +105,8 @@ export default function Resume13Layout({ data }) {
     .filter((job) => job.role || job.company || job.dates || job.bullets.length > 0);
   const educationItems = parseEducation(data?.education);
   const projectItems = (Array.isArray(data?.projects) ? data.projects : [])
-    .map(parseProject)
-    .filter((project) => project.title || project.description);
+    .map(parseProjectForResume)
+    .filter((project) => project.title || project.description || project.link);
 
   const skillItems = splitList(data?.skills);
   const skillColumns = twoColumns(skillItems);
@@ -243,6 +229,11 @@ export default function Resume13Layout({ data }) {
                 {projectItems.map((project, idx) => (
                   <article key={idx} className="resume-section-avoid-break">
                     {project.title && <p className="text-[12px] font-semibold text-[#183149]">{project.title}</p>}
+                    {project.link && (
+                      <p className="mt-0.5 text-[10px]">
+                        <ResumeProjectLink url={project.link} className="text-[#0b4870] underline print:text-black" />
+                      </p>
+                    )}
                     {project.description && (
                       <p className="mt-1 text-[11px] leading-normal text-[#2e4456] whitespace-pre-wrap">
                         {project.description}

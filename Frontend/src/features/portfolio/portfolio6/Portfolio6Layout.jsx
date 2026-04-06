@@ -17,6 +17,7 @@ import Services from "./components/Services.jsx";
 import Projects from "./components/Projects.jsx";
 import About from "./components/About.jsx";
 import Contact from "./components/Contact.jsx";
+import { parseProjectForResume } from "../../../utils/projectForm";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,11 +33,9 @@ function extractVideoUrl(text) {
 }
 
 function normalizeProject(p, index) {
-  const raw = String(p || "").trim();
-  if (!raw) return { title: `Project ${index + 1}`, description: "", videoUrl: null };
-  const videoUrl = extractVideoUrl(raw);
-
-  if (raw.includes("|")) {
+  if (typeof p === "string" && p.includes("|")) {
+    const raw = String(p || "").trim();
+    const videoUrl = extractVideoUrl(raw);
     const [titlePart, ...rest] = raw.split("|").map((x) => x.trim());
     let description = rest.join(" | ").trim();
     if (videoUrl) {
@@ -50,16 +49,26 @@ function normalizeProject(p, index) {
       title: titlePart || `Project ${index + 1}`,
       description,
       videoUrl,
+      link: "",
     };
   }
 
-  const lines = raw.split(/\r?\n/).map(stripBullet).filter(Boolean);
-  const title = lines[0] || `Project ${index + 1}`;
-  let description = lines.slice(1, 8).join(" ");
+  const n = parseProjectForResume(p);
+  const videoSource = [n.description, n.link].filter(Boolean).join("\n");
+  const videoUrl = extractVideoUrl(videoSource);
+  let description = n.description;
   if (videoUrl) {
     description = description.replace(videoUrl, "").replace(/\s+/g, " ").trim();
   }
-  return { title, description, videoUrl };
+  if (!n.title && !description && !n.link) {
+    return { title: `Project ${index + 1}`, description: "", videoUrl: null, link: "" };
+  }
+  return {
+    title: n.title || `Project ${index + 1}`,
+    description,
+    videoUrl,
+    link: n.link || "",
+  };
 }
 
 function parseExperienceBlock(block) {

@@ -15,6 +15,7 @@ import {
   normalizeExperienceToStrings,
 } from "./utils/parseResumeFields.js";
 import { limitAchievements } from "../../../utils/resumeAchievements.js";
+import { parseProjectForResume } from "../../../utils/projectForm.js";
 
 import Loader from "./components/Loader.jsx";
 import Cursor from "./components/Cursor.jsx";
@@ -50,10 +51,13 @@ const NAV_ITEMS = [
 function parseProjects(items) {
   return (Array.isArray(items) ? items : [])
     .map((item, index) => {
-      const raw = String(item || "").trim();
-      if (!raw) return null;
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      return { title: lines[0] || `Project ${index + 1}`, description: lines.slice(1).join(" ") };
+      const n = parseProjectForResume(item);
+      if (!n.title && !n.description && !n.link) return null;
+      return {
+        title: n.title || `Project ${index + 1}`,
+        description: n.description,
+        link: n.link || "",
+      };
     })
     .filter(Boolean);
 }

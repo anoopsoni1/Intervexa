@@ -1,6 +1,8 @@
 import { Mail, MapPin, Phone, Linkedin, Github } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col antialiased";
@@ -90,11 +92,8 @@ export default function Resume7Layout({ data }) {
   const educationList = parseEducationList(data?.education);
   const skillItems = getSkillItems(data?.skills);
   const projects = (Array.isArray(data?.projects) ? data.projects : [])
-    .map((project) => {
-      if (typeof project === "string") return project.trim();
-      return (project?.title || project?.description || "").trim();
-    })
-    .filter(Boolean);
+    .map(parseProjectForResume)
+    .filter((p) => p.title || p.description || p.link);
   const achievements = limitAchievements(data?.achievements);
   const languageLines = parseLanguageProficiencyList(data?.languageProficiency);
 
@@ -252,8 +251,18 @@ export default function Resume7Layout({ data }) {
             <SectionBlock title="Projects" className={experience.length > 0 ? "pt-1" : ""}>
               <ul className={`space-y-2 pl-0 list-none   text-[10px] sm:text-[11px] m-0`}>
                 {projects.map((project, index) => (
-                  <li key={index} className="flex gap-2 leading-relaxed whitespace-pre-wrap text-slate-900">
-                    <span className="min-w-0 ">{project}</span>
+                  <li key={index} className="flex gap-2 leading-relaxed text-slate-900">
+                    <div className="min-w-0">
+                      {project.title ? <span className="font-semibold">{project.title}</span> : null}
+                      {project.link ? (
+                        <span className="block mt-0.5">
+                          <ResumeProjectLink url={project.link} className="text-[#1e4976] underline print:text-black font-normal text-[10px]" />
+                        </span>
+                      ) : null}
+                      {project.description ? (
+                        <span className="block mt-0.5 whitespace-pre-wrap font-normal text-slate-800">{project.description}</span>
+                      ) : null}
+                    </div>
                   </li>
                 ))}
               </ul>

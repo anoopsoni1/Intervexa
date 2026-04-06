@@ -17,7 +17,7 @@ export function sanitizeProjectItem(p) {
   if (typeof p === "string") return stripBoldAsterisks(p);
   if (typeof p === "object" && !Array.isArray(p)) {
     const o = { ...p };
-    for (const k of ["title", "description", "label", "name"]) {
+    for (const k of ["title", "description", "label", "name", "link", "url", "href"]) {
       if (o[k] != null && typeof o[k] === "string") o[k] = stripBoldAsterisks(o[k]);
     }
     return o;

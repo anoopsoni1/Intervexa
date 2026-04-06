@@ -9,6 +9,8 @@ import AnimatedBackground from "./AnimatedBackground.jsx";
 import CustomCursor from "./CustomCursor.jsx";
 import GrainOverlay from "./GrainOverlay.jsx";
 import { TextRevealWords } from "./TextReveal.jsx";
+import { parseProjectForResume } from "../../../utils/projectForm";
+import ResumeProjectLink from "../../../components/resume/ResumeProjectLink";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,19 +21,24 @@ const stripBullet = (line) =>
     .trim();
 
 function normalizeProject(p, index) {
-  const raw = String(p || "").trim();
-  if (!raw) return { title: `Project ${index + 1}`, description: "" };
-  if (raw.includes("|")) {
+  if (typeof p === "string" && String(p).includes("|")) {
+    const raw = String(p || "").trim();
     const [titlePart, ...rest] = raw.split("|").map((x) => x.trim());
     return {
       title: titlePart || `Project ${index + 1}`,
       description: rest.join(" | ").trim(),
+      link: "",
     };
   }
-  const lines = raw.split(/\r?\n/).map(stripBullet).filter(Boolean);
-  const title = lines[0] || `Project ${index + 1}`;
-  const description = lines.slice(1, 6).join(" ");
-  return { title, description };
+  const n = parseProjectForResume(p);
+  if (!n.title && !n.description && !n.link) {
+    return { title: `Project ${index + 1}`, description: "", link: "" };
+  }
+  return {
+    title: n.title || `Project ${index + 1}`,
+    description: n.description,
+    link: n.link || "",
+  };
 }
 
 function parseExperienceBlock(block) {
@@ -424,6 +431,11 @@ export default function Portfolio4Layout({ data }) {
                           <h2 className="text-xl font-light leading-snug tracking-tight text-white sm:text-2xl">{p.title}</h2>
                           {p.description ? (
                             <p className="mt-4 max-w-xl text-sm leading-[1.75] text-white/58 sm:text-[0.9375rem]">{p.description}</p>
+                          ) : null}
+                          {p.link ? (
+                            <p className="mt-3 text-sm">
+                              <ResumeProjectLink url={p.link} className="text-white/85 underline decoration-white/40 hover:decoration-white" />
+                            </p>
                           ) : null}
                         </div>
                       </div>

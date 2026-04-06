@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Layers } from "lucide-react";
+import ResumeProjectLink from "../../../components/resume/ResumeProjectLink";
 
 const list = {
   hidden: { opacity: 0 },
@@ -220,6 +221,11 @@ export default function Work({ projects }) {
                       <h3 className="mt-3 text-lg font-semibold tracking-tight text-white sm:text-xl">{p.title}</h3>
                       {p.description ? (
                         <p className="mt-2 line-clamp-3 text-sm leading-[1.65] text-white/48">{p.description}</p>
+                      ) : null}
+                      {p.link ? (
+                        <p className="mt-2 text-sm">
+                          <ResumeProjectLink url={p.link} className="text-white/70 underline hover:text-white" />
+                        </p>
                       ) : null}
                     </div>
                   </div>

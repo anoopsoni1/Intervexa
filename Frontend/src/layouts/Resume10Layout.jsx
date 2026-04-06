@@ -1,5 +1,7 @@
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
+import { parseProjectForResume } from "../utils/projectForm";
+import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col font-sans antialiased";
@@ -96,18 +98,21 @@ function normalizeProjects(raw) {
   return raw
     .filter(Boolean)
     .map((p) => {
-      if (typeof p === "string") {
-        const lines = p.split("\n").map((l) => l.trim()).filter(Boolean);
-        if (lines.length <= 1) return { title: "", body: p.trim(), tech: "", url: "" };
-        return { title: lines[0], body: lines.slice(1).join("\n"), tech: "", url: "" };
+      const n = parseProjectForResume(p);
+      let tech = "";
+      if (typeof p === "object" && p && !Array.isArray(p)) {
+        tech = String(p.technologies || p.tech || p.stack || p.tools || "").trim();
       }
-      const title = (p.title || p.name || "").trim();
-      const body = (p.description || p.summary || p.details || "").trim();
-      const tech = (p.technologies || p.tech || p.stack || p.tools || "").trim();
-      const url = displayLink(p.url || p.link || p.repo || p.github || "");
-      return { title, body, tech, url };
+      const url = n.link || (typeof p === "object" && p ? String(p.url || p.repo || p.github || "").trim() : "");
+      return {
+        title: n.title,
+        body: n.description,
+        tech,
+        url: url ? displayLink(url) : "",
+        link: url,
+      };
     })
-    .filter((p) => p.title || p.body || p.tech || p.url);
+    .filter((p) => p.title || p.body || p.tech || p.link);
 }
 
 function normalizeAchievement(a) {
@@ -404,12 +409,12 @@ export default function Resume10Layout({ data }) {
                         {proj.body}
                       </p>
                     )}
-                    {proj.url && (
+                    {proj.link ? (
                       <p className="text-[10px] text-neutral-600 mt-1.5 break-all">
                         <span className="font-semibold text-neutral-700">Link: </span>
-                        {proj.url}
+                        <ResumeProjectLink url={proj.link} className="text-blue-800 underline print:text-black" />
                       </p>
-                    )}
+                    ) : null}
                   </div>
                 ))}
               </div>

@@ -20,6 +20,18 @@ import AppFooter from "../components/layout/AppFooter";
 import { API_BASE } from "../config";
 import { sanitizeProjectsArray } from "../utils/stripMarkdownMarkers.js";
 import { RESUME_ACHIEVEMENTS_MAX, limitAchievements } from "../utils/resumeAchievements";
+import {
+  emptyExperienceEntry,
+  experienceStringToFormEntry,
+  formExperienceToString,
+  normalizeExperienceFormItem,
+} from "../utils/experienceForm.js";
+import {
+  emptyProjectEntry,
+  formProjectToString,
+  normalizeProjectFormItem,
+  projectStringToFormEntry,
+} from "../utils/projectForm.js";
 import { Skeleton } from "../components/ui/Skeleton.jsx";
 
 function buildResumeText(form) {
@@ -47,18 +59,35 @@ function buildResumeText(form) {
   if (form.experience?.length) {
     lines.push("EXPERIENCE");
     form.experience.forEach((exp) => {
-      if (exp?.role?.trim()) lines.push(exp.role.trim());
-      (exp.bullets || []).filter(Boolean).forEach((b) => lines.push(`• ${b.trim()}`));
-      lines.push("");
+      const e = normalizeExperienceFormItem(exp);
+      if (
+        !e.jobTitle &&
+        !e.company &&
+        !e.dates &&
+        !e.location &&
+        e.arrangement === "onsite" &&
+        !e.bullets.some((b) => (b || "").trim())
+      ) {
+        return;
+      }
+      const block = formExperienceToString(exp);
+      if (block) {
+        block.split("\n").forEach((line) => lines.push(line));
+        lines.push("");
+      }
     });
   }
 
   if (form.projects?.length) {
-    const projectTexts = form.projects.filter((p) => p?.trim());
-    if (projectTexts.length) {
+    const blocks = (form.projects || [])
+      .map(normalizeProjectFormItem)
+      .filter((p) => p.title || p.link || p.description)
+      .map(formProjectToString)
+      .filter(Boolean);
+    if (blocks.length) {
       lines.push("PROJECTS");
-      projectTexts.forEach((p) => {
-        lines.push(p.trim());
+      blocks.forEach((block) => {
+        block.split("\n").forEach((line) => lines.push(line));
         lines.push("");
       });
     }
@@ -104,8 +133,8 @@ const initialForm = {
   phone: "",
   summary: "",
   skills: [""],
-  experience: [{ role: "", bullets: [""] }],
-  projects: [""],
+  experience: [emptyExperienceEntry()],
+  projects: [emptyProjectEntry()],
   achievements: [""],
   education: "",
   languageProficiency: "",
@@ -118,17 +147,21 @@ const initialForm = {
 /** Map backend detail (experience as string[]) to form shape */
 function detailToForm(d) {
   if (!d) return initialForm;
-  const experience = (d.experience && d.experience.length > 0)
-    ? d.experience.map((str) => {
-        const lines = (str || "").split("\n").map((l) => l.replace(/^\s*[•\-]\s*/, "").trim()).filter(Boolean);
-        const role = lines[0] || "";
-        const bullets = lines.slice(1).length ? lines.slice(1) : [""];
-        return { role, bullets };
-      })
-    : [{ role: "", bullets: [""] }];
+  const experience =
+    d.experience && d.experience.length > 0
+      ? d.experience.map((item) =>
+          experienceStringToFormEntry(typeof item === "string" ? item : "")
+        )
+      : [emptyExperienceEntry()];
   const skills = Array.isArray(d.skills) && d.skills.length > 0 ? d.skills : [""];
   const projects =
-    Array.isArray(d.projects) && d.projects.length > 0 ? sanitizeProjectsArray(d.projects) : [""];
+    Array.isArray(d.projects) && d.projects.length > 0
+      ? sanitizeProjectsArray(
+          d.projects.map((item) =>
+            typeof item === "string" ? projectStringToFormEntry(item) : normalizeProjectFormItem(item)
+          )
+        )
+      : [emptyProjectEntry()];
   const achievements =
     Array.isArray(d.achievements) && d.achievements.length > 0
       ? d.achievements.slice(0, RESUME_ACHIEVEMENTS_MAX)
@@ -156,12 +189,18 @@ function detailToForm(d) {
 /** Map form to API payload (experience as string[]) */
 function formToPayload(form) {
   const experience = (form.experience || [])
-    .filter((exp) => (exp?.role || "").trim() || (exp?.bullets || []).some((b) => (b || "").trim()))
-    .map((exp) => {
-      const role = (exp?.role || "").trim();
-      const bullets = (exp?.bullets || []).map((b) => (b || "").trim()).filter(Boolean);
-      return role ? [role, ...bullets].join("\n") : bullets.join("\n");
-    });
+    .map(normalizeExperienceFormItem)
+    .filter(
+      (e) =>
+        e.jobTitle ||
+        e.company ||
+        e.dates ||
+        e.location ||
+        e.arrangement !== "onsite" ||
+        e.bullets.some((b) => (b || "").trim())
+    )
+    .map(formExperienceToString)
+    .filter(Boolean);
   return {
     name: (form.name || "").trim() || "Your Name",
     role: (form.role || "").trim() || "Your Role",
@@ -170,9 +209,13 @@ function formToPayload(form) {
     summary: (form.summary || "").trim() || "",
     skills: (form.skills || []).map((s) => (s || "").trim()).filter(Boolean),
     experience: experience.length ? experience : [""],
-    projects: (form.projects || []).map((p) => (p || "").trim()).filter(Boolean).length
-      ? sanitizeProjectsArray((form.projects || []).map((p) => (p || "").trim()))
-      : [""],
+    projects: (() => {
+      const list = (form.projects || [])
+        .map(normalizeProjectFormItem)
+        .filter((p) => p.title || p.link || p.description)
+        .map(formProjectToString);
+      return list.length ? sanitizeProjectsArray(list) : [""];
+    })(),
     achievements: limitAchievements(form.achievements),
     education: (form.education || "").trim() || "",
     languageProficiency: (form.languageProficiency || "").trim() || "",
@@ -197,9 +240,23 @@ export default function AddDetails() {
     const hasText = (v) => String(v || "").trim().length > 0;
     const skillsOk = Array.isArray(form.skills) ? form.skills.filter((s) => hasText(s)).length > 0 : false;
     const expOk = Array.isArray(form.experience)
-      ? form.experience.some((e) => hasText(e?.role) || (e?.bullets || []).some((b) => hasText(b)))
+      ? form.experience.some((raw) => {
+          const e = normalizeExperienceFormItem(raw);
+          return (
+            hasText(e.jobTitle) ||
+            hasText(e.company) ||
+            hasText(e.dates) ||
+            hasText(e.location) ||
+            (e.bullets || []).some((b) => hasText(b))
+          );
+        })
       : false;
-    const projectsOk = Array.isArray(form.projects) ? form.projects.some((p) => hasText(p)) : false;
+    const projectsOk = Array.isArray(form.projects)
+      ? form.projects.some((raw) => {
+          const p = normalizeProjectFormItem(raw);
+          return hasText(p.title) || hasText(p.link) || hasText(p.description);
+        })
+      : false;
     const educationOk = hasText(form.education);
 
     const items = [
@@ -334,12 +391,14 @@ export default function AddDetails() {
   const addExperience = () =>
     setForm((prev) => ({
       ...prev,
-      experience: [...(prev.experience || []), { role: "", bullets: [""] }],
+      experience: [...(prev.experience || []), emptyExperienceEntry()],
     }));
   const setExperience = (i, field, value) =>
     setForm((prev) => {
       const ex = [...(prev.experience || [])];
-      ex[i] = { ...ex[i], [field]: value };
+      const cur = { ...ex[i], [field]: value };
+      if (field === "jobTitle") delete cur.role;
+      ex[i] = cur;
       return { ...prev, experience: ex };
     });
   const setExperienceBullet = (ei, bi, value) =>
@@ -363,17 +422,18 @@ export default function AddDetails() {
     }));
 
   const addProject = () =>
-    setForm((prev) => ({ ...prev, projects: [...(prev.projects || [""]), ""] }));
-  const setProject = (i, v) =>
+    setForm((prev) => ({ ...prev, projects: [...(prev.projects || [emptyProjectEntry()]), emptyProjectEntry()] }));
+  const setProjectField = (i, field, value) =>
     setForm((prev) => {
-      const p = [...(prev.projects || [""])];
-      p[i] = v;
-      return { ...prev, projects: p };
+      const list = [...(prev.projects || [emptyProjectEntry()])];
+      const cur = normalizeProjectFormItem(list[i]);
+      list[i] = { ...cur, [field]: value };
+      return { ...prev, projects: list };
     });
   const removeProject = (i) =>
     setForm((prev) => ({
       ...prev,
-      projects: (prev.projects || [""]).filter((_, idx) => idx !== i),
+      projects: (prev.projects || [emptyProjectEntry()]).filter((_, idx) => idx !== i),
     }));
 
   const addAchievement = () =>
@@ -589,18 +649,6 @@ export default function AddDetails() {
               </label>
               <label className="block sm:col-span-2">
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-                  Website
-                </span>
-                <input
-                  type="text"
-                  value={form.website}
-                  onChange={(e) => update("website", e.target.value)}
-                  placeholder="https://yoursite.com or yoursite.com"
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-              </label>
-              <label className="block sm:col-span-2">
-                <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
                   LinkedIn
                 </span>
                 <input
@@ -707,24 +755,87 @@ export default function AddDetails() {
                   key={ei}
                   className="rounded-xl border border-white/5 bg-black/30 p-4 sm:p-5 space-y-4"
                 >
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={exp.role || ""}
-                      onChange={(e) => setExperience(ei, "role", e.target.value)}
-                      placeholder="Job title, Company · Period"
-                      className="flex-1 rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                    />
-                    {(form.experience?.length > 1) && (
-                      <button
-                        type="button"
-                        onClick={() => removeExperience(ei)}
-                        className="p-2.5 rounded-lg border border-white/10 text-slate-400 hover:text-rose-400"
-                        aria-label="Remove"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    )}
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-2 items-start">
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <label className="block sm:col-span-2">
+                          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            Job title
+                          </span>
+                          <input
+                            type="text"
+                            value={exp.jobTitle || exp.role || ""}
+                            onChange={(e) => setExperience(ei, "jobTitle", e.target.value)}
+                            placeholder="e.g. Senior Software Engineer"
+                            className="mt-1 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          />
+                        </label>
+                        <label className="block sm:col-span-2">
+                          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            Company
+                          </span>
+                          <input
+                            type="text"
+                            value={exp.company || ""}
+                            onChange={(e) => setExperience(ei, "company", e.target.value)}
+                            placeholder="e.g. Acme Inc."
+                            className="mt-1 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            Dates
+                          </span>
+                          <input
+                            type="text"
+                            value={exp.dates || ""}
+                            onChange={(e) => setExperience(ei, "dates", e.target.value)}
+                            placeholder="e.g. Jan 2020 – Present"
+                            className="mt-1 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            Location
+                          </span>
+                          <input
+                            type="text"
+                            value={exp.location || ""}
+                            onChange={(e) => setExperience(ei, "location", e.target.value)}
+                            placeholder="e.g. San Francisco, CA (optional)"
+                            className="mt-1 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          />
+                        </label>
+                        <label className="block sm:col-span-2">
+                          <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                            Work arrangement
+                          </span>
+                          <select
+                            value={exp.arrangement || "onsite"}
+                            onChange={(e) => setExperience(ei, "arrangement", e.target.value)}
+                            className="mt-1 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          >
+                            <option value="onsite">On-site</option>
+                            <option value="remote">Remote</option>
+                            <option value="hybrid">Hybrid</option>
+                          </select>
+                        </label>
+                      </div>
+                      {(form.experience?.length > 1) && (
+                        <button
+                          type="button"
+                          onClick={() => removeExperience(ei)}
+                          className="p-2.5 rounded-lg border border-white/10 text-slate-400 hover:text-rose-400 shrink-0"
+                          aria-label="Remove"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      Dates and location are saved so resume templates can show them in one line (with Remote/Hybrid
+                      when selected).
+                    </p>
                   </div>
                   <div className="space-y-2 pl-0 sm:pl-2">
                     {(exp.bullets || [""]).map((b, bi) => (
@@ -786,27 +897,46 @@ export default function AddDetails() {
               </button>
             </div>
             <div className="space-y-3">
-              {(form.projects || [""]).map((p, i) => (
-                <div key={i} className="flex gap-2">
-                  <textarea
-                    value={p}
-                    onChange={(e) => setProject(i, e.target.value)}
-                    placeholder="Project name and description..."
-                    rows={2}
-                    className="flex-1 rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-y min-h-[60px]"
-                  />
-                  {(form.projects?.length > 1) && (
-                    <button
-                      type="button"
-                      onClick={() => removeProject(i)}
-                      className="p-2.5 rounded-lg border border-white/10 text-slate-400 hover:text-rose-400 shrink-0 self-start"
-                      aria-label="Remove"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  )}
-                </div>
-              ))}
+              {(form.projects || [emptyProjectEntry()]).map((raw, i) => {
+                const p = normalizeProjectFormItem(raw);
+                return (
+                  <div key={i} className="flex gap-2">
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <input
+                        type="text"
+                        value={p.title}
+                        onChange={(e) => setProjectField(i, "title", e.target.value)}
+                        placeholder="Project title"
+                        className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      />
+                      <input
+                        type="url"
+                        value={p.link}
+                        onChange={(e) => setProjectField(i, "link", e.target.value)}
+                        placeholder="Project link (optional)"
+                        className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      />
+                      <textarea
+                        value={p.description}
+                        onChange={(e) => setProjectField(i, "description", e.target.value)}
+                        placeholder="Description (optional)..."
+                        rows={2}
+                        className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-y min-h-[60px]"
+                      />
+                    </div>
+                    {(form.projects?.length > 1) && (
+                      <button
+                        type="button"
+                        onClick={() => removeProject(i)}
+                        className="p-2.5 rounded-lg border border-white/10 text-slate-400 hover:text-rose-400 shrink-0 self-start"
+                        aria-label="Remove"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </section>
 

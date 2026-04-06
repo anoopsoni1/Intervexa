@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import ResumeProjectLink from "../../../../components/resume/ResumeProjectLink";
 import HorizontalScroll from "./HorizontalScroll.jsx";
 import ProjectCardMedia from "./ProjectCardMedia.jsx";
 import ScrambleText from "./ScrambleText.jsx";
@@ -92,6 +93,11 @@ export default function Projects({ projects }) {
                     {p.description ? (
                       <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-white/48 transition-colors duration-300 group-hover:text-white/60">
                         {p.description}
+                      </p>
+                    ) : null}
+                    {p.link ? (
+                      <p className="mt-2 text-sm">
+                        <ResumeProjectLink url={p.link} className="text-[#A65C34] underline hover:text-[#c47a4a]" />
                       </p>
                     ) : null}
                   </div>
