@@ -1,4 +1,5 @@
-import { MapPin, Phone, Mail, Globe, Linkedin, Github } from "lucide-react";
+import { MapPin, Phone, Mail, Linkedin, Github } from "lucide-react";
+import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
 import ResumeProjectLink from "../components/resume/ResumeProjectLink";
@@ -117,7 +118,6 @@ export default function Resume11Layout({ data }) {
   const phone = (data?.phone || "").trim();
   const email = (data?.email || "").trim();
   const location = (data?.location || data?.address || "").trim();
-  const website = cleanLink(data?.website || "");
   const linkedin = cleanLink(data?.linkedin || "");
   const github = cleanLink(data?.github || "");
 
@@ -137,11 +137,10 @@ export default function Resume11Layout({ data }) {
 
   const contactItems = [
     location ? { icon: MapPin, value: location } : null,
-    phone ? { icon: Phone, value: phone } : null,
-    email ? { icon: Mail, value: email } : null,
-    website ? { icon: Globe, value: website } : null,
-    linkedin ? { icon: Linkedin, value: linkedin } : null,
-    github ? { icon: Github, value: github } : null,
+    phone ? { icon: Phone, value: phone, href: resumeTelHref(phone) } : null,
+    email ? { icon: Mail, value: email, href: resumeMailtoHref(email) } : null,
+    linkedin ? { icon: Linkedin, value: linkedin, href: resumeExternalHref(linkedin) } : null,
+    github ? { icon: Github, value: github, href: resumeExternalHref(github) } : null,
   ].filter(Boolean);
 
   return (
@@ -165,7 +164,7 @@ export default function Resume11Layout({ data }) {
         </div>
 
         {contactItems.length > 0 && (
-          <div className="mt-3 sm:mt-4 flex flex-col min-[400px]:flex-row min-[400px]:flex-wrap items-stretch min-[400px]:items-center gap-x-3 gap-y-2 text-[11px] text-[#666]">
+          <div className="mt-3 sm:mt-4 flex flex-col min-[400px]:flex-row min-[400px]:flex-wrap items-stretch min-[400px]:items-center gap-x-6 gap-y-2 text-[11px] text-[#666]">
             {contactItems.map((item, idx) => {
               const Icon = item.icon;
               return (
@@ -176,7 +175,17 @@ export default function Resume11Layout({ data }) {
                   >
                     <Icon size={10} />
                   </span>
-                  <span className="min-w-0 wrap-break-word break-all">{item.value}</span>
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      className="min-w-0 wrap-break-word break-all text-inherit hover:underline"
+                      {...resumeHttpNewTabProps(item.href)}
+                    >
+                      {item.value}
+                    </a>
+                  ) : (
+                    <span className="min-w-0 wrap-break-word break-all">{item.value}</span>
+                  )}
                 </span>
               );
             })}

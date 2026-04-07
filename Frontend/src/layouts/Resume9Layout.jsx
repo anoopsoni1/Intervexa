@@ -1,5 +1,6 @@
 import { Phone, Mail, MapPin, Linkedin, Github, Link2 } from "lucide-react";
 
+import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
@@ -318,8 +319,8 @@ export default function Resume9Layout({ data }) {
   const linkedinRaw = (data?.linkedin || "").trim();
   const linkedin = cleanLink(linkedinRaw);
   const linkedinIsLinkedIn = /linkedin\.com/i.test(linkedinRaw);
-  const website = cleanLink(data?.website || "");
-  const github = cleanLink(data?.github || "");
+  const githubRaw = (data?.github || "").trim();
+  const github = cleanLink(githubRaw);
 
   const experienceList = toExperienceStrings(data?.experience)
     .map(parseExperienceEntry)
@@ -340,7 +341,7 @@ export default function Resume9Layout({ data }) {
     .flatMap((c) => c.split("\n").map((l) => l.trim()).filter(Boolean));
 
   const hasContactInHeader =
-    Boolean(phone || email || location || linkedin || github || website);
+    Boolean(phone || email || location || linkedin || github);
 
   const hasSkillSection =
     skillBuckets.hard.length > 0 ||
@@ -403,7 +404,7 @@ export default function Resume9Layout({ data }) {
               </div>
               {hasContactInHeader ? (
                 <div
-                  className={`flex w-full min-w-0 flex-col items-start gap-1.5 text-[10px] sm:text-[11px] ${TEXT_SEC} sm:w-auto sm:max-w-[min(100%,20rem)] sm:items-end sm:text-right print:max-w-80 print:items-end print:text-right`}
+                  className={`flex w-full min-w-0 flex-col items-start gap-2.5 text-[10px] sm:text-[11px] ${TEXT_SEC} sm:w-auto sm:max-w-[min(100%,20rem)] sm:items-end sm:text-right print:max-w-80 print:items-end print:text-right`}
                 >
                   {location ? (
                     <span className="inline-flex max-w-full items-start justify-end gap-1.5 text-left sm:text-right">
@@ -412,38 +413,46 @@ export default function Resume9Layout({ data }) {
                     </span>
                   ) : null}
                   {phone ? (
-                    <span className="inline-flex items-center justify-end gap-1.5">
+                    <a
+                      href={resumeTelHref(phone)}
+                      className="inline-flex items-center justify-end gap-1.5 text-inherit hover:underline"
+                    >
                       <Phone size={12} className="shrink-0 opacity-70" strokeWidth={1.75} />
                       <span className="tabular-nums">{phone}</span>
-                    </span>
+                    </a>
                   ) : null}
                   {email ? (
-                    <span className="inline-flex max-w-full items-center justify-end gap-1.5 break-all">
+                    <a
+                      href={resumeMailtoHref(email)}
+                      className="inline-flex max-w-full items-center justify-end gap-1.5 break-all text-inherit hover:underline"
+                    >
                       <Mail size={12} className="shrink-0 opacity-70" strokeWidth={1.75} />
                       {email}
-                    </span>
+                    </a>
                   ) : null}
                   {linkedin ? (
-                    <span className="inline-flex max-w-full items-center justify-end gap-1.5 break-all">
+                    <a
+                      href={resumeExternalHref(linkedinRaw)}
+                      className="inline-flex max-w-full items-center justify-end gap-1.5 break-all text-inherit hover:underline"
+                      {...resumeHttpNewTabProps(resumeExternalHref(linkedinRaw))}
+                    >
                       {linkedinIsLinkedIn ? (
                         <Linkedin size={12} className="shrink-0 opacity-70" strokeWidth={1.75} />
                       ) : (
                         <Link2 size={12} className="shrink-0 opacity-70" strokeWidth={1.75} />
                       )}
                       {linkedin}
-                    </span>
+                    </a>
                   ) : null}
                   {github ? (
-                    <span className="inline-flex max-w-full items-center justify-end gap-1.5 break-all">
+                    <a
+                      href={resumeExternalHref(githubRaw)}
+                      className="inline-flex max-w-full items-center justify-end gap-1.5 break-all text-inherit hover:underline"
+                      {...resumeHttpNewTabProps(resumeExternalHref(githubRaw))}
+                    >
                       <Github size={12} className="shrink-0 opacity-70" strokeWidth={1.75} />
                       {github}
-                    </span>
-                  ) : null}
-                  {website ? (
-                    <span className="inline-flex max-w-full items-center justify-end gap-1.5 break-all">
-                      <Link2 size={12} className="shrink-0 opacity-70" strokeWidth={1.75} />
-                      {website}
-                    </span>
+                    </a>
                   ) : null}
                 </div>
               ) : null}

@@ -5,7 +5,7 @@ import axios from "axios";
 import { motion, useReducedMotion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowLeft, Mail, Phone, Download, ChevronRight, Linkedin, Lock, ArrowUpRight, Upload, FolderOpen, Globe, Github } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Download, ChevronRight, Linkedin, Lock, ArrowUpRight, Upload, FolderOpen, Github } from "lucide-react";
 import AppHeader from "../components/layout/AppHeader";
 import AppFooter from "../components/layout/AppFooter";
 import PortfolioHTMLDownload from "./Download";
@@ -34,7 +34,6 @@ const PLACEHOLDER_PORTFOLIO_DATA = {
   email: "email@example.com",
   phone: "+1 234 567 8900",
   location: "",
-  website: "",
   linkedin: "",
   github: "",
   certifications: [],
@@ -109,12 +108,10 @@ function Portfolio2Layout({ data }) {
   const email = data?.email || "";
   const phone = data?.phone || "";
   const linkedin = data?.linkedin || "";
-  const website = data?.website || "";
   const github = data?.github || "";
   const firstName = name.split(/\s+/)[0] || name;
   const displayName = name.trim() || "Your Name";
   const initials = name.split(/\s+/).map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "Y";
-  const contactHref = email ? `mailto:${email}` : "#contact";
 
   const socials = [
     linkedin
@@ -122,13 +119,6 @@ function Portfolio2Layout({ data }) {
           href: linkedin.startsWith("http") ? linkedin : `https://${linkedin}`,
           icon: Linkedin,
           label: "LinkedIn",
-        }
-      : null,
-    website
-      ? {
-          href: website.startsWith("http") ? website : `https://${website}`,
-          icon: Globe,
-          label: "Website",
         }
       : null,
     github
@@ -347,19 +337,6 @@ function Portfolio2Layout({ data }) {
                 <Phone size={18} /> {phone}
               </motion.a>
             )}
-            {website && (
-              <motion.a
-                href={website.startsWith("http") ? website : `https://${website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg border-2 border-cyan-400/60 px-5 py-3 text-sm font-medium text-cyan-400 hover:bg-cyan-400/10 transition-colors"
-                variants={fadeUp}
-                whileHover={{ scale: 1.05 }}
-                whileTap={buttonTap}
-              >
-                <Globe size={18} /> Website
-              </motion.a>
-            )}
             {linkedin && (
               <motion.a href={linkedin.startsWith("http") ? linkedin : `https://${linkedin}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border-2 border-cyan-400/60 px-5 py-3 text-sm font-medium text-cyan-400 hover:bg-cyan-400/10 transition-colors" variants={fadeUp} whileHover={{ scale: 1.05 }} whileTap={buttonTap}>
                 <Linkedin size={18} /> LinkedIn
@@ -410,7 +387,6 @@ function Portfolio1StaticLayout({ data }) {
   const email = data?.email || "";
   const phone = data?.phone || "";
   const linkedin = data?.linkedin || "";
-  const website = data?.website || "";
   const github = data?.github || "";
   const initials = name.split(/\s+/).map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "P";
   const firstName = name.split(/\s+/)[0] || "Portfolio";
@@ -537,17 +513,6 @@ function Portfolio1StaticLayout({ data }) {
                       aria-label="GitHub"
                     >
                       <Github size={18} />
-                    </a>
-                  )}
-                  {website && (
-                    <a
-                      href={website.startsWith("http") ? website : `https://${website}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 transition-colors"
-                      aria-label="Website"
-                    >
-                      <Globe size={18} />
                     </a>
                   )}
                 </div>
@@ -683,12 +648,6 @@ function Portfolio1StaticLayout({ data }) {
                   LinkedIn
                 </motion.a>
               )}
-              {website && (
-                <motion.a href={website.startsWith("http") ? website : `https://${website}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border-2 border-white/30 px-5 py-3 text-sm font-medium hover:bg-white/10 transition-colors" variants={fadeUp} whileHover={{ scale: 1.05 }} whileTap={buttonTap}>
-                  <ArrowUpRight size={18} />
-                  Website
-                </motion.a>
-              )}
               {github && (
                 <motion.a href={github.startsWith("http") ? github : `https://${github}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-lg border-2 border-white/30 px-5 py-3 text-sm font-medium hover:bg-white/10 transition-colors" variants={fadeUp} whileHover={{ scale: 1.05 }} whileTap={buttonTap}>
                   <Github size={18} />
@@ -790,7 +749,6 @@ function Portfolio3Layout({ data }) {
   const experiences = rawExperience.length ? rawExperience : fallbackExperience;
 
   const socialEmail = data?.email ? String(data.email).trim() : "";
-  const website = data?.website ? String(data.website).trim() : "";
   const phone = data?.phone ? String(data.phone).trim() : "";
   const linkedinRaw = data?.linkedin ? String(data.linkedin).trim() : "";
   const linkedinHref = linkedinRaw
@@ -1201,10 +1159,10 @@ function Portfolio3Layout({ data }) {
                 href={
                   socialEmail
                     ? `mailto:${socialEmail}`
-                    : linkedinHref || githubHref || (website ? (website.startsWith("http") ? website : `https://${website}`) : "#")
+                    : linkedinHref || githubHref || "#"
                 }
                 onClick={(e) => {
-                  if (!socialEmail && !linkedinHref && !githubHref && !website) e.preventDefault();
+                  if (!socialEmail && !linkedinHref && !githubHref) e.preventDefault();
                 }}
                 className="btn-secondary"
                 style={{ borderColor: "rgba(167,139,250,0.35)" }}
@@ -1214,7 +1172,7 @@ function Portfolio3Layout({ data }) {
               </a>
             </motion.div>
 
-            {(socialEmail || phone || linkedinHref || githubHref || website) && (
+            {(socialEmail || phone || linkedinHref || githubHref) && (
               <motion.div
                 className="p3-hero-item mt-6 flex flex-wrap gap-2"
                 initial={reducedMotion ? undefined : { opacity: 0, y: 10 }}
@@ -1267,19 +1225,6 @@ function Portfolio3Layout({ data }) {
                   >
                     <Github size={14} className="text-cyan-200" />
                     GitHub
-                  </motion.a>
-                )}
-                {website && (
-                  <motion.a
-                    href={website.startsWith("http") ? website : `https://${website}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/85 hover:border-violet-400/40 hover:bg-white/10 transition-colors"
-                    whileHover={reducedMotion ? undefined : { scale: 1.03 }}
-                    whileTap={buttonTap}
-                  >
-                    <Globe size={14} className="text-cyan-200" />
-                    Website
                   </motion.a>
                 )}
               </motion.div>
@@ -1848,7 +1793,7 @@ function Portfolio3Layout({ data }) {
             })}
           </motion.div>
 
-      {(socialEmail || website || phone || linkedinHref || githubHref) && (
+      {(socialEmail || phone || linkedinHref || githubHref) && (
             <motion.div
               className="mt-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
               variants={revealVariants}
@@ -1875,18 +1820,6 @@ function Portfolio3Layout({ data }) {
                   <a href={`tel:${phone}`} className="btn-secondary" style={{ borderColor: "rgba(167,139,250,0.35)" }}>
                     <Phone size={18} />
                     Call
-                  </a>
-                )}
-                {website && (
-                  <a
-                    href={website.startsWith("http") ? website : `https://${website}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-secondary"
-                    style={{ borderColor: "rgba(217,70,239,0.35)" }}
-                  >
-                    <ArrowUpRight size={18} />
-                    Website
                   </a>
                 )}
                 {githubHref && (
@@ -1964,16 +1897,6 @@ function Portfolio3Layout({ data }) {
               {githubHref && (
                 <a href={githubHref} target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-cyan-300/90 hover:text-cyan-200">
                   GitHub
-                </a>
-              )}
-              {website && (
-                <a
-                  href={website.startsWith("http") ? website : `https://${website}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs font-medium text-violet-300/90 hover:text-violet-200"
-                >
-                  Website
                 </a>
               )}
             </div>

@@ -1,3 +1,4 @@
+import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
@@ -170,7 +171,6 @@ export default function Resume10Layout({ data }) {
   const location = (data?.location || data?.address || "").trim();
   const phone = (data?.phone || "").trim();
   const email = (data?.email || "").trim();
-  const website = displayLink(data?.website || "");
   const linkedin = displayLink(data?.linkedin || "");
   const github = displayLink(data?.github || "");
 
@@ -192,7 +192,7 @@ export default function Resume10Layout({ data }) {
   const certCols = twoColumns(certifications);
   const skillCols = twoColumns(skillsList);
 
-  const headerContactParts = [phone, email, website].filter(Boolean);
+  const headerContactParts = [phone, email].filter(Boolean);
   const headerSocialParts = [linkedin, github].filter(Boolean);
 
   return (
@@ -215,37 +215,51 @@ export default function Resume10Layout({ data }) {
               </p>
             )}
             {headerContactParts.length > 0 && (
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[9px] sm:text-[10px] text-neutral-800 sm:justify-end">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[9px] sm:text-[10px] text-neutral-800 sm:justify-end">
                 {phone && (
                   <>
                     <span className="text-neutral-500 uppercase tracking-wider">P</span>
-                    <span className="tabular-nums">{phone}</span>
+                    <a href={resumeTelHref(phone)} className="tabular-nums text-inherit hover:underline">
+                      {phone}
+                    </a>
                   </>
                 )}
-                {phone && email && <span className="text-neutral-300">·</span>}
+                {phone && email && <span className="mx-1.5 text-neutral-300">·</span>}
                 {email && (
                   <>
                     <span className="text-neutral-500 uppercase tracking-wider">E</span>
-                    <span className="break-all">{email}</span>
+                    <a href={resumeMailtoHref(email)} className="break-all text-inherit hover:underline">
+                      {email}
+                    </a>
                   </>
                 )}
-                {website && (phone || email) && <span className="text-neutral-300">·</span>}
-                {website && <span className="break-all">{website}</span>}
               </div>
             )}
             {headerSocialParts.length > 0 && (
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[9px] sm:text-[10px] text-neutral-800 sm:justify-end">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[9px] sm:text-[10px] text-neutral-800 sm:justify-end">
                 {linkedin && (
                   <>
                     <span className="text-neutral-500 uppercase tracking-wider">in</span>
-                    <span className="break-all">{linkedin}</span>
+                    <a
+                      href={resumeExternalHref(data?.linkedin)}
+                      className="break-all text-inherit hover:underline"
+                      {...resumeHttpNewTabProps(resumeExternalHref(data?.linkedin))}
+                    >
+                      {linkedin}
+                    </a>
                   </>
                 )}
-                {linkedin && github && <span className="text-neutral-300">·</span>}
+                {linkedin && github && <span className="mx-1.5 text-neutral-300">·</span>}
                 {github && (
                   <>
                     <span className="text-neutral-500 uppercase tracking-wider">GH</span>
-                    <span className="break-all">{github}</span>
+                    <a
+                      href={resumeExternalHref(data?.github)}
+                      className="break-all text-inherit hover:underline"
+                      {...resumeHttpNewTabProps(resumeExternalHref(data?.github))}
+                    >
+                      {github}
+                    </a>
                   </>
                 )}
               </div>

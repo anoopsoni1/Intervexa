@@ -8,6 +8,7 @@ import {
   Phone,
 } from "lucide-react";
 
+import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseProjectForResume } from "../utils/projectForm";
 import ResumeProjectLink from "../components/resume/ResumeProjectLink";
@@ -149,8 +150,6 @@ export default function Resume8Layout({ data }) {
   const linkedinRaw = (data?.linkedin || "").trim();
   const linkedin = cleanLink(linkedinRaw);
   const linkedinIsLinkedIn = /linkedin\.com/i.test(linkedinRaw);
-  const websiteRaw = (data?.website || "").trim();
-  const websiteDisplay = cleanLink(websiteRaw);
   const githubRaw = (data?.github || "").trim();
   const github = cleanLink(githubRaw);
   const phone = (data?.phone || "").trim();
@@ -193,8 +192,8 @@ export default function Resume8Layout({ data }) {
               </>
             )}
           </div>
-          {(location || email || phone || linkedin || websiteDisplay || github) && (
-            <div className="flex w-full min-w-0 flex-col items-end gap-1.5 text-[9px] leading-snug text-black sm:w-auto sm:max-w-[min(100%,19rem)] sm:text-[10px] sm:leading-relaxed print:max-w-76 print:text-[9px] print:gap-1">
+          {(location || email || phone || linkedin || github) && (
+            <div className="flex w-full min-w-0 flex-col items-end gap-2.5 text-[9px] leading-snug text-black sm:w-auto sm:max-w-[min(100%,19rem)] sm:text-[10px] sm:leading-relaxed print:max-w-76 print:text-[9px] print:gap-2">
               {location && (
                 <span className="inline-flex items-start justify-end gap-1.5 text-right">
                   <MapPin color="black" size={12} className="mt-0.5 shrink-0 text-black print:text-black" strokeWidth={1.75} />
@@ -202,38 +201,46 @@ export default function Resume8Layout({ data }) {
                 </span>
               )}
               {email && (
-                <span className="inline-flex items-center justify-end gap-1.5">
+                <a
+                  href={resumeMailtoHref(email)}
+                  className="inline-flex items-center justify-end gap-1.5 text-inherit hover:underline"
+                >
                   <Mail color="black" size={11} className="shrink-0   text-black print:text-black" strokeWidth={1.75} />
                   <span className="break-all text-right">{email}</span>
-                </span>
+                </a>
               )}
               {phone && (
-                <span className="inline-flex items-center justify-end gap-1.5">
+                <a
+                  href={resumeTelHref(phone)}
+                  className="inline-flex items-center justify-end gap-1.5 text-inherit hover:underline"
+                >
                   <Phone color="black" size={11} className="shrink-0 text-black print:text-black" strokeWidth={1.75} />
                   <span className="text-right tabular-nums">{phone}</span>
-                </span>
+                </a>
               )}
               {linkedin && (
-                <span className="inline-flex items-center justify-end gap-1.5 min-w-0">
+                <a
+                  href={resumeExternalHref(linkedinRaw || linkedin)}
+                  className="inline-flex items-center justify-end gap-1.5 min-w-0 text-inherit hover:underline"
+                  {...resumeHttpNewTabProps(resumeExternalHref(linkedinRaw || linkedin))}
+                >
                   {linkedinIsLinkedIn ? (
                     <Linkedin color="black" size={11} className="shrink-0 text-black print:text-black" strokeWidth={1.75} />
                   ) : (
                     <Link2 color="black" size={11} className="shrink-0 text-black print:text-black" strokeWidth={1.75} />
                   )}
                   <span className="break-all text-right">{linkedin}</span>
-                </span>
-              )}
-              {websiteDisplay && (
-                <span className="inline-flex items-center justify-end gap-1.5 min-w-0">
-                  <Link2 color="black" size={11} className="shrink-0 text-black print:text-black" strokeWidth={1.75} />
-                  <span className="break-all text-right">{websiteDisplay}</span>
-                </span>
+                </a>
               )}
               {github && (
-                <span className="inline-flex items-center justify-end gap-1.5 min-w-0">
+                <a
+                  href={resumeExternalHref(githubRaw || github)}
+                  className="inline-flex items-center justify-end gap-1.5 min-w-0 text-inherit hover:underline"
+                  {...resumeHttpNewTabProps(resumeExternalHref(githubRaw || github))}
+                >
                   <Github color="black" size={11} className="shrink-0 text-black print:text-black" strokeWidth={1.75} />
                   <span className="break-all text-right">{github}</span>
-                </span>
+                </a>
               )}
             </div>
           )}

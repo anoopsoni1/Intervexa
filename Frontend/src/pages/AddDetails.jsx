@@ -119,7 +119,13 @@ function buildResumeText(form) {
   }
 
   const text = lines.join("\n");
-  const contact = [form.email?.trim(), form.phone?.trim()].filter(Boolean).join(" | ");
+  const contactParts = [
+    form.email?.trim(),
+    form.phone?.trim(),
+    form.linkedin?.trim(),
+    form.github?.trim(),
+  ].filter(Boolean);
+  const contact = contactParts.join(" | ");
   if (contact) {
     return text + (text ? "\n\n" : "") + contact;
   }
@@ -138,7 +144,6 @@ const initialForm = {
   achievements: [""],
   education: "",
   languageProficiency: "",
-  website: "",
   linkedin: "",
   github: "",
   certifications: [""],
@@ -178,7 +183,6 @@ function detailToForm(d) {
     achievements,
     education: d.education || "",
     languageProficiency: d.languageProficiency || "",
-    website: d.website || "",
     linkedin: d.linkedin || "",
     github: d.github || "",
     certifications:
@@ -219,7 +223,7 @@ function formToPayload(form) {
     achievements: limitAchievements(form.achievements),
     education: (form.education || "").trim() || "",
     languageProficiency: (form.languageProficiency || "").trim() || "",
-    website: (form.website || "").trim() || "",
+    website: "",
     linkedin: (form.linkedin || "").trim() || "",
     github: (form.github || "").trim() || "",
     certifications: (form.certifications || []).map((c) => (c || "").trim()).filter(Boolean),

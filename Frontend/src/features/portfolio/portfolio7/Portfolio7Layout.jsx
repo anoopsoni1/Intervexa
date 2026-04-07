@@ -97,11 +97,9 @@ export default function Portfolio7Layout({ data }) {
   const location = String(data?.location || data?.address || "").trim();
   const linkedin = cleanUrl(data?.linkedin);
   const github = cleanUrl(data?.github);
-  const website = cleanUrl(data?.website);
   const links = [
     { label: "LinkedIn", href: linkedin },
     { label: "GitHub", href: github },
-    { label: "Website", href: website },
   ].filter((item) => item.href);
 
   useLenis(!reducedMotion, lenisRef);

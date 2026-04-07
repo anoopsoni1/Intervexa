@@ -141,7 +141,6 @@ export default function Portfolio6Layout({ data }) {
   const educationText = data?.education ? String(data.education).trim() : "";
   const email = data?.email ? String(data.email).trim() : "";
   const phone = data?.phone ? String(data.phone).trim() : "";
-  const website = data?.website ? String(data.website).trim() : "";
   const linkedinRaw = data?.linkedin ? String(data.linkedin).trim() : "";
   const githubRaw = data?.github ? String(data.github).trim() : "";
 
@@ -155,8 +154,6 @@ export default function Portfolio6Layout({ data }) {
       ? githubRaw
       : `https://${githubRaw.replace(/^\/+/, "")}`
     : "";
-  const websiteHref = website ? (website.startsWith("http") ? website : `https://${website}`) : "";
-
   const projects = useMemo(() => rawProjects.map(normalizeProject), [rawProjects]);
   const experiences = useMemo(() => rawExperience.map(parseExperienceBlock), [rawExperience]);
   const { line1: roleLine1, line2: roleLine2 } = splitRole(role);
@@ -335,8 +332,6 @@ export default function Portfolio6Layout({ data }) {
           phone={phone}
           linkedinHref={linkedinHref}
           githubHref={githubHref}
-          websiteHref={websiteHref}
-          websiteLabel={website}
         />
       </main>
     </div>

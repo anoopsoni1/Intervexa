@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin, User, GraduationCap, Briefcase, FolderOpen, ListChecks, Award, ExternalLink, Linkedin, Github } from "lucide-react";
+import { Phone, Mail, MapPin, User, GraduationCap, Briefcase, FolderOpen, ListChecks, Award, Linkedin, Github } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseProjectForResume } from "../utils/projectForm";
 import ResumeProjectLink from "../components/resume/ResumeProjectLink";
@@ -48,7 +48,7 @@ export default function Resume1Layout({ data }) {
         <div className="pt-0 pb-4 px-4 sm:px-5 border-b border-white/10">
           <h1 className="text-2xl sm:text-2xl font-bold text-white tracking-tight leading-tight">{name}</h1>
           <p className="mt-1 text-sm text-zinc-300 font-medium">{role}</p>
-          <div className="mt-2.5 space-y-1 text-[11px] text-zinc-200">
+          <div className="mt-2.5 space-y-2 text-[11px] text-zinc-200">
             {data?.phone && (
               <p className="flex items-center gap-2">
                 <Phone size={14} className="shrink-0 text-white" /> {data.phone}
@@ -62,19 +62,6 @@ export default function Resume1Layout({ data }) {
             {(data?.location || data?.address) && (
               <p className="flex items-center gap-2">
                 <MapPin size={14} className="shrink-0 text-white" /> {data.location || data.address}
-              </p>
-            )}
-            {data?.website && (
-              <p className="flex items-center gap-2 break-all">
-                <ExternalLink size={14} className="shrink-0 text-white" />
-                <a
-                  href={String(data.website).startsWith("http") ? data.website : `https://${data.website}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-zinc-200 underline decoration-white/40 hover:text-white"
-                >
-                  {String(data.website).replace(/^https?:\/\//i, "")}
-                </a>
               </p>
             )}
             {data?.linkedin && (

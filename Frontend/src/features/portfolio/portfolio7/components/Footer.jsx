@@ -40,7 +40,7 @@ export default function Footer({ email, phone, location, links }) {
                     </a>
                   ))
                 ) : (
-                  <span className="text-sm text-white/45">Add LinkedIn, GitHub, or website</span>
+                  <span className="text-sm text-white/45">Add LinkedIn or GitHub</span>
                 )}
               </div>
             </div>

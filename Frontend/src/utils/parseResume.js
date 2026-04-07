@@ -95,12 +95,52 @@ function getLinesBetween(lines, startIdx, endIdx) {
   return lines.slice(startIdx, endIdx).map((l) => stripBullet(stripAsterisks(l))).filter(Boolean);
 }
 
+/** Strip trailing punctuation often glued to URLs in PDF/text extraction. */
+function stripTrailingUrlPunct(s) {
+  return String(s || "").replace(/[),.;:!?\]}>]+$/g, "").trim();
+}
+
+/** Store URLs without scheme/slash — matches detail form fields and layouts using cleanLink. */
+function urlForForm(rawUrl) {
+  if (!rawUrl) return "";
+  let s = stripTrailingUrlPunct(String(rawUrl).trim());
+  s = s.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+  return s;
+}
+
+/**
+ * Find LinkedIn / GitHub URLs anywhere in extracted resume text.
+ */
+function extractProfileLinks(text) {
+  let linkedin = "";
+  let github = "";
+  if (!text || typeof text !== "string") return { linkedin, github };
+
+  const liHttp = text.match(/https?:\/\/(?:[\w.-]+\.)?linkedin\.com\/[^\s\)\]\>"']+/i);
+  if (liHttp) linkedin = urlForForm(liHttp[0]);
+
+  const ghHttp = text.match(/https?:\/\/(?:[\w.-]+\.)?github\.com\/[^\s\)\]\>"']+/i);
+  if (ghHttp) github = urlForForm(ghHttp[0]);
+
+  if (!linkedin) {
+    const m = text.match(/(?:^|[\s|•,;])((?:www\.)?linkedin\.com\/[^\s\)\]\>"']+)/i);
+    if (m) linkedin = urlForForm(m[1]);
+  }
+  if (!github) {
+    const m = text.match(/(?:^|[\s|•,;])((?:www\.)?github\.com\/[^\s\)\]\>"']+)/i);
+    if (m) github = urlForForm(m[1]);
+  }
+
+  return { linkedin, github };
+}
+
 /** Extract contact from full text. */
 function extractContact(text) {
   const email = text.match(/[\w.+-]+@[\w.-]+\.\w+/)?.[0] || "";
   const phone =
     text.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{2,4}[-.\s]?\d{2,4}(?:[-.\s]?\d+)?/)?.[0]?.replace(/\s/g, " ")?.trim() || "";
-  return { email, phone };
+  const { linkedin, github } = extractProfileLinks(text);
+  return { email, phone, linkedin, github };
 }
 
 export function parseResume(text = "") {
@@ -108,7 +148,7 @@ export function parseResume(text = "") {
   if (!raw) return null;
 
   const lines = raw.split("\n").map((l) => normalizeText(l)).filter(Boolean);
-  const { email, phone } = extractContact(raw);
+  const { email, phone, linkedin, github } = extractContact(raw);
 
   // --- Name & role: first lines; skip if they look like contact ---
   let name = "Your Name";
@@ -273,6 +313,8 @@ export function parseResume(text = "") {
     languageProficiency: languageOnly,
     email,
     phone,
+    linkedin,
+    github,
     raw: text,
   };
 }

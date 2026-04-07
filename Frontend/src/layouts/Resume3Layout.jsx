@@ -1,4 +1,4 @@
-import { Phone, Mail, Linkedin, Github, ExternalLink } from "lucide-react";
+import { Phone, Mail, Linkedin, Github } from "lucide-react";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
@@ -184,7 +184,7 @@ export default function Resume3Layout({ data }) {
           <h1 className="text-2xl sm:text-3xl font-bold text-zinc-800 tracking-tight">{name}</h1>
           <p className="text-sm text-zinc-500 mt-0.5">{role}</p>
         </div>
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-600 shrink-0">
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-600 shrink-0">
           {data?.phone && (
             <a href={`tel:${data.phone}`} className="flex items-center gap-1.5">
               <Phone size={14} className="shrink-0 text-zinc-600" /> {data.phone}
@@ -225,17 +225,6 @@ export default function Resume3Layout({ data }) {
             >
               <Github size={14} className="shrink-0 text-zinc-600" />
               <span className="underline">{String(data.github).replace(/^https?:\/\//i, "")}</span>
-            </a>
-          )}
-          {data?.website && (
-            <a
-              href={String(data.website).startsWith("http") ? data.website : `https://${data.website}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 break-all max-w-full"
-            >
-              <ExternalLink size={14} className="shrink-0 text-zinc-600" />
-              <span className="underline">{String(data.website).replace(/^https?:\/\//i, "")}</span>
             </a>
           )}
         </div>

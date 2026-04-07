@@ -1,4 +1,5 @@
-import { MapPin, Phone, Mail, Globe, Linkedin, Github } from "lucide-react";
+import { MapPin, Phone, Mail, Linkedin, Github } from "lucide-react";
+import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
@@ -109,7 +110,6 @@ export default function Resume12Layout({ data }) {
   const phone = (data?.phone || "").trim();
   const email = (data?.email || "").trim();
   const location = (data?.location || data?.address || "").trim();
-  const website = cleanLink(data?.website || "");
   const linkedin = cleanLink(data?.linkedin || "");
   const github = cleanLink(data?.github || "");
 
@@ -127,11 +127,10 @@ export default function Resume12Layout({ data }) {
 
   const contactItems = [
     location ? { icon: MapPin, value: location } : null,
-    phone ? { icon: Phone, value: phone } : null,
-    email ? { icon: Mail, value: email } : null,
-    website ? { icon: Globe, value: website } : null,
-    linkedin ? { icon: Linkedin, value: linkedin } : null,
-    github ? { icon: Github, value: github } : null,
+    phone ? { icon: Phone, value: phone, href: resumeTelHref(phone) } : null,
+    email ? { icon: Mail, value: email, href: resumeMailtoHref(email) } : null,
+    linkedin ? { icon: Linkedin, value: linkedin, href: resumeExternalHref(linkedin) } : null,
+    github ? { icon: Github, value: github, href: resumeExternalHref(github) } : null,
   ].filter(Boolean);
 
   const mono = monogramFromName(name);
@@ -153,13 +152,23 @@ export default function Resume12Layout({ data }) {
               {role}
             </p>
             {contactItems.length > 0 && (
-              <div className="mt-3 flex flex-col min-[380px]:flex-row min-[380px]:flex-wrap items-stretch min-[380px]:items-center justify-center md:justify-start gap-x-4 gap-y-1.5 text-[11px] text-[#8a8a8a]">
+              <div className="mt-3 flex flex-col min-[380px]:flex-row min-[380px]:flex-wrap items-stretch min-[380px]:items-center justify-center md:justify-start gap-x-6 gap-y-2 text-[11px] text-[#8a8a8a]">
                 {contactItems.map((item, idx) => {
                   const Icon = item.icon;
                   return (
                     <span key={`${item.value}-${idx}`} className="inline-flex items-center justify-center md:justify-start gap-1.5 min-w-0">
                       <Icon size={11} className="text-[#a0a0a0] shrink-0" />
-                      <span className="min-w-0 wrap-break-word break-all">{item.value}</span>
+                      {item.href ? (
+                        <a
+                          href={item.href}
+                          className="min-w-0 wrap-break-word break-all text-inherit hover:underline"
+                          {...resumeHttpNewTabProps(item.href)}
+                        >
+                          {item.value}
+                        </a>
+                      ) : (
+                        <span className="min-w-0 wrap-break-word break-all">{item.value}</span>
+                      )}
                     </span>
                   );
                 })}

@@ -34,7 +34,6 @@ const INITIAL_FORM = {
   achievements: [""],
   education: "",
   languageProficiency: "",
-  website: "",
   linkedin: "",
   github: "",
   certifications: [""],
@@ -134,7 +133,13 @@ export function buildResumeTextFromForm(form) {
     certLines.forEach((c) => lines.push(c));
   }
   const text = lines.join("\n");
-  const contact = [form.email?.trim(), form.phone?.trim()].filter(Boolean).join(" | ");
+  const contactParts = [
+    form.email?.trim(),
+    form.phone?.trim(),
+    form.linkedin?.trim(),
+    form.github?.trim(),
+  ].filter(Boolean);
+  const contact = contactParts.join(" | ");
   if (contact) return text + (text ? "\n\n" : "") + contact;
   return text;
 }
@@ -186,7 +191,6 @@ export function detailLikeToForm(d) {
     achievements,
     education: d.education || "",
     languageProficiency: d.languageProficiency || "",
-    website: d.website || "",
     linkedin: d.linkedin || "",
     github: d.github || "",
     certifications:
@@ -222,8 +226,8 @@ export function parsedToDetailPayload(parsed) {
     email: (parsed.email || "").trim() || "",
     phone: (parsed.phone || "").trim() || "",
     website: "",
-    linkedin: "",
-    github: "",
+    linkedin: (parsed.linkedin || "").trim() || "",
+    github: (parsed.github || "").trim() || "",
     certifications: [],
   };
 }
@@ -258,10 +262,13 @@ export async function fetchDetailForResume() {
       languageProficiency: d.languageProficiency || "",
       email: d.email || "",
       phone: d.phone || "",
-      website: d.website != null ? String(d.website).trim() : "",
+      location: d.location != null ? String(d.location).trim() : "",
       linkedin: d.linkedin != null ? String(d.linkedin).trim() : "",
       github: d.github != null ? String(d.github).trim() : "",
+      passions: d.passions != null ? String(d.passions).trim() : "",
       certifications: normalizeStringList(d.certifications),
+      publications: d.publications,
+      volunteering: d.volunteering,
     };
   } catch (_) {
     return null;

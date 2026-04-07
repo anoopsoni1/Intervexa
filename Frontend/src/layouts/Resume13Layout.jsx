@@ -1,6 +1,12 @@
-import { MapPin, Phone, Mail, Globe, Linkedin, Github } from "lucide-react";
+import { MapPin, Phone, Mail, Linkedin, Github } from "lucide-react";
 import { parseProjectForResume } from "../utils/projectForm";
 import ResumeProjectLink from "../components/resume/ResumeProjectLink";
+import {
+  resumeExternalHref,
+  resumeHttpNewTabProps,
+  resumeMailtoHref,
+  resumeTelHref,
+} from "../utils/resumeContactHref";
 
 const DOCUMENT_CLASS =
   "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col antialiased";
@@ -78,12 +84,19 @@ function SectionTitle({ children }) {
   );
 }
 
-function ContactLine({ icon: Icon, value }) {
+function ContactLine({ icon: Icon, value, href }) {
   if (!value) return null;
+  const body = href ? (
+    <a href={href} className="break-all text-inherit hover:underline" {...resumeHttpNewTabProps(href)}>
+      {value}
+    </a>
+  ) : (
+    <span className="break-all">{value}</span>
+  );
   return (
     <div className="flex items-start gap-2 text-[11px] leading-[1.4] text-[#11314a]">
       <Icon size={12} className="mt-[2px] shrink-0 text-[#0b4870]" />
-      <span className="break-all">{value}</span>
+      {body}
     </div>
   );
 }
@@ -96,7 +109,6 @@ export default function Resume13Layout({ data }) {
   const phone = (data?.phone || "").trim();
   const email = (data?.email || "").trim();
   const location = (data?.location || data?.address || "").trim();
-  const website = cleanLink(data?.website || "");
   const linkedin = cleanLink(data?.linkedin || "");
   const github = cleanLink(data?.github || "");
 
@@ -126,13 +138,12 @@ export default function Resume13Layout({ data }) {
               <h3 className="text-[31px] font-semibold text-[#0b4870] border-b border-[#c6ccd2] pb-2">
                 Contact
               </h3>
-              <div className="mt-3 space-y-2.5">
-                <ContactLine icon={Mail} value={email} />
-                <ContactLine icon={Phone} value={phone} />
+              <div className="mt-3 space-y-3">
+                <ContactLine icon={Mail} value={email} href={resumeMailtoHref(email)} />
+                <ContactLine icon={Phone} value={phone} href={resumeTelHref(phone)} />
                 <ContactLine icon={MapPin} value={location} />
-                <ContactLine icon={Globe} value={website} />
-                <ContactLine icon={Linkedin} value={linkedin} />
-                <ContactLine icon={Github} value={github} />
+                <ContactLine icon={Linkedin} value={linkedin} href={resumeExternalHref(linkedin)} />
+                <ContactLine icon={Github} value={github} href={resumeExternalHref(github)} />
               </div>
             </section>
 

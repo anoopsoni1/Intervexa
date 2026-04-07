@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Github, Globe, Linkedin, Mail, Phone } from "lucide-react";
+import { Github, Linkedin, Mail, Phone } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 
 function formatLocalTime() {
@@ -27,8 +27,6 @@ export default function Contact({
   phone,
   linkedinHref,
   githubHref,
-  websiteHref,
-  websiteLabel,
 }) {
   const digits = phone ? String(phone).replace(/\D/g, "") : "";
   const waHref = digits.length >= 10 ? `https://wa.me/${digits}` : "";
@@ -40,15 +38,6 @@ export default function Contact({
     githubHref ? { href: githubHref, label: "GitHub", value: "Repositories", Icon: Github, external: true } : null,
     waHref
       ? { href: waHref, label: "WhatsApp", value: "Message", Icon: FaWhatsapp, external: true, isFa: true }
-      : null,
-    websiteHref
-      ? {
-          href: websiteHref,
-          label: "Website",
-          value: websiteLabel || "Visit",
-          Icon: Globe,
-          external: true,
-        }
       : null,
   ].filter(Boolean);
 

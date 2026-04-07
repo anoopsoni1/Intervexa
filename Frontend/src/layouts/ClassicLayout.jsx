@@ -1,4 +1,5 @@
 import { Phone, Mail, MapPin, ExternalLink, FolderOpen, Award } from "lucide-react";
+import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
@@ -52,31 +53,46 @@ export default function ClassicLayout({ data }) {
           <h1 className={`text-2xl sm:text-3xl font-bold ${ACCENT} tracking-tight`}>{name}</h1>
           <p className="text-sm text-slate-600 mt-0.5">{role}</p>
         </div>
-        <div className="space-y-1.5 text-xs text-slate-700 text-right">
+        <div className="space-y-2.5 text-xs text-slate-700 text-right">
           {data?.phone && (
-            <p className="flex items-center gap-2 justify-end">
+            <a
+              href={resumeTelHref(data.phone)}
+              className="flex items-center gap-2 justify-end text-inherit hover:underline"
+            >
               <Phone size={12} className="shrink-0 text-slate-600" /> {data.phone}
-            </p>
+            </a>
           )}
           {data?.email && (
-            <p className="flex items-center gap-2 break-all justify-end">
+            <a
+              href={resumeMailtoHref(data.email)}
+              className="flex items-center gap-2 break-all justify-end text-inherit hover:underline"
+            >
               <Mail size={12} className="shrink-0 text-slate-600" /> {data.email}
-            </p>
+            </a>
           )}
           {(data?.location || data?.address) && (
             <p className="flex items-center gap-2 justify-end">
               <MapPin size={12} className="shrink-0 text-slate-600" /> {data.location || data.address}
             </p>
           )}
-          {(data?.website || data?.linkedin) && (
-            <p className="flex items-center gap-2 break-all justify-end">
-              <ExternalLink size={12} className="shrink-0 text-slate-600" /> {data.website || (data.linkedin && data.linkedin.replace(/^https?:\/\//i, "")) || ""}
-            </p>
+          {data?.linkedin && (
+            <a
+              href={resumeExternalHref(data.linkedin)}
+              className="flex items-center gap-2 break-all justify-end text-inherit hover:underline"
+              {...resumeHttpNewTabProps(resumeExternalHref(data.linkedin))}
+            >
+              <ExternalLink size={12} className="shrink-0 text-slate-600" />{" "}
+              {(data.linkedin && data.linkedin.replace(/^https?:\/\//i, "")) || ""}
+            </a>
           )}
           {data?.github && (
-            <p className="flex items-center gap-2 break-all justify-end">
+            <a
+              href={resumeExternalHref(data.github)}
+              className={`flex items-center gap-2 break-all justify-end text-inherit hover:underline${data?.linkedin ? " mt-1" : ""}`}
+              {...resumeHttpNewTabProps(resumeExternalHref(data.github))}
+            >
               <ExternalLink size={12} className="shrink-0 text-slate-600" /> {String(data.github).replace(/^https?:\/\//i, "")}
-            </p>
+            </a>
           )}
         </div>
       </div>

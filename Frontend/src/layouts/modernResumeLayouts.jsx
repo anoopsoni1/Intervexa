@@ -1,4 +1,4 @@
-/** Modern resume layouts: Resume1–10. Re-exported for use in ResumeView and elsewhere. */
+/** Modern resume layouts: Resume1–16. Re-exported for use in ResumeView and elsewhere. */
 export { default as Resume1Layout } from "./Resume1Layout";
 export { default as Resume2Layout } from "./Resume2Layout";
 export { default as Resume3Layout } from "./Resume3Layout";
@@ -12,3 +12,6 @@ export { default as Resume10Layout } from "./Resume10Layout";
 export { default as Resume11Layout } from "./Resume11Layout";
 export { default as Resume12Layout } from "./Resume12Layout";
 export { default as Resume13Layout } from "./Resume13Layout";
+export { default as Resume14Layout } from "./Resume14Layout";
+export { default as Resume15Layout } from "./Resume15Layout";
+export { default as Resume16Layout } from "./Resume16Layout";

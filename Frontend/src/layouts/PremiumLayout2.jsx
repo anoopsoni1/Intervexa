@@ -163,7 +163,7 @@ export default function PremiumLayout2({ data }) {
         )}
         {location ? <p className="text-[10px] leading-snug mt-0.5">{location}</p> : null}
         {showAddrLine ? <p className="text-[9px] leading-snug mt-0.5">{address}</p> : null}
-        {data?.linkedin || data?.website || data?.github ? (
+        {data?.linkedin || data?.github ? (
           <p className="text-[9px] mt-0.5 break-all">
             {data?.linkedin ? (
               <a
@@ -175,18 +175,11 @@ export default function PremiumLayout2({ data }) {
                 {String(data.linkedin).replace(/^https?:\/\//i, "")}
               </a>
             ) : null}
-            {data?.linkedin && (data?.website || data?.github) ? " · " : null}
-            {data?.website ? (
-              <a
-                href={String(data.website).startsWith("http") ? data.website : `https://${data.website}`}
-                className="text-blue-700 underline print:text-black"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {String(data.website).replace(/^https?:\/\//i, "")}
-              </a>
+            {data?.linkedin && data?.github ? (
+              <span className="mx-2 select-none align-baseline" aria-hidden>
+                ·
+              </span>
             ) : null}
-            {(data?.linkedin || data?.website) && data?.github ? " · " : null}
             {data?.github ? (
               <a
                 href={String(data.github).startsWith("http") ? data.github : `https://${data.github}`}

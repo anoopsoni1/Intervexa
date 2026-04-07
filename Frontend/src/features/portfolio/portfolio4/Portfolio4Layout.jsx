@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Award, Github, Layers, Linkedin, Mail, Globe, Phone, Sparkles } from "lucide-react";
+import { Award, Github, Layers, Linkedin, Mail, Phone, Sparkles } from "lucide-react";
 
 import { useLenis } from "./useLenis.js";
 import AnimatedBackground from "./AnimatedBackground.jsx";
@@ -101,7 +101,7 @@ const projectCardVariant = {
 /**
  * Portfolio 4 — minimal dark layout inspired by kentokawazoe.com.
  * Uses only Detail / parseResume fields: name, role, summary, skills, experience,
- * projects, education, languageProficiency, email, phone, website, linkedin, github, certifications.
+ * projects, education, languageProficiency, email, phone, linkedin, github, certifications.
  */
 export default function Portfolio4Layout({ data }) {
   const reducedMotion = useReducedMotion();
@@ -123,7 +123,6 @@ export default function Portfolio4Layout({ data }) {
   const languageText = data?.languageProficiency ? String(data.languageProficiency).trim() : "";
   const email = data?.email ? String(data.email).trim() : "";
   const phone = data?.phone ? String(data.phone).trim() : "";
-  const website = data?.website ? String(data.website).trim() : "";
   const linkedinRaw = data?.linkedin ? String(data.linkedin).trim() : "";
   const githubRaw = data?.github ? String(data.github).trim() : "";
   const certifications = Array.isArray(data?.certifications)
@@ -140,8 +139,6 @@ export default function Portfolio4Layout({ data }) {
       ? githubRaw
       : `https://${githubRaw.replace(/^\/+/, "")}`
     : "";
-  const websiteHref = website ? (website.startsWith("http") ? website : `https://${website}`) : "";
-
   const projects = useMemo(() => rawProjects.map(normalizeProject), [rawProjects]);
   const experiences = useMemo(() => rawExperience.map(parseExperienceBlock), [rawExperience]);
 
@@ -267,7 +264,6 @@ export default function Portfolio4Layout({ data }) {
 
   const socials = [
     { href: linkedinHref, Icon: Linkedin, label: "LinkedIn" },
-    { href: websiteHref, Icon: Globe, label: "Website" },
     { href: githubHref, Icon: Github, label: "GitHub" },
     { href: email ? `mailto:${email}` : "", Icon: Mail, label: "Email" },
   ].filter((s) => s.href);
@@ -648,12 +644,6 @@ export default function Portfolio4Layout({ data }) {
               <a data-cursor="pointer" href={`tel:${phone.replace(/\s/g, "")}`} className="inline-flex items-center gap-2 hover:text-white">
                 <Phone className="h-4 w-4 shrink-0" strokeWidth={1.25} />
                 {phone}
-              </a>
-            ) : null}
-            {websiteHref ? (
-              <a data-cursor="pointer" href={websiteHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-white">
-                <Globe className="h-4 w-4 shrink-0" strokeWidth={1.25} />
-                {website}
               </a>
             ) : null}
           </div>

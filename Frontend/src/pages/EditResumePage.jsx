@@ -276,6 +276,7 @@ export default function EditResumePage() {
     try {
       let payload = null;
       if (optimizedDetail) {
+        const fromText = toSave ? parseResume(toSave) : null;
         payload = {
           name: optimizedDetail.name ?? "Your Name",
           role: optimizedDetail.role ?? "Your Role",
@@ -290,6 +291,9 @@ export default function EditResumePage() {
           languageProficiency: optimizedDetail.languageProficiency ?? "",
           email: optimizedDetail.email ?? "",
           phone: optimizedDetail.phone ?? "",
+          website: "",
+          linkedin: optimizedDetail.linkedin ?? fromText?.linkedin ?? "",
+          github: optimizedDetail.github ?? fromText?.github ?? "",
         };
       } else {
         const parsed = parseResume(toSave);

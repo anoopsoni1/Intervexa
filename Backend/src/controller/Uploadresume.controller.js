@@ -284,8 +284,8 @@ export const aiEditResume = Asynchandler(async (req, res) => {
   const isReoptimize = Boolean(reoptimize);
 
   const baseInstruction = isReoptimize
-    ? `You are a professional resume editor. The following text is ALREADY an optimized resume (previously improved by AI). Your task is to FURTHER optimize it while treating these 4 checks as mandatory priorities: (1) ATS parse/readability, (2) quantifying impact, (3) repetition removal, and (4) spelling & grammar accuracy. Strengthen wording, add measurable impact where possible without inventing facts, use stronger action verbs, improve ATS keyword density, tighten the summary, and polish every section. Keep long project text to 1-5 lines or 1-2 bullets per project; do not leave or create long paragraphs. Preserve all factual content and the same structure. Return a single JSON object with exactly these keys—no other keys, no markdown, no code fence:`
-    : `You are a professional resume editor focused on ATS optimization. Parse the resume text below and improve it with 4 mandatory priorities: (1) ATS parse/readability, (2) quantifying impact, (3) repetition removal, and (4) spelling & grammar accuracy. Use strong action verbs, improve ATS keywords, and return a single JSON object with exactly these keys—no other keys, no markdown, no code fence:`;
+    ? `You are a professional resume editor. The following text is ALREADY an optimized resume (previously improved by AI). Your task is to FURTHER optimize it while treating these 4 checks as mandatory priorities: (1) ATS parse/readability, (2) quantifying impact, (3) repetition removal this is an important check, and (4) spelling & grammar accuracy. Strengthen wording, add measurable impact where possible without inventing facts, use stronger action verbs, improve ATS keyword density, tighten the summary, and polish every section. Keep long project text to 1-5 lines or 1-2 bullets per project; do not leave or create long paragraphs. Preserve all factual content and the same structure. Return a single JSON object with exactly these keys—no other keys, no markdown, no code fence:`
+    : `You are a professional resume editor focused on ATS optimization. Parse the resume text below and improve it with 4 mandatory priorities: (1) ATS parse/readability, (2) quantifying impact, (3) repetition removal this is an important check, and (4) spelling & grammar accuracy. Use strong action verbs, improve ATS keywords, and return a single JSON object with exactly these keys—no other keys, no markdown, no code fence:`;
 
   const prompt = `${baseInstruction}
 
@@ -300,10 +300,12 @@ export const aiEditResume = Asynchandler(async (req, res) => {
 - languageProficiency (string): languages
 - email (string): email address
 - phone (string): phone number
+- github (string): github username
+- linkedin (string): linkedin username
 - references (array of strings, optional): each element is one reference entry, e.g. "Name\\nTitle, Company\\nEmail / Phone". If the resume has no references section, return an empty array or omit this key.
 -> strict the rules and do not break the rules.
 Rules:
-- Prioritize these 4 checks in every section: ATS parse/readability, quantifying impact, repetition removal, and spelling & grammar.
+- Prioritize these 4 checks in every section: ATS parse/readability, quantifying impact, repetition removal this is an important check, and spelling & grammar.
 - Preserve all factual content; do not invent companies, roles, dates, projects, certifications, or numbers.
 - Fix grammar and spelling.
 - Quantify impact where possible from available facts; if exact numbers are not present, improve impact wording without fabricating metrics.
@@ -354,6 +356,8 @@ ${resumeText}`;
       references: Array.isArray(parsed.references)
         ? parsed.references.map((r) => (r != null ? String(r).trim() : "")).filter(Boolean)
         : [],
+      github: parsed.github != null ? String(parsed.github).trim() : "",
+      linkedin: parsed.linkedin != null ? String(parsed.linkedin).trim() : "",
     };
   } catch (e) {
     console.error("AI optimize JSON parse error:", e, raw?.slice(0, 300));

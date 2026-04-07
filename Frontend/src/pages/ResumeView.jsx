@@ -22,6 +22,9 @@ import {
   Resume11Layout,
   Resume12Layout,
   Resume13Layout,
+  Resume14Layout,
+  Resume15Layout,
+  Resume16Layout,
 } from "../layouts/modernResumeLayouts";
 import ClassicLayout from "../layouts/ClassicLayout";
 import ClassicLayout1 from "../layouts/ClassicLayout1";
@@ -54,9 +57,10 @@ const PLACEHOLDER_RESUME_DATA = {
   email: "email@example.com",
   phone: "+1 234 567 8900",
   location: "City, Country",
-  website: "www.example.com",
   linkedin: "linkedin.com/in/yourprofile",
   github: "github.com/yourhandle",
+  passions:
+    "Open source — Contributing to developer tools\nPhotography — City and travel\nPublic speaking — Meetups and workshops",
 };
 
 /** Screen (sm+): single-page preview with scale-to-fit. Print: natural height — long resumes span multiple pages. */
@@ -506,6 +510,9 @@ export default function ResumeView() {
               if (num === 11) return <Resume11Layout data={displayData} />;
               if (num === 12) return <Resume12Layout data={displayData} />;
               if (num === 13) return <Resume13Layout data={displayData} />;
+              if (num === 14) return <Resume14Layout data={displayData} />;
+              if (num === 15) return <Resume15Layout data={displayData} />;
+              if (num === 16) return <Resume16Layout data={displayData} />;
               return <Resume2Layout data={displayData} />;
             })()}
             <footer className="resume-doc-footer mt-auto pt-2 text-center text-zinc-500 text-[10px] sm:text-xs print:text-[10px] print:text-zinc-600">

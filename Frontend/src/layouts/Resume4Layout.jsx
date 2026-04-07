@@ -1,4 +1,5 @@
 import { Phone, Mail, MapPin, Linkedin, Github, FolderOpen } from "lucide-react";
+import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
@@ -67,11 +68,14 @@ export default function Resume4Layout({ data }) {
           <h1 className={`text-2xl sm:text-3xl font-bold ${TEXT_DARK} tracking-tight`}>{name}</h1>
           <p className={`text-sm font-normal ${TEXT_DARK}`}>{role}</p>
         </div>
-        <div className="flex flex-col items-end gap-1 text-xs text-[#333] text-right min-w-0 w-full sm:w-auto sm:max-w-[55%]">
+        <div className="flex flex-col items-end gap-2 text-xs text-[#333] text-right min-w-0 w-full sm:w-auto sm:max-w-[55%]">
           {data?.phone && (
-            <span className="inline-flex items-center gap-1.5 justify-end max-w-full">
+            <a
+              href={resumeTelHref(data.phone)}
+              className="inline-flex items-center gap-1.5 justify-end max-w-full text-inherit hover:underline"
+            >
               <Phone size={14} className="shrink-0 text-orange-500" /> {data.phone}
-            </span>
+            </a>
           )}
           {(data?.location || data?.address) && (
             <span className="inline-flex items-center gap-1.5 justify-end max-w-full">
@@ -79,21 +83,32 @@ export default function Resume4Layout({ data }) {
             </span>
           )}
           {data?.email && (
-            <span className="inline-flex items-center gap-1.5 justify-end max-w-full break-all">
+            <a
+              href={resumeMailtoHref(data.email)}
+              className="inline-flex items-center gap-1.5 justify-end max-w-full break-all text-inherit hover:underline"
+            >
               <Mail size={14} className="shrink-0 text-orange-500" /> {data.email}
-            </span>
+            </a>
           )}
-          {(data?.linkedin || data?.website) && (
-            <span className="inline-flex items-center gap-1.5 justify-end max-w-full break-all">
+          {data?.linkedin && (
+            <a
+              href={resumeExternalHref(data.linkedin)}
+              className="inline-flex items-center gap-1.5 justify-end max-w-full break-all text-inherit hover:underline"
+              {...resumeHttpNewTabProps(resumeExternalHref(data.linkedin))}
+            >
               <Linkedin size={14} className="shrink-0 text-orange-500" />{" "}
-              {data.linkedin ? data.linkedin.replace(/^https?:\/\//i, "") : (data.website || "").replace(/^https?:\/\//i, "")}
-            </span>
+              {data.linkedin.replace(/^https?:\/\//i, "")}
+            </a>
           )}
           {data?.github && (
-            <span className="inline-flex items-center gap-1.5 justify-end max-w-full break-all">
+            <a
+              href={resumeExternalHref(data.github)}
+              className="inline-flex items-center gap-1.5 justify-end max-w-full break-all text-inherit hover:underline"
+              {...resumeHttpNewTabProps(resumeExternalHref(data.github))}
+            >
               <Github size={14} className="shrink-0 text-orange-500" />{" "}
               {String(data.github).replace(/^https?:\/\//i, "")}
-            </span>
+            </a>
           )}
         </div>
       </header>

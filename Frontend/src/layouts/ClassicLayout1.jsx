@@ -7,7 +7,7 @@ import {
   Mail,
   MapPin,
   Linkedin,
-  Globe,
+  Github,
   Calendar,
   Phone,
   TrendingUp,
@@ -15,6 +15,7 @@ import {
   Users,
   Settings,
 } from "lucide-react";
+import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
@@ -177,7 +178,7 @@ export default function ClassicLayout1({ data }) {
   const phone = (data?.phone || "").trim();
   const location = (data?.location || data?.address || "").trim();
   const linkedin = cleanLink(data?.linkedin || "");
-  const website = cleanLink(data?.website || "");
+  const github = cleanLink(data?.github || "");
 
   const experienceEntries = (Array.isArray(data?.experience) ? data.experience : [])
     .map(parseExperienceEntry)
@@ -204,24 +205,32 @@ export default function ClassicLayout1({ data }) {
         <p className="mt-1 text-[12px] sm:text-[13px] font-medium leading-snug" style={{ color: ACCENT }}>
           {role}
         </p>
-        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[10px] sm:text-[11px] text-neutral-500">
+        <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-[10px] sm:text-[11px] text-neutral-500">
           {email ? (
-            <span className="inline-flex items-center gap-1.5 min-w-0">
+            <a href={resumeMailtoHref(email)} className="inline-flex items-center gap-1.5 min-w-0 text-inherit hover:underline">
               <Mail size={12} className="shrink-0" style={{ color: ACCENT }} />
               <span className="break-all">{email}</span>
-            </span>
+            </a>
           ) : null}
           {linkedin ? (
-            <span className="inline-flex items-center gap-1.5 min-w-0">
+            <a
+              href={resumeExternalHref(linkedin)}
+              className="inline-flex items-center gap-1.5 min-w-0 text-inherit hover:underline"
+              {...resumeHttpNewTabProps(resumeExternalHref(linkedin))}
+            >
               <Linkedin size={12} className="shrink-0" style={{ color: ACCENT }} />
               <span className="break-all">{linkedin}</span>
-            </span>
+            </a>
           ) : null}
-          {website ? (
-            <span className="inline-flex items-center gap-1.5 min-w-0">
-              <Globe size={12} className="shrink-0" style={{ color: ACCENT }} />
-              <span className="break-all">{website}</span>
-            </span>
+          {github ? (
+            <a
+              href={resumeExternalHref(github)}
+              className="inline-flex items-center gap-1.5 min-w-0 text-inherit hover:underline"
+              {...resumeHttpNewTabProps(resumeExternalHref(github))}
+            >
+              <Github size={12} className="shrink-0" style={{ color: ACCENT }} />
+              <span className="break-all">{github}</span>
+            </a>
           ) : null}
           {location ? (
             <span className="inline-flex items-center gap-1.5">
@@ -230,10 +239,10 @@ export default function ClassicLayout1({ data }) {
             </span>
           ) : null}
           {phone ? (
-            <span className="inline-flex items-center gap-1.5">
+            <a href={resumeTelHref(phone)} className="inline-flex items-center gap-1.5 text-inherit hover:underline">
               <Phone size={12} className="shrink-0 text-neutral-400" />
               {phone}
-            </span>
+            </a>
           ) : null}
         </div>
       </header>

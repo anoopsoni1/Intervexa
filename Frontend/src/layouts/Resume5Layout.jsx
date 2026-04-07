@@ -1,4 +1,5 @@
-import { Phone, Mail, MapPin, ExternalLink, GraduationCap, Sparkles } from "lucide-react";
+import { Phone, Mail, MapPin, Linkedin, Github, GraduationCap, Sparkles } from "lucide-react";
+import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
@@ -91,7 +92,7 @@ export default function Resume5Layout({ data }) {
   const phone = (data?.phone || "").toString().trim();
   const email = (data?.email || "").toString().trim();
   const location = (data?.location || data?.address || "").toString().trim();
-  const website = cleanUrl(data?.website || data?.linkedin || "");
+  const linkedin = cleanUrl(data?.linkedin || "");
   const github = cleanUrl(data?.github || "");
 
   const experienceEntries = (Array.isArray(data?.experience) ? data.experience : [])
@@ -125,19 +126,25 @@ export default function Resume5Layout({ data }) {
               {role}
             </p>
           </div>
-          {(phone || email || location || website || github) && (
-            <div className="flex w-full min-w-0 flex-col items-center gap-2 text-[11px] sm:text-xs text-white/92 sm:w-auto sm:max-w-[min(100%,20rem)] sm:items-end sm:text-right print:items-end print:text-right">
+          {(phone || email || location || linkedin || github) && (
+            <div className="flex w-full min-w-0 flex-col items-center gap-3 text-[11px] sm:text-xs text-white/92 sm:w-auto sm:max-w-[min(100%,20rem)] sm:items-end sm:text-right print:items-end print:text-right">
               {phone && (
-                <span className="inline-flex items-center justify-center gap-2 sm:justify-end print:justify-end">
+                <a
+                  href={resumeTelHref(phone)}
+                  className="inline-flex items-center justify-center gap-2 sm:justify-end print:justify-end text-inherit hover:underline"
+                >
                   <Phone size={14} className="shrink-0 text-cyan-300/90" />
                   <span className="tabular-nums">{phone}</span>
-                </span>
+                </a>
               )}
               {email && (
-                <span className="inline-flex max-w-full items-center justify-center gap-2 break-all sm:justify-end print:justify-end">
+                <a
+                  href={resumeMailtoHref(email)}
+                  className="inline-flex max-w-full items-center justify-center gap-2 break-all sm:justify-end print:justify-end text-inherit hover:underline"
+                >
                   <Mail size={14} className="shrink-0 text-cyan-300/90" />
                   {email}
-                </span>
+                </a>
               )}
               {location && (
                 <span className="inline-flex max-w-full items-start justify-center gap-2 text-left sm:justify-end sm:text-right print:justify-end">
@@ -145,17 +152,25 @@ export default function Resume5Layout({ data }) {
                   <span className="leading-snug">{location}</span>
                 </span>
               )}
-              {website && (
-                <span className="inline-flex max-w-full items-center justify-center gap-2 break-all sm:justify-end print:justify-end">
-                  <ExternalLink size={14} className="shrink-0 text-cyan-300/90" />
-                  {website}
-                </span>
+              {linkedin && (
+                <a
+                  href={resumeExternalHref(data?.linkedin)}
+                  className="inline-flex max-w-full items-center justify-center gap-2 break-all sm:justify-end print:justify-end text-inherit hover:underline"
+                  {...resumeHttpNewTabProps(resumeExternalHref(data?.linkedin))}
+                >
+                  <Linkedin size={14} className="shrink-0 text-cyan-300/90" />
+                  {linkedin}
+                </a>
               )}
               {github && (
-                <span className="inline-flex max-w-full items-center justify-center gap-2 break-all sm:justify-end print:justify-end">
-                  <ExternalLink size={14} className="shrink-0 text-cyan-300/90" />
+                <a
+                  href={resumeExternalHref(data?.github)}
+                  className="inline-flex max-w-full items-center justify-center gap-2 break-all sm:justify-end print:justify-end text-inherit hover:underline"
+                  {...resumeHttpNewTabProps(resumeExternalHref(data?.github))}
+                >
+                  <Github size={14} className="shrink-0 text-cyan-300/90" />
                   {github}
-                </span>
+                </a>
               )}
             </div>
           )}

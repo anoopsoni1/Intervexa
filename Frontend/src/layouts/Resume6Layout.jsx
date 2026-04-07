@@ -1,4 +1,5 @@
-import { Phone, Mail, MapPin, Globe, Linkedin, Github, Briefcase, GraduationCap, Sparkles, FolderOpen, Award } from "lucide-react";
+import { Phone, Mail, MapPin, Linkedin, Github, Briefcase, GraduationCap, Sparkles, FolderOpen, Award } from "lucide-react";
+import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { limitAchievements } from "../utils/resumeAchievements";
 import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
@@ -63,7 +64,6 @@ export default function Resume6Layout({ data }) {
   const phone = String(data?.phone || "").trim();
   const email = String(data?.email || "").trim();
   const location = String(data?.location || data?.address || "").trim();
-  const website = cleanUrl(data?.website);
   const linkedin = cleanUrl(data?.linkedin);
   const github = cleanUrl(data?.github);
 
@@ -85,19 +85,25 @@ export default function Resume6Layout({ data }) {
             <h1 className="text-3xl sm:text-[34px] leading-none font-extrabold tracking-tight text-slate-900">{name}</h1>
             {role && <p className="mt-1.5 text-sm sm:text-[15px] text-slate-600 font-semibold">{role}</p>}
           </div>
-          {(phone || email || location || website || linkedin || github) && (
-            <div className="flex w-full min-w-0 flex-col items-center gap-1.5 text-[11px] sm:text-xs text-slate-700 sm:w-auto sm:max-w-[min(100%,20rem)] sm:items-end sm:text-right print:items-end print:text-right">
+          {(phone || email || location || linkedin || github) && (
+            <div className="flex w-full min-w-0 flex-col items-center gap-2.5 text-[11px] sm:text-xs text-slate-700 sm:w-auto sm:max-w-[min(100%,20rem)] sm:items-end sm:text-right print:items-end print:text-right">
               {phone && (
-                <span className="inline-flex items-center justify-center gap-1.5 sm:justify-end print:justify-end">
+                <a
+                  href={resumeTelHref(phone)}
+                  className="inline-flex items-center justify-center gap-1.5 sm:justify-end print:justify-end text-inherit hover:underline"
+                >
                   <Phone size={12} className="shrink-0 text-slate-500" />
                   <span className="tabular-nums">{phone}</span>
-                </span>
+                </a>
               )}
               {email && (
-                <span className="inline-flex max-w-full items-center justify-center gap-1.5 break-all sm:justify-end print:justify-end">
+                <a
+                  href={resumeMailtoHref(email)}
+                  className="inline-flex max-w-full items-center justify-center gap-1.5 break-all sm:justify-end print:justify-end text-inherit hover:underline"
+                >
                   <Mail size={12} className="shrink-0 text-slate-500" />
                   {email}
-                </span>
+                </a>
               )}
               {location && (
                 <span className="inline-flex max-w-full items-start justify-center gap-1.5 text-left sm:justify-end sm:text-right print:justify-end">
@@ -105,23 +111,25 @@ export default function Resume6Layout({ data }) {
                   <span className="leading-snug">{location}</span>
                 </span>
               )}
-              {website && (
-                <span className="inline-flex max-w-full items-center justify-center gap-1.5 break-all sm:justify-end print:justify-end">
-                  <Globe size={12} className="shrink-0 text-slate-500" />
-                  {website}
-                </span>
-              )}
               {linkedin && (
-                <span className="inline-flex max-w-full items-center justify-center gap-1.5 break-all sm:justify-end print:justify-end">
+                <a
+                  href={resumeExternalHref(linkedin)}
+                  className="inline-flex max-w-full items-center justify-center gap-1.5 break-all sm:justify-end print:justify-end text-inherit hover:underline"
+                  {...resumeHttpNewTabProps(resumeExternalHref(linkedin))}
+                >
                   <Linkedin size={12} className="shrink-0 text-slate-500" />
                   {linkedin}
-                </span>
+                </a>
               )}
               {github && (
-                <span className="inline-flex max-w-full items-center justify-center gap-1.5 break-all sm:justify-end print:justify-end">
+                <a
+                  href={resumeExternalHref(github)}
+                  className="inline-flex max-w-full items-center justify-center gap-1.5 break-all sm:justify-end print:justify-end text-inherit hover:underline"
+                  {...resumeHttpNewTabProps(resumeExternalHref(github))}
+                >
                   <Github size={12} className="shrink-0 text-slate-500" />
                   {github}
-                </span>
+                </a>
               )}
             </div>
           )}
