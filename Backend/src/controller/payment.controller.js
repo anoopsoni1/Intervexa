@@ -8,8 +8,8 @@ dotenv.config();
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
-/** ₹100 in paise */
-const PAYMENT_AMOUNT_PAISE = 100 * 100;
+/** ₹99 in paise */
+const PAYMENT_AMOUNT_PAISE = 99 * 100;
 
 function getRazorpayAuthHeader() {
   if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
