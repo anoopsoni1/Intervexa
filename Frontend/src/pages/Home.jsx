@@ -133,22 +133,37 @@ const FAQ_TOPIC_FILTERS = [
   { id: "interviews", label: "Interview practice" },
 ];
 
+/** Four equal-height bands so the field is split evenly from hero through footer (same count + settings per band). */
+const HOME_PARTICLE_BAND_COUNT = 4;
+const HOME_PARTICLES_PER_BAND = 58;
 
-/** Static starfield — few nodes, no per-star JS animation (was 110 motion components; main FAQ jank source). */
-const FAQ_LOWER_STARS = Array.from({ length: 42 }, (_, i) => {
-  const x = ((i * 53 + 11) % 90) + 2;
-  const y = ((i * 97 + 23) % 84) + 5;
-  const size = 1.1 + (i % 5) * 0.45;
-  const opacity = 0.22 + ((i * 7) % 5) * 0.06;
-  return { id: i, left: `${x}%`, top: `${y}%`, size, opacity };
-});
+function HomePageParticles({ reduceMotion }) {
+  if (reduceMotion) return null;
 
-const FAQ_LOWER_SPARKLES = [
-  { left: "12%", top: "18%", size: 10, rotate: 0 },
-  { left: "78%", top: "28%", size: 8, rotate: 12 },
-  { left: "45%", top: "42%", size: 12, rotate: -8 },
-  { left: "71%", top: "62%", size: 8, rotate: -12 },
-];
+  return (
+    <div
+      className="pointer-events-none absolute inset-0 z-0 grid min-h-full w-full grid-rows-4 opacity-[0.36] mix-blend-screen"
+      aria-hidden
+    >
+      {Array.from({ length: HOME_PARTICLE_BAND_COUNT }, (_, slot) => (
+        <div key={slot} className="relative min-h-0">
+          <Particles
+            id={`home-page-particles-${slot}`}
+            particleColors={["#ffffff", "#a5b4fc", "#67e8f9"]}
+            particleCount={300}
+            particleSpread={9}
+            speed={0.072}
+            particleBaseSize={100}
+            moveParticlesOnHover
+            alphaParticles={false}
+            disableRotation={false}
+            pixelRatio={1}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function FaqSection() {
   const reduceMotion = useReducedMotion();
@@ -189,74 +204,8 @@ function FaqSection() {
     <section
       id="faq"
       aria-labelledby="faq-heading"
-      className="relative z-10 min-h-screen overflow-hidden border-t border-white/10"
+      className="relative z-10 border-t border-white/10"
     >
-      {!reduceMotion ? (
-        <div
-          className="pointer-events-none absolute inset-0 z-0 min-h-full w-full opacity-[0.42] mix-blend-screen"
-          aria-hidden
-        >
-          <Particles
-            id="faq-section-particles"
-            particleColors={["#ffffff", "#a5b4fc", "#67e8f9", "#c4b5fd"]}
-            particleCount={100}
-            particleSpread={8}
-            speed={0.065}
-            particleBaseSize={70}
-            moveParticlesOnHover={false}
-            alphaParticles={false}
-            disableRotation={false}
-            pixelRatio={1}
-          />
-        </div>
-      ) : null}
-
-      {/* Static ambient layers — no infinite motion (cheap on GPU / main thread). */}
-      <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden" aria-hidden>
-        <div className="absolute -left-[20%] top-[10%] h-[min(90vw,520px)] w-[min(90vw,520px)] rounded-full bg-indigo-600/18 blur-3xl" />
-        <div className="absolute -right-[15%] bottom-[5%] h-[min(85vw,480px)] w-[min(85vw,480px)] rounded-full bg-cyan-500/14 blur-3xl" />
-        <div className="absolute left-1/2 top-1/2 h-[min(120vw,900px)] w-[min(120vw,900px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/8 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.12),transparent_55%)]" />
-
-        {/* Lower starfield + sparkles — plain elements + isolate */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-0 isolate h-[min(68vh,720px)] min-h-[260px] contain-paint sm:h-[min(62vh,780px)] sm:min-h-[300px]"
-          aria-hidden
-        >
-          <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(2,6,23,0.55)_0%,transparent_72%)]" />
-          {FAQ_LOWER_STARS.map((star) => (
-            <span
-              key={star.id}
-              className="absolute rounded-full bg-white shadow-[0_0_6px_rgba(199,210,254,0.35)]"
-              style={{
-                left: star.left,
-                top: star.top,
-                width: star.size,
-                height: star.size,
-                opacity: star.opacity,
-              }}
-            />
-          ))}
-          {FAQ_LOWER_SPARKLES.map((sp, i) => (
-            <span
-              key={`sparkle-${i}`}
-              className="absolute flex items-center justify-center text-cyan-200/70"
-              style={{
-                left: sp.left,
-                top: sp.top,
-                width: sp.size,
-                height: sp.size,
-                transform: `rotate(${sp.rotate}deg)`,
-              }}
-            >
-              <svg viewBox="0 0 24 24" className="h-full w-full" fill="currentColor" aria-hidden>
-                <path d="M12 0l2.2 6.8H22l-5.5 4 2.1 6.5L12 15.2 5.4 17.3l2.1-6.5L2 6.8h7.8L12 0z" />
-              </svg>
-            </span>
-          ))}
-        </div>
-      </div>
-
       <div className="relative z-10 mx-auto flex min-h-screen max-w-8xl flex-col px-4 py-20 sm:px-6 sm:py-24 lg:px-10 lg:py-28">
         <div className="grid flex-1 gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-16 xl:gap-20">
           {/* Intro column — sticky on large screens */}
@@ -555,25 +504,8 @@ function HomeFooter() {
       whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="relative z-10 overflow-hidden border-t border-white/10 bg-black/20 print:hidden"
+      className="relative z-10 border-t border-white/10 print:hidden"
     >
-      <div
-        className="pointer-events-none absolute inset-0 z-0 min-h-full w-full opacity-45 mix-blend-screen"
-        aria-hidden
-      >
-        <Particles
-          id="home-footer-particles"
-          particleColors={["#ffffff", "#818cf8", "#22d3ee"]}
-          particleCount={90}
-          particleSpread={8}
-          speed={0.065}
-          particleBaseSize={68}
-          moveParticlesOnHover
-          alphaParticles={false}
-          disableRotation={false}
-          pixelRatio={1}
-        />
-      </div>
       <div
         className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-px bg-linear-to-r from-transparent via-indigo-400/35 to-transparent"
         aria-hidden
@@ -914,38 +846,9 @@ function Home() {
       initial={reduceMotion ? false : { opacity: 0, y: 8 }}
       animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
-      className="relative min-h-screen overflow-hidden"
+      className="relative min-h-screen"
     >
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-indigo-500/20 blur-3xl"
-        animate={
-          reduceMotion
-            ? {}
-            : {
-                x: [0, 24, -24, 0],
-                y: [0, -18, 10, 0],
-                opacity: [0.18, 0.28, 0.22, 0.18],
-                scale: [1, 1.08, 0.96, 1],
-              }
-        }
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-16 right-8 h-64 w-64 rounded-full bg-cyan-400/15 blur-3xl"
-        animate={
-          reduceMotion
-            ? {}
-            : {
-                x: [0, -18, 14, 0],
-                y: [0, -12, 8, 0],
-                opacity: [0.14, 0.24, 0.18, 0.14],
-                scale: [1, 0.94, 1.06, 1],
-              }
-        }
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-      />
+      <HomePageParticles reduceMotion={reduceMotion} />
       <Navbar />
       <Hero resumeStats={resumeStats} />
       <motion.div

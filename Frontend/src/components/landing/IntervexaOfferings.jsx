@@ -10,8 +10,6 @@ import {
   Terminal,
   Video,
 } from "lucide-react";
-import Particles from "../ui/Lighting.jsx";
-
 const CAREER_TOOLS = [
   {
     id: "resume",
@@ -215,30 +213,6 @@ export default function IntervexaOfferings() {
       className="relative z-10 border-t border-white/10 py-16 px-4 sm:px-6 lg:py-20 lg:px-10"
       aria-labelledby="intervexa-tools-heading"
     >
-        <div
-          className="pointer-events-none absolute inset-0 z-0 min-h-full w-full opacity-45 mix-blend-screen"
-          aria-hidden
-        >
-          <Particles
-            id="offerings-tools-particles"
-            particleColors={["#ffffff", "#818cf8", "#c084fc"]}
-            particleCount={100}
-            particleSpread={8}
-            speed={0.07}
-            particleBaseSize={70}
-            moveParticlesOnHover
-            alphaParticles={false}
-            disableRotation={false}
-            pixelRatio={1}
-          />
-        </div>
-        <div
-          className="pointer-events-none absolute inset-0 z-[1] overflow-hidden"
-          aria-hidden
-        >
-          <div className="absolute right-0 top-1/4 h-72 w-72 -translate-y-1/2 rounded-full bg-violet-600/12 blur-3xl" />
-        </div>
-
         <div className="relative z-10 mx-auto max-w-8xl">
           <h2
             id="intervexa-tools-heading"

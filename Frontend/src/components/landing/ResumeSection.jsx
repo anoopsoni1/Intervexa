@@ -5,8 +5,6 @@ import {
   LayoutTemplate,
   Download,
 } from "lucide-react";
-import Particles from "../ui/Lighting.jsx";
-
 const FEATURES = [
   {
     icon: FileText,
@@ -39,36 +37,10 @@ export default function ResumeSection() {
 
   return (
     <section
-      className="relative z-10 overflow-hidden border-t border-white/10 py-16 px-4 sm:px-6 lg:px-10"
+      className="relative z-10 border-t border-white/10 py-16 px-4 sm:px-6 lg:px-10"
       aria-labelledby="resume-section-heading"
     >
-      <div
-        className="pointer-events-none absolute inset-0 z-0 min-h-full w-full opacity-50 mix-blend-screen"
-        aria-hidden
-      >
-        <Particles
-          id="resume-section-particles"
-          particleColors={["#ffffff", "#a5b4fc", "#67e8f9"]}
-          particleCount={110}
-          particleSpread={8}
-          speed={0.07}
-          particleBaseSize={72}
-          moveParticlesOnHover
-          alphaParticles={false}
-          disableRotation={false}
-          pixelRatio={1}
-        />
-      </div>
-      <div
-        className="pointer-events-none absolute inset-0 z-[1] overflow-hidden"
-        aria-hidden
-      >
-        <div className="absolute -left-[18%] top-[8%] h-[min(88vw,420px)] w-[min(88vw,420px)] rounded-full bg-indigo-600/16 blur-3xl" />
-        <div className="absolute -right-[12%] bottom-[5%] h-[min(80vw,380px)] w-[min(80vw,380px)] rounded-full bg-cyan-500/12 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_45%_at_50%_0%,rgba(99,102,241,0.08),transparent_55%)]" />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-8xl">
+      <div className="mx-auto max-w-8xl">
         <motion.p
           className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-indigo-200/90"
           initial={reduceMotion ? false : { opacity: 0, y: 10 }}
