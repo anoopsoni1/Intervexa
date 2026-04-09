@@ -1,10 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ChevronDown, Search } from "lucide-react";
 import TextType from "../components/ui/TextType";
 import AppHeader from "../components/layout/AppHeader";
+import ResumeSection from "../components/landing/ResumeSection.jsx";
+import IntervexaOfferings from "../components/landing/IntervexaOfferings.jsx";
+import HomePlatformLanes from "../components/landing/HomePlatformLanes.jsx";
 import InstallPrompt from "../components/ui/Install.jsx";
+import Particles from "../components/ui/Lighting.jsx";
 import { API_BASE } from "../config";
 import { intervexaCopyrightLine } from "../constants/branding.js";
 
@@ -49,200 +53,211 @@ const features = [
   },
 ];
 
-/** Matches FAQ structured data in index.html for consistency with search previews. */
+/** Keep copy aligned with FAQPage JSON-LD in index.html. */
 const HOME_FAQ = [
   {
+    id: "what-is",
+    group: "overview",
     question: "What is Intervexa™?",
     answer:
-      "Intervexa™ is an AI-powered interview platform that analyzes your performance and provides feedback, scoring, and improvement suggestions.",
+      "Intervexa™ is an AI-powered career platform: ATS-friendly resume and portfolio tools, career guidance, coding practice, and AI mock interviews with scoring and feedback.",
   },
   {
+    id: "is-free",
+    group: "overview",
     question: "Is Intervexa™ free?",
-    answer: "Yes, Intervexa™ offers free interview practice features for users.",
+    answer:
+      "Yes. Core interview practice and resume features are available free so you can try the product. Paid plans may unlock higher usage or premium templates—see Pricing for details.",
   },
   {
+    id: "how-works",
+    group: "overview",
     question: "How does Intervexa™ work?",
     answer:
-      "Intervexa™ uses AI to simulate interviews, analyze your answers, and provide detailed feedback along with performance scores.",
+      "You upload or build your profile, improve it with AI suggestions and ATS scoring, then practice with mock or coding interviews. After each session you get structured feedback and scores you can act on.",
   },
   {
+    id: "technical-interviews",
+    group: "interviews",
     question: "Can Intervexa™ help me prepare for technical interviews?",
     answer:
-      "Yes, Intervexa™ helps users prepare for technical interviews by providing practice sessions, coding questions, and AI-based feedback.",
+      "Yes. You can practice technical and coding-style questions in a focused environment and review AI feedback on your approach and communication—not just the final answer.",
   },
   {
+    id: "interview-feedback",
+    group: "interviews",
     question: "Does Intervexa™ provide interview feedback?",
     answer:
-      "Yes, Intervexa™ provides detailed feedback on your answers, communication skills, and overall interview performance.",
+      "Yes. You get feedback on clarity, structure, and relevance of your answers, plus an overall performance picture so you know what to improve before the real interview.",
   },
   {
+    id: "beginners",
+    group: "interviews",
     question: "Is Intervexa™ suitable for beginners?",
     answer:
-      "Yes, Intervexa™ is designed for beginners as well as experienced candidates to improve their interview skills.",
+      "Yes. Flows are built for first-time job seekers and experienced hires alike—guided steps for resumes and gentle, repeatable practice for interviews.",
   },
   {
+    id: "progress",
+    group: "interviews",
     question: "Can I track my progress on Intervexa™?",
     answer:
-      "Yes, Intervexa™ allows users to track their interview performance, scores, and improvements over time.",
+      "Yes. You can follow scores and practice history over time so you can see whether your answers and confidence are trending in the right direction.",
   },
   {
+    id: "mock-interviews",
+    group: "interviews",
     question: "Does Intervexa™ support mock interviews?",
-    answer: "Yes, Intervexa™ provides AI-powered mock interviews to simulate real interview scenarios.",
+    answer:
+      "Yes. AI-powered mock interviews simulate realistic prompts and pacing so you can rehearse without scheduling a human partner every time.",
   },
   {
+    id: "online",
+    group: "overview",
     question: "Is Intervexa™ available online?",
-    answer: "Yes, Intervexa™ is a web-based platform accessible from anywhere with an internet connection.",
+    answer:
+      "Yes. It runs in the browser—sign in from any device with an internet connection; nothing to install for the web app.",
   },
   {
+    id: "why-use",
+    group: "overview",
     question: "Why should I use Intervexa™ for interview preparation?",
     answer:
-      "Intervexa™ helps you improve your interview skills with AI-driven insights, real-time feedback, and performance tracking, making you better prepared for real interviews.",
+      "You get one place to tighten your resume, rehearse under pressure, and read feedback you can apply immediately—so you walk into interviews prepared, not guessing.",
   },
 ];
 
+const FAQ_TOPIC_FILTERS = [
+  { id: "all", label: "All topics" },
+  { id: "overview", label: "Platform & pricing" },
+  { id: "interviews", label: "Interview practice" },
+];
 
-/** Deterministic positions for FAQ lower background starfield (no SSR/random mismatch). */
-const FAQ_LOWER_STARS = Array.from({ length: 56 }, (_, i) => {
+
+/** Static starfield — few nodes, no per-star JS animation (was 110 motion components; main FAQ jank source). */
+const FAQ_LOWER_STARS = Array.from({ length: 42 }, (_, i) => {
   const x = ((i * 53 + 11) % 90) + 2;
   const y = ((i * 97 + 23) % 84) + 5;
-  const size = 1.1 + (i % 5) * 0.5;
-  const delay = (i * 0.19) % 3.4;
-  const duration = 2.4 + (i % 6) * 0.42;
-  return { id: i, left: `${x}%`, top: `${y}%`, size, delay, duration };
+  const size = 1.1 + (i % 5) * 0.45;
+  const opacity = 0.22 + ((i * 7) % 5) * 0.06;
+  return { id: i, left: `${x}%`, top: `${y}%`, size, opacity };
 });
 
 const FAQ_LOWER_SPARKLES = [
-  { left: "12%", top: "18%", size: 10, delay: 0, rotate: 0 },
-  { left: "78%", top: "28%", size: 8, delay: 0.4, rotate: 12 },
-  { left: "45%", top: "42%", size: 12, delay: 0.8, rotate: -8 },
-  { left: "88%", top: "58%", size: 9, delay: 0.2, rotate: 20 },
-  { left: "22%", top: "65%", size: 11, delay: 1.1, rotate: -15 },
-  { left: "62%", top: "12%", size: 7, delay: 0.6, rotate: 6 },
+  { left: "12%", top: "18%", size: 10, rotate: 0 },
+  { left: "78%", top: "28%", size: 8, rotate: 12 },
+  { left: "45%", top: "42%", size: 12, rotate: -8 },
+  { left: "71%", top: "62%", size: 8, rotate: -12 },
 ];
 
 function FaqSection() {
   const reduceMotion = useReducedMotion();
-  const [openIndex, setOpenIndex] = useState(null);
+  const [openIds, setOpenIds] = useState(() => new Set());
+  const [topicFilter, setTopicFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
-  const toggle = (index) => {
-    setOpenIndex((prev) => (prev === index ? null : index));
+  const filteredFaq = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return HOME_FAQ.filter((item) => {
+      if (topicFilter !== "all" && item.group !== topicFilter) return false;
+      if (!q) return true;
+      return (
+        item.question.toLowerCase().includes(q) ||
+        item.answer.toLowerCase().includes(q)
+      );
+    });
+  }, [search, topicFilter]);
+
+  const toggle = (id) => {
+    setOpenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
-  const openSpring = reduceMotion
-    ? { duration: 0 }
-    : { type: "spring", stiffness: 420, damping: 38, mass: 0.85 };
+  const expandFiltered = () => {
+    setOpenIds(new Set(filteredFaq.map((item) => item.id)));
+  };
+
+  const collapseAll = () => {
+    setOpenIds(new Set());
+  };
 
   return (
     <section
       id="faq"
       aria-labelledby="faq-heading"
-      className="relative z-10 min-h-screen border-t border-white/10"
+      className="relative z-10 min-h-screen overflow-hidden border-t border-white/10"
     >
-      {/* Full-bleed ambient layers */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-        <motion.div
-          className="absolute -left-[20%] top-[10%] h-[min(90vw,520px)] w-[min(90vw,520px)] rounded-full bg-indigo-600/18 blur-3xl"
-          animate={
-            reduceMotion
-              ? {}
-              : {
-                  scale: [1, 1.08, 1],
-                  x: [0, 32, 0],
-                  opacity: [0.35, 0.5, 0.35],
-                }
-          }
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute -right-[15%] bottom-[5%] h-[min(85vw,480px)] w-[min(85vw,480px)] rounded-full bg-cyan-500/14 blur-3xl"
-          animate={
-            reduceMotion
-              ? {}
-              : {
-                  scale: [1.06, 1, 1.06],
-                  x: [0, -28, 0],
-                  opacity: [0.28, 0.42, 0.28],
-                }
-          }
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        />
-        <motion.div
-          className="absolute left-1/2 top-1/2 h-[min(120vw,900px)] w-[min(120vw,900px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/8 blur-3xl"
-          animate={
-            reduceMotion
-              ? {}
-              : {
-                  rotate: [0, 360],
-                  opacity: [0.12, 0.2, 0.12],
-                }
-          }
-          transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-        />
+      {!reduceMotion ? (
+        <div
+          className="pointer-events-none absolute inset-0 z-0 min-h-full w-full opacity-[0.42] mix-blend-screen"
+          aria-hidden
+        >
+          <Particles
+            id="faq-section-particles"
+            particleColors={["#ffffff", "#a5b4fc", "#67e8f9", "#c4b5fd"]}
+            particleCount={100}
+            particleSpread={8}
+            speed={0.065}
+            particleBaseSize={70}
+            moveParticlesOnHover={false}
+            alphaParticles={false}
+            disableRotation={false}
+            pixelRatio={1}
+          />
+        </div>
+      ) : null}
+
+      {/* Static ambient layers — no infinite motion (cheap on GPU / main thread). */}
+      <div className="pointer-events-none absolute inset-0 z-1 overflow-hidden" aria-hidden>
+        <div className="absolute -left-[20%] top-[10%] h-[min(90vw,520px)] w-[min(90vw,520px)] rounded-full bg-indigo-600/18 blur-3xl" />
+        <div className="absolute -right-[15%] bottom-[5%] h-[min(85vw,480px)] w-[min(85vw,480px)] rounded-full bg-cyan-500/14 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-[min(120vw,900px)] w-[min(120vw,900px)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-600/8 blur-3xl" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(99,102,241,0.12),transparent_55%)]" />
 
-        {/* Lower starfield + sparkles */}
+        {/* Lower starfield + sparkles — plain elements + isolate */}
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[min(68vh,720px)] min-h-[260px] sm:h-[min(62vh,780px)] sm:min-h-[300px]"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-0 isolate h-[min(68vh,720px)] min-h-[260px] contain-paint sm:h-[min(62vh,780px)] sm:min-h-[300px]"
           aria-hidden
         >
           <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(2,6,23,0.55)_0%,transparent_72%)]" />
           {FAQ_LOWER_STARS.map((star) => (
-            <motion.span
+            <span
               key={star.id}
-              className="absolute rounded-full bg-white shadow-[0_0_8px_1px_rgba(199,210,254,0.45)]"
+              className="absolute rounded-full bg-white shadow-[0_0_6px_rgba(199,210,254,0.35)]"
               style={{
                 left: star.left,
                 top: star.top,
                 width: star.size,
                 height: star.size,
-              }}
-              animate={
-                reduceMotion
-                  ? { opacity: 0.4 }
-                  : {
-                      opacity: [0.12, 0.5, 0.22, 0.62, 0.15],
-                      scale: [1, 1.45, 1.05, 1.35, 1],
-                    }
-              }
-              transition={{
-                duration: star.duration,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: star.delay,
+                opacity: star.opacity,
               }}
             />
           ))}
           {FAQ_LOWER_SPARKLES.map((sp, i) => (
-            <motion.span
+            <span
               key={`sparkle-${i}`}
-              className="absolute flex items-center justify-center text-cyan-200/90"
-              style={{ left: sp.left, top: sp.top, width: sp.size, height: sp.size }}
-              initial={false}
-              animate={
-                reduceMotion
-                  ? { opacity: 0.35, rotate: sp.rotate }
-                  : {
-                      opacity: [0.25, 0.85, 0.35, 0.75, 0.28],
-                      rotate: [sp.rotate, sp.rotate + 90, sp.rotate],
-                      scale: [1, 1.15, 0.95, 1.08, 1],
-                    }
-              }
-              transition={{
-                duration: 5.5 + (i % 3),
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: sp.delay,
+              className="absolute flex items-center justify-center text-cyan-200/70"
+              style={{
+                left: sp.left,
+                top: sp.top,
+                width: sp.size,
+                height: sp.size,
+                transform: `rotate(${sp.rotate}deg)`,
               }}
             >
-              <svg viewBox="0 0 24 24" className="h-full w-full drop-shadow-[0_0_6px_rgba(165,243,252,0.5)]" fill="currentColor" aria-hidden>
+              <svg viewBox="0 0 24 24" className="h-full w-full" fill="currentColor" aria-hidden>
                 <path d="M12 0l2.2 6.8H22l-5.5 4 2.1 6.5L12 15.2 5.4 17.3l2.1-6.5L2 6.8h7.8L12 0z" />
               </svg>
-            </motion.span>
+            </span>
           ))}
         </div>
       </div>
 
-      <div className="relative mx-auto flex min-h-screen max-w-8xl flex-col px-4 py-20 sm:px-6 sm:py-24 lg:px-10 lg:py-28">
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-8xl flex-col px-4 py-20 sm:px-6 sm:py-24 lg:px-10 lg:py-28">
         <div className="grid flex-1 gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-16 xl:gap-20">
           {/* Intro column — sticky on large screens */}
           <motion.div
@@ -272,7 +287,7 @@ function FaqSection() {
                 viewport={{ once: true }}
                 transition={{ delay: 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               >
-                Everything you need to know about{" "}
+                Answers about{" "}
               </motion.span>
               <span className="relative inline-block">
                 <motion.span
@@ -282,7 +297,7 @@ function FaqSection() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.18, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  Intervexa™
+                  resumes & interviews
                 </motion.span>
                 {!reduceMotion ? (
                   <motion.span
@@ -304,9 +319,34 @@ function FaqSection() {
               viewport={{ once: true }}
               transition={{ delay: 0.22, duration: 0.55 }}
             >
-              Mock interviews, ATS-ready resumes, and AI feedback — clear answers below. Tap a question to
-              reveal the full response.
+              Search or filter by topic, open several answers at once, and dig into how Intervexa™ fits your
+              prep flow.
             </motion.p>
+            <motion.div
+              className="mt-8 flex flex-wrap gap-2"
+              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+              whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.26, duration: 0.5 }}
+            >
+              {FAQ_TOPIC_FILTERS.map((chip) => {
+                const active = topicFilter === chip.id;
+                return (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    onClick={() => setTopicFilter(chip.id)}
+                    className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:text-sm ${
+                      active
+                        ? "border-indigo-400/50 bg-indigo-500/20 text-white"
+                        : "border-white/15 bg-white/4 text-slate-300 hover:border-white/25 hover:text-white"
+                    }`}
+                  >
+                    {chip.label}
+                  </button>
+                );
+              })}
+            </motion.div>
             <motion.div
               className="mt-8 hidden h-px max-w-xs overflow-hidden rounded-full bg-white/10 lg:block"
               initial={reduceMotion ? false : { scaleX: 0 }}
@@ -315,103 +355,161 @@ function FaqSection() {
               transition={{ delay: 0.35, duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
               style={{ originX: 0 }}
             />
+            <motion.div
+              className="mt-8 rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-sm sm:p-5"
+              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.32, duration: 0.55 }}
+            >
+              <p className="text-sm font-semibold text-white">Still stuck?</p>
+              <p className="mt-1 text-sm leading-relaxed text-slate-400">
+                We&apos;re happy to help with accounts, billing, or product questions.
+              </p>
+              <Link
+                to="/contact"
+                className="mt-3 inline-flex text-sm font-semibold text-cyan-300 transition-colors hover:text-cyan-200"
+              >
+                Contact support →
+              </Link>
+            </motion.div>
           </motion.div>
 
-          {/* items-start: avoid grid row stretch so a sibling FAQ doesn’t grow an empty “ghost” panel when one opens. */}
-          <div className="grid items-start gap-4 sm:gap-5 xl:grid-cols-2 xl:gap-5">
-            {HOME_FAQ.map((item, index) => {
-              const isOpen = openIndex === index;
-              const n = String(index + 1).padStart(2, "0");
-              return (
-                <motion.div
-                  key={`faq-${index}`}
-                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/35 shadow-[0_20px_50px_-24px_rgba(0,0,0,0.75)] backdrop-blur-md"
-                  initial={reduceMotion ? false : { opacity: 0, y: 24, scale: 0.98 }}
-                  whileInView={reduceMotion ? {} : { opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, amount: 0.08, margin: "0px 0px -8% 0px" }}
-                  transition={{
-                    duration: reduceMotion ? 0.2 : 0.5,
-                    delay: reduceMotion ? 0 : 0.05 + index * 0.06,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                  whileHover={
-                    reduceMotion
-                      ? {}
-                      : {
-                          borderColor: "rgba(255,255,255,0.2)",
-                          boxShadow: "0 24px 60px -20px rgba(99,102,241,0.25)",
-                          transition: { type: "spring", stiffness: 400, damping: 28 },
-                        }
-                  }
+          <div className="flex min-w-0 flex-col gap-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="relative min-w-0 flex-1">
+                <label htmlFor="faq-search" className="sr-only">
+                  Search questions
+                </label>
+                <Search
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+                  aria-hidden
+                />
+                <input
+                  id="faq-search"
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search questions…"
+                  autoComplete="off"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 py-2.5 pl-10 pr-3 text-sm text-white placeholder:text-slate-500 shadow-inner shadow-black/20 backdrop-blur-sm transition-colors focus:border-indigo-400/40 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                />
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={expandFiltered}
+                  disabled={filteredFaq.length === 0}
+                  className="rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-semibold text-slate-200 transition-colors hover:border-white/20 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 sm:text-sm"
                 >
-                  <motion.div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-linear-to-b from-cyan-400/80 via-indigo-400/50 to-violet-500/40"
-                    initial={false}
-                    animate={{
-                      opacity: isOpen ? 1 : 0.35,
-                      scaleY: isOpen ? 1 : 0.65,
-                    }}
-                    transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    style={{ originY: 0 }}
-                  />
-                  <h3 className="m-0 text-base font-semibold text-white sm:text-lg">
-                    <motion.button
-                      type="button"
-                      onClick={() => toggle(index)}
-                      aria-expanded={isOpen}
-                      aria-controls={`faq-panel-${index}`}
-                      id={`faq-trigger-${index}`}
-                      className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left sm:px-5 sm:py-5"
-                      whileTap={reduceMotion ? {} : { scale: 0.992 }}
+                  Expand all
+                </button>
+                <button
+                  type="button"
+                  onClick={collapseAll}
+                  className="rounded-xl border border-white/12 bg-white/6 px-3 py-2 text-xs font-semibold text-slate-200 transition-colors hover:border-white/20 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50 sm:text-sm"
+                >
+                  Collapse all
+                </button>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-500">
+              Showing {filteredFaq.length} of {HOME_FAQ.length} questions
+              {topicFilter !== "all" ? ` · ${FAQ_TOPIC_FILTERS.find((c) => c.id === topicFilter)?.label}` : ""}
+            </p>
+
+            {/* items-start: avoid grid row stretch; CSS grid-rows accordion avoids height:auto layout thrash */}
+            {filteredFaq.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-white/15 bg-black/25 px-6 py-14 text-center backdrop-blur-sm">
+                <p className="text-sm font-medium text-slate-300">No questions match that search.</p>
+                <p className="mt-1 text-sm text-slate-500">Try different words or reset the topic filter.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setTopicFilter("all");
+                  }}
+                  className="mt-4 text-sm font-semibold text-indigo-300 hover:text-indigo-200"
+                >
+                  Clear filters
+                </button>
+              </div>
+            ) : (
+              <div className="grid items-start gap-4 sm:gap-5 xl:grid-cols-2 xl:gap-5">
+                {filteredFaq.map((item) => {
+                  const isOpen = openIds.has(item.id);
+                  const globalIndex = HOME_FAQ.findIndex((f) => f.id === item.id);
+                  const n = String(globalIndex + 1).padStart(2, "0");
+                  return (
+                    <div
+                      key={item.id}
+                      className={`group relative overflow-hidden rounded-2xl border bg-black/35 shadow-[0_20px_50px_-24px_rgba(0,0,0,0.75)] backdrop-blur-sm transition-[border-color,box-shadow] duration-200 hover:border-white/20 hover:shadow-[0_24px_60px_-20px_rgba(99,102,241,0.18)] ${
+                        isOpen
+                          ? "border-indigo-400/35 shadow-[0_24px_60px_-20px_rgba(99,102,241,0.22)]"
+                          : "border-white/10"
+                      }`}
                     >
-                      <span className="flex min-w-0 gap-3 sm:gap-4">
-                        <motion.span
-                          className="mt-0.5 font-mono text-xs font-semibold tabular-nums text-indigo-300/70 sm:text-sm"
-                          animate={{ color: isOpen ? "rgba(165, 180, 252, 0.95)" : "rgba(165, 180, 252, 0.55)" }}
+                      <div
+                        aria-hidden
+                        className={`pointer-events-none absolute inset-y-0 left-0 w-1 origin-top bg-linear-to-b from-cyan-400/80 via-indigo-400/50 to-violet-500/40 transition-transform duration-200 ease-out ${
+                          isOpen ? "scale-y-100 opacity-100" : "scale-y-[0.65] opacity-[0.35]"
+                        }`}
+                      />
+                      <h3 className="m-0 text-base font-semibold text-white sm:text-lg">
+                        <button
+                          type="button"
+                          onClick={() => toggle(item.id)}
+                          aria-expanded={isOpen}
+                          aria-controls={`faq-panel-${item.id}`}
+                          id={`faq-trigger-${item.id}`}
+                          className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-cyan-400/45 sm:px-5 sm:py-5 active:scale-[0.99] motion-reduce:active:scale-100"
                         >
-                          {n}
-                        </motion.span>
-                        <span className="leading-snug">{item.question}</span>
-                      </span>
-                      <motion.span
-                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-indigo-200 shadow-inner shadow-black/20"
-                        animate={
-                          reduceMotion ? {} : { rotate: isOpen ? 180 : 0, backgroundColor: isOpen ? "rgba(99,102,241,0.25)" : "rgba(255,255,255,0.05)" }
-                        }
-                        transition={{ type: "spring", stiffness: 360, damping: 26 }}
-                      >
-                        <ChevronDown className="h-5 w-5" aria-hidden />
-                      </motion.span>
-                    </motion.button>
-                  </h3>
-                  <AnimatePresence initial={false} mode="sync">
-                    {isOpen ? (
-                      <motion.div
-                        key={`faq-panel-body-${index}`}
-                        id={`faq-panel-${index}`}
+                          <span className="grid min-w-0 grid-cols-[auto_1fr] gap-x-3 sm:gap-x-4">
+                            <span
+                              className={`mt-0.5 font-mono text-xs font-semibold tabular-nums transition-colors duration-200 sm:text-sm ${
+                                isOpen ? "text-indigo-200" : "text-indigo-300/55"
+                              }`}
+                            >
+                              {n}
+                            </span>
+                            <span className="leading-snug">{item.question}</span>
+                          </span>
+                          <span
+                            className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-indigo-200 shadow-inner shadow-black/20 transition-[transform,background-color] duration-200 ease-out ${
+                              isOpen ? "rotate-180 bg-indigo-500/25" : "rotate-0 bg-white/5"
+                            }`}
+                          >
+                            <ChevronDown className="h-5 w-5" aria-hidden />
+                          </span>
+                        </button>
+                      </h3>
+                      <div
+                        id={`faq-panel-${item.id}`}
                         role="region"
-                        aria-labelledby={`faq-trigger-${index}`}
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={openSpring}
-                        className="overflow-hidden border-t border-white/10"
+                        aria-labelledby={`faq-trigger-${item.id}`}
+                        className="grid border-t border-white/10 transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+                        style={{
+                          gridTemplateRows: isOpen ? "1fr" : "0fr",
+                          transitionDuration: reduceMotion ? "0ms" : undefined,
+                        }}
                       >
-                        <motion.p
-                          className="px-4 pb-5 pl-[3.25rem] pt-3 text-sm leading-relaxed text-slate-300 sm:px-5 sm:pb-6 sm:pl-[3.75rem] sm:text-[0.9375rem]"
-                          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-                          animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
-                          transition={{ delay: reduceMotion ? 0 : 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        >
-                          {item.answer}
-                        </motion.p>
-                      </motion.div>
-                    ) : null}
-                  </AnimatePresence>
-                </motion.div>
-              );
-            })}
+                        <div className="min-h-0 overflow-hidden">
+                          <div
+                            className="px-4 pb-5 pt-3 sm:px-5 sm:pb-6"
+                            aria-hidden={!isOpen}
+                          >
+                            <p className="max-w-prose text-sm leading-relaxed text-slate-300 sm:text-[0.9375rem]">
+                              {item.answer}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -457,10 +555,30 @@ function HomeFooter() {
       whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="relative z-10 border-t border-white/10 bg-black/20 print:hidden"
+      className="relative z-10 overflow-hidden border-t border-white/10 bg-black/20 print:hidden"
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-indigo-400/35 to-transparent" aria-hidden />
-      <div className="mx-auto max-w-8xl px-4 py-14 sm:px-6 lg:px-10 lg:py-16">
+      <div
+        className="pointer-events-none absolute inset-0 z-0 min-h-full w-full opacity-45 mix-blend-screen"
+        aria-hidden
+      >
+        <Particles
+          id="home-footer-particles"
+          particleColors={["#ffffff", "#818cf8", "#22d3ee"]}
+          particleCount={90}
+          particleSpread={8}
+          speed={0.065}
+          particleBaseSize={68}
+          moveParticlesOnHover
+          alphaParticles={false}
+          disableRotation={false}
+          pixelRatio={1}
+        />
+      </div>
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-px bg-linear-to-r from-transparent via-indigo-400/35 to-transparent"
+        aria-hidden
+      />
+      <div className="relative z-10 mx-auto max-w-8xl px-4 py-14 sm:px-6 lg:px-10 lg:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
           <motion.div
             initial={reduceMotion ? false : { opacity: 0, y: 12 }}
@@ -838,6 +956,9 @@ function Home() {
       >
         <InstallPrompt />
       </motion.div>
+      <IntervexaOfferings />
+      <ResumeSection />
+      <HomePlatformLanes />
       <FaqSection />
       <HomeFooter />
     </motion.div>

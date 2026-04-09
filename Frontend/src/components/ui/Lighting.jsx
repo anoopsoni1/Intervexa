@@ -96,6 +96,8 @@ const Particles = ({
   cameraDistance = 20,
   disableRotation = false,
   pixelRatio = 1,
+  /** Root container id (e.g. global layout uses `particle` for Home background targeting). */
+  id,
   className
 }) => {
   const containerRef = useRef(null);
@@ -112,6 +114,10 @@ const Particles = ({
     });
     const gl = renderer.gl;
     container.appendChild(gl.canvas);
+    if (id) {
+      gl.canvas.id = `${id}-canvas`;
+      gl.canvas.setAttribute('aria-hidden', 'true');
+    }
     gl.clearColor(0, 0, 0, 0);
 
     const camera = new Camera(gl, { fov: 15 });
@@ -233,10 +239,17 @@ const Particles = ({
     sizeRandomness,
     cameraDistance,
     disableRotation,
-    pixelRatio
+    pixelRatio,
+    id
   ]);
 
-  return <div ref={containerRef} className={`relative w-full h-full ${className}`} />;
+  return (
+    <div
+      ref={containerRef}
+      id={id}
+      className={`relative h-full w-full ${className ?? ''}`}
+    />
+  );
 };
 
 export default Particles;

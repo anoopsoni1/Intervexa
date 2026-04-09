@@ -20,13 +20,16 @@ function GlobalBackgroundLayout() {
         animate={{ x: [0, -24, 0], y: [0, 18, 0] }}
         transition={{ duration: 11, repeat: Infinity, ease: "easeInOut" }}
       />
-      <div className="pointer-events-none absolute inset-0 z-0 min-h-screen w-full mix-blend-screen">
+      <div
+        id="particle"
+        className="pointer-events-none absolute inset-0 z-0 min-h-screen w-full mix-blend-screen"
+      >
         <Particles
           particleColors={["#ffffff"]}
-          particleCount={150}
-          particleSpread={8}
+          particleCount={300}
+          particleSpread={9}
           speed={0.08}
-          particleBaseSize={95}
+          particleBaseSize={88}
           moveParticlesOnHover
           alphaParticles={false}
           disableRotation={false}
