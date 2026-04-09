@@ -9,7 +9,7 @@ function GlobalBackgroundLayout() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black">
+    <div className="relative min-h-dvh min-h-screen overflow-x-hidden bg-black">
       <motion.div
         className="pointer-events-none absolute -left-24 top-14 z-0 h-72 w-72 rounded-full bg-indigo-500/25 blur-3xl"
         animate={{ x: [0, 28, 0], y: [0, -20, 0] }}
@@ -22,7 +22,7 @@ function GlobalBackgroundLayout() {
       />
       <div
         id="particle"
-        className="pointer-events-none absolute inset-0 z-0 min-h-screen w-full mix-blend-screen"
+        className="pointer-events-none absolute inset-0 z-0 min-h-full w-full mix-blend-screen"
       >
         <Particles
           particleColors={["#ffffff"]}

@@ -11,6 +11,11 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #000;
+  }
+
+  body {
+    background-color: #000;
   }
 }
 
