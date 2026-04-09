@@ -6,6 +6,7 @@ import TextType from "../components/ui/TextType";
 import AppHeader from "../components/layout/AppHeader";
 import InstallPrompt from "../components/ui/Install.jsx";
 import { API_BASE } from "../config";
+import { intervexaCopyrightLine } from "../constants/branding.js";
 
 function Navbar() {
   return <AppHeader />;
@@ -51,51 +52,51 @@ const features = [
 /** Matches FAQ structured data in index.html for consistency with search previews. */
 const HOME_FAQ = [
   {
-    question: "What is Intervexa?",
+    question: "What is Intervexa™?",
     answer:
-      "Intervexa is an AI-powered interview platform that analyzes your performance and provides feedback, scoring, and improvement suggestions.",
+      "Intervexa™ is an AI-powered interview platform that analyzes your performance and provides feedback, scoring, and improvement suggestions.",
   },
   {
-    question: "Is Intervexa free?",
-    answer: "Yes, Intervexa offers free interview practice features for users.",
+    question: "Is Intervexa™ free?",
+    answer: "Yes, Intervexa™ offers free interview practice features for users.",
   },
   {
-    question: "How does Intervexa work?",
+    question: "How does Intervexa™ work?",
     answer:
-      "Intervexa uses AI to simulate interviews, analyze your answers, and provide detailed feedback along with performance scores.",
+      "Intervexa™ uses AI to simulate interviews, analyze your answers, and provide detailed feedback along with performance scores.",
   },
   {
-    question: "Can Intervexa help me prepare for technical interviews?",
+    question: "Can Intervexa™ help me prepare for technical interviews?",
     answer:
-      "Yes, Intervexa helps users prepare for technical interviews by providing practice sessions, coding questions, and AI-based feedback.",
+      "Yes, Intervexa™ helps users prepare for technical interviews by providing practice sessions, coding questions, and AI-based feedback.",
   },
   {
-    question: "Does Intervexa provide interview feedback?",
+    question: "Does Intervexa™ provide interview feedback?",
     answer:
-      "Yes, Intervexa provides detailed feedback on your answers, communication skills, and overall interview performance.",
+      "Yes, Intervexa™ provides detailed feedback on your answers, communication skills, and overall interview performance.",
   },
   {
-    question: "Is Intervexa suitable for beginners?",
+    question: "Is Intervexa™ suitable for beginners?",
     answer:
-      "Yes, Intervexa is designed for beginners as well as experienced candidates to improve their interview skills.",
+      "Yes, Intervexa™ is designed for beginners as well as experienced candidates to improve their interview skills.",
   },
   {
-    question: "Can I track my progress on Intervexa?",
+    question: "Can I track my progress on Intervexa™?",
     answer:
-      "Yes, Intervexa allows users to track their interview performance, scores, and improvements over time.",
+      "Yes, Intervexa™ allows users to track their interview performance, scores, and improvements over time.",
   },
   {
-    question: "Does Intervexa support mock interviews?",
-    answer: "Yes, Intervexa provides AI-powered mock interviews to simulate real interview scenarios.",
+    question: "Does Intervexa™ support mock interviews?",
+    answer: "Yes, Intervexa™ provides AI-powered mock interviews to simulate real interview scenarios.",
   },
   {
-    question: "Is Intervexa available online?",
-    answer: "Yes, Intervexa is a web-based platform accessible from anywhere with an internet connection.",
+    question: "Is Intervexa™ available online?",
+    answer: "Yes, Intervexa™ is a web-based platform accessible from anywhere with an internet connection.",
   },
   {
-    question: "Why should I use Intervexa for interview preparation?",
+    question: "Why should I use Intervexa™ for interview preparation?",
     answer:
-      "Intervexa helps you improve your interview skills with AI-driven insights, real-time feedback, and performance tracking, making you better prepared for real interviews.",
+      "Intervexa™ helps you improve your interview skills with AI-driven insights, real-time feedback, and performance tracking, making you better prepared for real interviews.",
   },
 ];
 
@@ -281,7 +282,7 @@ function FaqSection() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.18, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  Intervexa
+                  Intervexa™
                 </motion.span>
                 {!reduceMotion ? (
                   <motion.span
@@ -448,7 +449,6 @@ const homeFooterLinks = [
 
 function HomeFooter() {
   const reduceMotion = useReducedMotion();
-  const year = new Date().getFullYear();
 
   return (
     <motion.footer
@@ -469,7 +469,7 @@ function HomeFooter() {
             transition={{ delay: 0.05, duration: 0.45 }}
             className="sm:col-span-2 lg:col-span-1"
           >
-            <p className="text-lg font-extrabold tracking-tight text-white">Intervexa</p>
+            <p className="text-lg font-extrabold tracking-tight text-white">Intervexa™</p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-slate-400">
               AI-powered resumes, portfolio templates, and interview practice — built so you can apply with confidence.
             </p>
@@ -514,7 +514,7 @@ function HomeFooter() {
           className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 sm:flex-row"
         >
           <p className="text-center text-sm text-slate-500 sm:text-left">
-            © {year} Intervexa. All rights reserved.
+            {intervexaCopyrightLine()}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-slate-500">
             <Link to="/about" className="transition-colors hover:text-slate-300">
@@ -678,7 +678,7 @@ function Hero({ resumeStats }) {
             <div className="relative space-y-4">
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
                 <p className="text-sm font-semibold uppercase tracking-[0.14em] text-indigo-200">
-                  Why users love INTERVEXA
+                  Why users love INTERVEXA™
                 </p>
                 <span className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-200">
                   Smart features

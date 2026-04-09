@@ -1,4 +1,4 @@
-# Intervexa Template Flow
+# Intervexa™ Template Flow
 
 ## 1) High-Level Flow
 

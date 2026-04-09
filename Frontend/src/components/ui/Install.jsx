@@ -64,7 +64,7 @@ const InstallPrompt = () => {
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-white">Install Intervexa</p>
+                <p className="font-semibold text-white">Install Intervexa™</p>
                 <p className="mt-0.5 text-sm text-slate-300">
                   Add to your home screen for quick access and a smoother experience.
                 </p>

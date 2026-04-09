@@ -448,7 +448,7 @@ function UploadPage() {
                   variants={fadeUp}
                   className="text-amber-400/90 text-sm font-semibold uppercase tracking-wider mb-3"
                 >
-                  Why Intervexa
+                  Why Intervexa™
                 </motion.p>
                 <motion.h2
                   variants={fadeUp}

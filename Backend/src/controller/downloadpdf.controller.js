@@ -48,7 +48,7 @@ export const generateResumePDF = Asynchandler(async (req, res) => {
     }
     res.set({
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename=Intervexa Resume.pdf`,
+      "Content-Disposition": `attachment; filename=Intervexa™ Resume.pdf`,
     });
     res.send(Buffer.from(pdfBuffer));
   } catch (error) {

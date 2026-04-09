@@ -34,6 +34,7 @@ import PremiumLayout3 from "../layouts/PremiumLayout3";
 import MinimalLayout from "../layouts/MinimalLayout";
 
 import { API_BASE } from "../config";
+import { intervexaCopyrightLine } from "../constants/branding.js";
 import { setUser } from "../slices/user.slice";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
 import { Skeleton } from "../components/ui/Skeleton.jsx";
@@ -516,7 +517,7 @@ export default function ResumeView() {
               return <Resume2Layout data={displayData} />;
             })()}
             <footer className="resume-doc-footer mt-auto pt-2 text-center text-zinc-500 text-[10px] sm:text-xs print:text-[10px] print:text-zinc-600">
-              Made by Intervexa
+              {intervexaCopyrightLine()}
             </footer>
           </div>
         </div>

@@ -1,6 +1,6 @@
-# Intervexa Full Web Frontend-Backend Flow
+# Intervexa™ Full Web Frontend-Backend Flow
 
-This document describes the complete request/response and feature flow across the Intervexa frontend and backend.
+This document describes the complete request/response and feature flow across the Intervexa™ frontend and backend.
 
 ---
 

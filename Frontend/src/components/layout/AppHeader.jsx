@@ -156,7 +156,7 @@ export default function AppHeader() {
           >
             <OptimizedImage
               src="/lo.png"
-              alt="Intervexa"
+              alt="Intervexa™"
               width={192}
               height={192}
               fetchPriority="high"
@@ -164,7 +164,7 @@ export default function AppHeader() {
             />
           </motion.div>
           <span className="text-lg font-semibold text-white transition-colors duration-200 group-hover:text-indigo-200">
-            INTERVEXA
+            INTERVEXA™
           </span>
         </Link>
 
@@ -240,7 +240,7 @@ export default function AppHeader() {
                             </div>
                             <div className="min-w-0 pt-0.5">
                               <p className="truncate bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-lg font-bold tracking-tight text-transparent">
-                                INTERVEXA
+                                INTERVEXA™
                               </p>
                               <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
                                 Career toolkit

@@ -170,7 +170,7 @@ export default function Contact() {
                 {!isLoggedIn ? (
                   <div className="py-6 text-center space-y-5">
                     <p className="text-slate-400 text-sm sm:text-base max-w-md mx-auto">
-                      Sign in to your Intervexa account to send us a message. Your contact details help us respond faster.
+                      Sign in to your Intervexa™ account to send us a message. Your contact details help us respond faster.
                     </p>
                     <Link
                       to={loginHref}
