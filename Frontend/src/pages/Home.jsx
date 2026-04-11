@@ -150,8 +150,8 @@ function HomePageParticles({ reduceMotion }) {
           <Particles
             id={`home-page-particles-${slot}`}
             particleColors={["#ffffff", "#a5b4fc", "#67e8f9"]}
-            particleCount={300}
-            particleSpread={9}
+            particleCount={400}
+            particleSpread={6}
             speed={0.072}
             particleBaseSize={100}
             moveParticlesOnHover
