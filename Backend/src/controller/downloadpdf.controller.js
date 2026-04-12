@@ -21,10 +21,19 @@ export const generateResumePDF = Asynchandler(async (req, res) => {
 
   let browser;
   try {
-    browser = await puppeteer.launch({
+    const launchOpts = {
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+      ],
+    };
+    if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+      launchOpts.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    }
+    browser = await puppeteer.launch(launchOpts);
 
     const page = await browser.newPage();
     await page.setContent(doc, { waitUntil: "domcontentloaded", timeout: 90_000 });
@@ -48,7 +57,8 @@ export const generateResumePDF = Asynchandler(async (req, res) => {
     }
     res.set({
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename=Intervexa™ Resume.pdf`,
+      // ASCII filename only — spaces/Unicode in headers break some proxies and clients.
+      "Content-Disposition": 'attachment; filename="Intervexa-Resume.pdf"',
     });
     res.send(Buffer.from(pdfBuffer));
   } catch (error) {

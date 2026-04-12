@@ -4,6 +4,20 @@ import cookieParser from "cookie-parser";
 import passport from "./config/passport.google.js";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 
+const DEFAULT_CORS_ORIGINS = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:3000",
+  "https://intervexa.co-vid.in",
+  "https://www.intervexa.co-vid.in",
+  "https://resume-ai-frontend-mj2p.vercel.app",
+];
+const extraOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+const corsAllowedOrigins = [...new Set([...DEFAULT_CORS_ORIGINS, ...extraOrigins])];
+
 const app = express();
 
 // Required for rate limiting by real client IP when behind proxy (Nginx, Vercel, etc.)
@@ -26,10 +40,12 @@ const globalApiRateLimit = rateLimit({
 app.use("/api/v1", globalApiRateLimit);
 app.use("/api/resume", globalApiRateLimit);
 
-app.use(cors({
-     origin :["http://localhost:5173","https://intervexa.co-vid.in"],
-    credentials: true
-}))
+app.use(
+  cors({
+    origin: corsAllowedOrigins,
+    credentials: true,
+  })
+);
 app.use(passport.initialize());
 
 app.use(express.json({ limit: "10mb" }))

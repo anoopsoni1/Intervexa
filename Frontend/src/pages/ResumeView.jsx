@@ -262,7 +262,6 @@ export default function ResumeView() {
         },
         body: JSON.stringify({ html, css }),
       });
-      const ct = (res.headers.get("Content-Type") || "").toLowerCase();
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         const base = j?.message || j?.error || `PDF failed (${res.status})`;
@@ -271,12 +270,29 @@ export default function ResumeView() {
         refreshUsage();
         return;
       }
-      if (!ct.includes("pdf")) {
-        const j = await res.json().catch(() => ({}));
-        toast.error(j?.message || j?.error || "Unexpected response from server.");
+      const blob = await res.blob();
+      const ct = (res.headers.get("Content-Type") || "").toLowerCase();
+      const mimeLooksPdf =
+        ct.includes("application/pdf") || ct.includes("/pdf") || /\bpdf\b/.test(ct);
+      let magicLooksPdf = false;
+      if (blob.size >= 4) {
+        const head = new Uint8Array(await blob.slice(0, 4).arrayBuffer());
+        magicLooksPdf =
+          head[0] === 0x25 && head[1] === 0x50 && head[2] === 0x44 && head[3] === 0x46;
+      }
+      if (!mimeLooksPdf && !magicLooksPdf) {
+        const text = await blob.text();
+        let msg = "Unexpected response from server.";
+        try {
+          const j = JSON.parse(text);
+          msg = j?.message || j?.error || msg;
+        } catch {
+          /* not JSON */
+        }
+        toast.error(msg);
+        refreshUsage();
         return;
       }
-      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
