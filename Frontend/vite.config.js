@@ -36,8 +36,8 @@ export default defineConfig({
       },
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Intervexa™ - AI Resume Builder & Optimizer',
-        short_name: 'Intervexa™',
+        name: 'Ansoyal AI - AI Resume Builder & Optimizer',
+        short_name: 'Ansoyal AI',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',

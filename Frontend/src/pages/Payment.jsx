@@ -97,7 +97,7 @@ export default function Payment() {
         key: keyId,
         amount,
         currency: currency || "INR",
-        name: "Intervexa™",
+        name: "Ansoyal AI",
         description: "Premium upgrade",
         order_id: orderId,
         handler(response) {

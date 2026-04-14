@@ -89,7 +89,7 @@ For most API requests:
 1. **Global API rate limit**
   Applied to `/api/v1/*` and `/api/resume/*` (60 req/min per IP).
 2. **CORS check**
-  Allows `http://localhost:5173` and `https://intervexa.co-vid.in`.
+  Allows `http://localhost:5173` and `https://ansoyal-ai.co-vid.in`.
 3. **Route-level middleware chain**
   Common stack includes:
   - `verifyJWT` (auth required)

@@ -26,7 +26,6 @@ export const ClassResumeDesignViewPage = lazy(() => import("../templates/classRe
 export const MinimalResumeDesignViewPage = lazy(() => import("../templates/minimalResumedesignviewpage.jsx"));
 export const UpPage = lazy(() => import("../pages/up.jsx"));
 export const AdminDashboard = lazy(() => import("../pages/AdminDashboard.jsx"));
-export const AdminSettings = lazy(() => import("../pages/AdminSettings.jsx"));
 export const VideoCallInterviews = lazy(() => import("../pages/VideoCallInterviews.jsx"));
 export const VideoCallInterviewCreate = lazy(() => import("../pages/VideoCallInterviewCreate.jsx"));
 export const VideoCallInterviewDetail = lazy(() => import("../pages/VideoCallInterviewDetail.jsx"));

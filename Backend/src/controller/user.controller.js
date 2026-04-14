@@ -20,7 +20,7 @@ import bcrypt from "bcrypt";
 import { Resend } from "resend";
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
-const FRONTEND_BASE_URL = process.env.FRONTEND_URL || "https://intervexa.co-vid.in";
+const FRONTEND_BASE_URL = process.env.FRONTEND_URL || "https://ansoyal-ai.co-vid.in";
 
 // Lazy: read at request time so dotenv has already run (imports run before dotenv.config() in server.js)
 const getResend = () => {
@@ -51,14 +51,14 @@ export async function sendWelcomeEmailIfFirstLogin(userId) {
     const result = await resend.emails.send({
       from: fromAddress,
       to: toAddress,
-      subject: "Welcome to Intervexa™",
+      subject: "Welcome to Ansoyal AI",
       html: `
         <p>Hi ${name},</p>
-        <p>Welcome to Intervexa™! We're glad you're here.</p>
+        <p>Welcome to Ansoyal AI! We're glad you're here.</p>
         <p>You can now build and optimize your resume, make your portfolio, prepare for placements and mock interviews, and get tailored roadmaps. get access to premium features by upgrading to a premium plan.</p>
-        <p>Visit our website at <a href="https://intervexa.co-vid.in">https://intervexa.co-vid.in</a> to get started.</p>
+        <p>Visit our website at <a href="https://ansoyal-ai.co-vid.in">https://ansoyal-ai.co-vid.in</a> to get started.</p>
         <p>If you have any questions, just go to our website and contact us.</p>
-        <p>Best ,<br/>The Intervexa™ Team</p>
+        <p>Best ,<br/>The Ansoyal AI Team</p>
       `,
     });
     const { data, error } = result || {};
@@ -125,13 +125,13 @@ async function sendVerificationEmailToUser(userId) {
     <p style="word-break:break-all;font-size:14px;"><a href="${verifyUrl}">${verifyUrl}</a></p>
     <p>This link expires in ${VERIFICATION_TOKEN_EXPIRY_HOURS} hours.</p>
     <p>If you didn't create an account, you can ignore this email.</p>
-    <p> Wish you a great journey with Intervexa™<br/>The Intervexa™ Team</p>
+    <p> Wish you a great journey with Ansoyal AI<br/>The Ansoyal AI Team</p>
   `;
   console.log("[VerifyEmail] Sending to", toAddress, "| link:", verifyUrl.substring(0, 50) + "...");
   const sendPayload = {
     from: process.env.FROM_EMAIL,
     to: [toAddress],
-    subject: "Verify your email - Intervexa™",
+    subject: "Verify your email - Ansoyal AI",
     html,
   };
   const isNetworkError = (msg) => /fetch|resolve|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|could not be resolved/i.test(String(msg));

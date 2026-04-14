@@ -3,7 +3,7 @@
  * Used for "Sign in with Google" — redirects to Google consent, then callback with profile.
  *
  * The text Google shows ("to continue to …") uses the OAuth consent screen App name in
- * Google Cloud Console, not your API URL. Set App name to e.g. "Intervexa™":
+ * Google Cloud Console, not your API URL. Set App name to e.g. "Ansoyal AI":
  * Google Cloud → APIs & Services → OAuth consent screen → Edit app → App name.
  */
 import passport from "passport";

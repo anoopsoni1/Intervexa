@@ -24,7 +24,7 @@ const CAREER_GUIDANCE_BOXES = [
     icon: Compass,
     title: "Career suggestions that become a plan",
     description:
-      "Map skills, milestones, and next moves in one roadmap view. Intervexa™ turns broad goals into steps you can act on—not a wall of generic advice.",
+      "Map skills, milestones, and next moves in one roadmap view. Ansoyal AI turns broad goals into steps you can act on—not a wall of generic advice.",
     cta: "Open career roadmap",
     to: "/career-roadmap",
   },
@@ -183,7 +183,7 @@ const PARTS = [
     imageAlt: "Stylized career roadmap with milestones and a winding path",
     preview: {
       leftCaption: "Before",
-      rightCaption: "With Intervexa™",
+      rightCaption: "With Ansoyal AI",
       hint: "Career roadmap",
       rows: [
         {
@@ -220,7 +220,7 @@ const PARTS = [
     imageAlt: "Illustration of an AI interview session with audio levels",
     preview: {
       leftCaption: "Before",
-      rightCaption: "With Intervexa™",
+      rightCaption: "With Ansoyal AI",
       hint: "AI interview",
       rows: [
         {
@@ -257,7 +257,7 @@ const PARTS = [
     imageAlt: "Code editor window with timer and run control for interview practice",
     preview: {
       leftCaption: "Before",
-      rightCaption: "With Intervexa™",
+      rightCaption: "With Ansoyal AI",
       hint: "Coding interview",
       rows: [
         {
@@ -294,7 +294,7 @@ const PARTS = [
     imageAlt: "Browser mockup showing a portfolio layout with content blocks",
     preview: {
       leftCaption: "Before",
-      rightCaption: "With Intervexa™",
+      rightCaption: "With Ansoyal AI",
       hint: "Portfolio builder",
       rows: [
         {

@@ -5,7 +5,7 @@ import { ChevronDown, Search } from "lucide-react";
 import TextType from "../components/ui/TextType";
 import AppHeader from "../components/layout/AppHeader";
 import ResumeSection from "../components/landing/ResumeSection.jsx";
-import IntervexaOfferings from "../components/landing/IntervexaOfferings.jsx";
+import AnsoyalAIOfferings from "../components/landing/AnsoyalAIOfferings.jsx";
 import HomePlatformLanes from "../components/landing/HomePlatformLanes.jsx";
 import InstallPrompt from "../components/ui/Install.jsx";
 import Particles from "../components/ui/Lighting.jsx";
@@ -58,70 +58,70 @@ const HOME_FAQ = [
   {
     id: "what-is",
     group: "overview",
-    question: "What is Intervexa™?",
+    question: "What is Ansoyal AI?",
     answer:
-      "Intervexa™ is an AI-powered career platform: ATS-friendly resume and portfolio tools, career guidance, coding practice, and AI mock interviews with scoring and feedback.",
+      "Ansoyal AI is an AI-powered career platform: ATS-friendly resume and portfolio tools, career guidance, coding practice, and AI mock interviews with scoring and feedback.",
   },
   {
     id: "is-free",
     group: "overview",
-    question: "Is Intervexa™ free?",
+    question: "Is Ansoyal AI free?",
     answer:
       "Yes. Core interview practice and resume features are available free so you can try the product. Paid plans may unlock higher usage or premium templates—see Pricing for details.",
   },
   {
     id: "how-works",
     group: "overview",
-    question: "How does Intervexa™ work?",
+    question: "How does Ansoyal AI work?",
     answer:
       "You upload or build your profile, improve it with AI suggestions and ATS scoring, then practice with mock or coding interviews. After each session you get structured feedback and scores you can act on.",
   },
   {
     id: "technical-interviews",
     group: "interviews",
-    question: "Can Intervexa™ help me prepare for technical interviews?",
+    question: "Can Ansoyal AI help me prepare for technical interviews?",
     answer:
       "Yes. You can practice technical and coding-style questions in a focused environment and review AI feedback on your approach and communication—not just the final answer.",
   },
   {
     id: "interview-feedback",
     group: "interviews",
-    question: "Does Intervexa™ provide interview feedback?",
+    question: "Does Ansoyal AI provide interview feedback?",
     answer:
       "Yes. You get feedback on clarity, structure, and relevance of your answers, plus an overall performance picture so you know what to improve before the real interview.",
   },
   {
     id: "beginners",
     group: "interviews",
-    question: "Is Intervexa™ suitable for beginners?",
+    question: "Is Ansoyal AI suitable for beginners?",
     answer:
       "Yes. Flows are built for first-time job seekers and experienced hires alike—guided steps for resumes and gentle, repeatable practice for interviews.",
   },
   {
     id: "progress",
     group: "interviews",
-    question: "Can I track my progress on Intervexa™?",
+    question: "Can I track my progress on Ansoyal AI?",
     answer:
       "Yes. You can follow scores and practice history over time so you can see whether your answers and confidence are trending in the right direction.",
   },
   {
     id: "mock-interviews",
     group: "interviews",
-    question: "Does Intervexa™ support mock interviews?",
+    question: "Does Ansoyal AI support mock interviews?",
     answer:
       "Yes. AI-powered mock interviews simulate realistic prompts and pacing so you can rehearse without scheduling a human partner every time.",
   },
   {
     id: "online",
     group: "overview",
-    question: "Is Intervexa™ available online?",
+    question: "Is Ansoyal AI available online?",
     answer:
       "Yes. It runs in the browser—sign in from any device with an internet connection; nothing to install for the web app.",
   },
   {
     id: "why-use",
     group: "overview",
-    question: "Why should I use Intervexa™ for interview preparation?",
+    question: "Why should I use Ansoyal AI for interview preparation?",
     answer:
       "You get one place to tighten your resume, rehearse under pressure, and read feedback you can apply immediately—so you walk into interviews prepared, not guessing.",
   },
@@ -268,7 +268,7 @@ function FaqSection() {
               viewport={{ once: true }}
               transition={{ delay: 0.22, duration: 0.55 }}
             >
-              Search or filter by topic, open several answers at once, and dig into how Intervexa™ fits your
+              Search or filter by topic, open several answers at once, and dig into how Ansoyal AI fits your
               prep flow.
             </motion.p>
             <motion.div
@@ -519,7 +519,7 @@ function HomeFooter() {
             transition={{ delay: 0.05, duration: 0.45 }}
             className="sm:col-span-2 lg:col-span-1"
           >
-            <p className="text-lg font-extrabold tracking-tight text-white">Intervexa™</p>
+            <p className="text-lg font-extrabold tracking-tight text-white">Ansoyal AI</p>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-slate-400">
               AI-powered resumes, portfolio templates, and interview practice — built so you can apply with confidence.
             </p>
@@ -728,7 +728,7 @@ function Hero({ resumeStats }) {
             <div className="relative space-y-4">
               <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
                 <p className="text-sm font-semibold uppercase tracking-[0.14em] text-indigo-200">
-                  Why users love INTERVEXA™
+                  Why users love Ansoyal AI
                 </p>
                 <span className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-200">
                   Smart features
@@ -859,7 +859,7 @@ function Home() {
       >
         <InstallPrompt />
       </motion.div>
-      <IntervexaOfferings />
+      <AnsoyalAIOfferings />
       <ResumeSection />
       <HomePlatformLanes />
       <FaqSection />

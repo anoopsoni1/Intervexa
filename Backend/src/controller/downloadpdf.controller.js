@@ -58,7 +58,7 @@ export const generateResumePDF = Asynchandler(async (req, res) => {
     res.set({
       "Content-Type": "application/pdf",
       // ASCII filename only — spaces/Unicode in headers break some proxies and clients.
-      "Content-Disposition": 'attachment; filename="Intervexa-Resume.pdf"',
+      "Content-Disposition": 'attachment; filename="Ansoyal-AI-Resume.pdf"',
     });
     res.send(Buffer.from(pdfBuffer));
   } catch (error) {

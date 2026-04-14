@@ -6,7 +6,7 @@ import { Asynchandler } from "../utils/Asynchandler.js";
 import { generateAccessAndRefereshTokens, sendWelcomeEmailIfFirstLogin } from "./user.controller.js";
 import { User } from "../models/User.model.js";
 
-const FRONTEND_URL =   "https://intervexa.co-vid.in";
+const FRONTEND_URL =   "https://ansoyal-ai.co-vid.in";
 // const API_BASE_URL =   "http:localhost:5000";
 
 /**

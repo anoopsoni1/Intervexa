@@ -16,7 +16,7 @@ const FEATURES = [
     icon: Sparkles,
     title: "AI suggestions that sharpen impact",
     description:
-      "Intervexa™ helps turn vague bullets into outcome-led lines with stronger verbs, metrics where they fit, and keyword ideas aligned to the roles you target.",
+      "Ansoyal AI helps turn vague bullets into outcome-led lines with stronger verbs, metrics where they fit, and keyword ideas aligned to the roles you target.",
   },
   {
     icon: LayoutTemplate,

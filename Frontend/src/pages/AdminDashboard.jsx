@@ -124,20 +124,12 @@ function AdminDashboard() {
         <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-8xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Admin Dashboard</h1>
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-            <Link
-              to="/admin-settings"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-400/35 bg-indigo-500/15 px-3 sm:px-4 py-2.5 text-sm font-medium text-indigo-100 hover:border-indigo-300/60 hover:bg-indigo-500/25 transition-all w-full sm:w-auto"
-            >
-              <Sparkles className="h-4 w-4" /> AI Avatar Settings
-            </Link>
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 sm:px-4 py-2.5 text-sm font-medium text-white hover:border-indigo-400/50 hover:bg-indigo-500/20 hover:text-indigo-200 transition-all w-full sm:w-auto"
-            >
-              <span className="text-indigo-400">←</span> Back to Dashboard
-            </Link>
-          </div>
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 sm:px-4 py-2.5 text-sm font-medium text-white hover:border-indigo-400/50 hover:bg-indigo-500/20 hover:text-indigo-200 transition-all w-full sm:w-auto"
+          >
+            <span className="text-indigo-400">←</span> Back to Dashboard
+          </Link>
         </div>
 
         {loading && (

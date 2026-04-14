@@ -83,7 +83,7 @@ function BrowserMockup({ active }) {
           <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
         </div>
         <div className="mx-2 min-w-0 flex-1 truncate rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-[10px] text-slate-400 sm:text-xs">
-          app.intervexa.co / {active.id}
+          app.ansoyal.ai / {active.id}
         </div>
       </div>
       <div className="relative min-h-[200px] p-4 sm:min-h-[240px] sm:p-5">
@@ -201,7 +201,7 @@ function BrowserMockup({ active }) {
   );
 }
 
-export default function IntervexaOfferings() {
+export default function AnsoyalAIOfferings() {
   const reduceMotion = useReducedMotion();
   const [toolIndex, setToolIndex] = useState(0);
 
@@ -211,96 +211,96 @@ export default function IntervexaOfferings() {
   return (
     <section
       className="relative z-10 border-t border-white/10 py-16 px-4 sm:px-6 lg:py-20 lg:px-10"
-      aria-labelledby="intervexa-tools-heading"
+      aria-labelledby="ansoyal-tools-heading"
     >
-        <div className="relative z-10 mx-auto max-w-8xl">
-          <h2
-            id="intervexa-tools-heading"
-            className="mx-auto max-w-2xl text-balance text-center text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+      <div className="relative z-10 mx-auto max-w-8xl">
+        <h2
+          id="ansoyal-tools-heading"
+          className="mx-auto max-w-2xl text-balance text-center text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+        >
+          All the career tools you need
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-pretty text-center text-sm text-slate-400 sm:text-base">
+          Ansoyal AI bundles resumes, ATS checks, portfolios, mock interviews, coding practice, and career
+          guidance in one place.
+        </p>
+
+        <div className="mt-8 -mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
+          {CAREER_TOOLS.map((t, i) => {
+            const Icon = t.icon;
+            const active = i === toolIndex;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setToolIndex(i)}
+                className={`flex shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2.5 text-left text-sm font-medium transition-colors ${
+                  active
+                    ? "border-cyan-300/40 bg-indigo-500/25 text-white shadow-[0_0_24px_-8px_rgba(99,102,241,0.55)]"
+                    : "border-white/15 bg-white/5 text-slate-300 hover:border-white/25 hover:bg-white/10"
+                }`}
+                aria-pressed={active}
+              >
+                <Icon className="h-4 w-4 shrink-0 text-cyan-200/90" aria-hidden />
+                <span className="whitespace-nowrap">{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-12 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+          <motion.div
+            className="relative mx-auto w-full max-w-lg lg:mx-0"
+            initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+            whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5 }}
           >
-            All the career tools you need
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-pretty text-center text-sm text-slate-400 sm:text-base">
-            Intervexa™ bundles resumes, ATS checks, portfolios, mock interviews, coding practice, and
-            career guidance in one place.
-          </p>
-
-          <div className="mt-8 -mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">
-            {CAREER_TOOLS.map((t, i) => {
-              const Icon = t.icon;
-              const active = i === toolIndex;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setToolIndex(i)}
-                  className={`flex shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2.5 text-left text-sm font-medium transition-colors ${
-                    active
-                      ? "border-cyan-300/40 bg-indigo-500/25 text-white shadow-[0_0_24px_-8px_rgba(99,102,241,0.55)]"
-                      : "border-white/15 bg-white/5 text-slate-300 hover:border-white/25 hover:bg-white/10"
-                  }`}
-                  aria-pressed={active}
-                >
-                  <Icon className="h-4 w-4 shrink-0 text-cyan-200/90" aria-hidden />
-                  <span className="whitespace-nowrap">{t.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-12 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
-            <motion.div
-              className="relative mx-auto w-full max-w-lg lg:mx-0"
-              initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-              whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div
-                className="pointer-events-none absolute -inset-3 -z-10 rounded-3xl bg-linear-to-br from-violet-500/25 via-indigo-500/15 to-cyan-400/20 opacity-80 blur-2xl"
-                aria-hidden
-              />
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTool.id}
-                  initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={reduceMotion ? {} : { opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <BrowserMockup active={activeTool} />
-                </motion.div>
-              </AnimatePresence>
-            </motion.div>
-
+            <div
+              className="pointer-events-none absolute -inset-3 -z-10 rounded-3xl bg-linear-to-br from-violet-500/25 via-indigo-500/15 to-cyan-400/20 opacity-80 blur-2xl"
+              aria-hidden
+            />
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTool.id}
-                initial={reduceMotion ? false : { opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={reduceMotion ? {} : { opacity: 0, x: -12 }}
-                transition={{ duration: 0.3 }}
-                className="text-center lg:text-left"
+                initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={reduceMotion ? {} : { opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.25 }}
               >
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-wider text-indigo-200">
-                  <ToolIcon className="h-3.5 w-3.5" aria-hidden />
-                  {activeTool.label}
-                </div>
-                <h3 className="text-2xl font-semibold text-white sm:text-3xl">{activeTool.title}</h3>
-                <p className="mt-4 text-pretty text-sm leading-relaxed text-slate-400 sm:text-base">
-                  {activeTool.description}
-                </p>
-                <Link
-                  to={activeTool.to}
-                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 transition-colors hover:text-cyan-200"
-                >
-                  {activeTool.cta}
-                  <ArrowRight className="h-4 w-4" aria-hidden />
-                </Link>
+                <BrowserMockup active={activeTool} />
               </motion.div>
             </AnimatePresence>
-          </div>
+          </motion.div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTool.id}
+              initial={reduceMotion ? false : { opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={reduceMotion ? {} : { opacity: 0, x: -12 }}
+              transition={{ duration: 0.3 }}
+              className="text-center lg:text-left"
+            >
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-wider text-indigo-200">
+                <ToolIcon className="h-3.5 w-3.5" aria-hidden />
+                {activeTool.label}
+              </div>
+              <h3 className="text-2xl font-semibold text-white sm:text-3xl">{activeTool.title}</h3>
+              <p className="mt-4 text-pretty text-sm leading-relaxed text-slate-400 sm:text-base">
+                {activeTool.description}
+              </p>
+              <Link
+                to={activeTool.to}
+                className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 transition-colors hover:text-cyan-200"
+              >
+                {activeTool.cta}
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </Link>
+            </motion.div>
+          </AnimatePresence>
         </div>
+      </div>
     </section>
   );
 }
