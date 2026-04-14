@@ -5,6 +5,70 @@ import { getAiResponse, hasAnyAiProvider } from "../utils/aiClient.js";
 
 dotenv.config();
 
+function parseJsonFromAi(text) {
+  const normalized = String(text || "")
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
+    .trim();
+
+  // 1) Fast path: pure JSON
+  try {
+    return JSON.parse(normalized);
+  } catch {
+    // continue to extraction strategies
+  }
+
+  // 2) Greedy object extraction (works when AI adds headings before/after JSON)
+  const firstBrace = normalized.indexOf("{");
+  const lastBrace = normalized.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    const slice = normalized.slice(firstBrace, lastBrace + 1).trim();
+    try {
+      return JSON.parse(slice);
+    } catch {
+      // continue to balanced scan
+    }
+  }
+
+  // 3) Balanced brace scan for the first valid JSON object
+  for (let i = 0; i < normalized.length; i++) {
+    if (normalized[i] !== "{") continue;
+    let depth = 0;
+    let inString = false;
+    let escaping = false;
+    for (let j = i; j < normalized.length; j++) {
+      const ch = normalized[j];
+      if (escaping) {
+        escaping = false;
+        continue;
+      }
+      if (ch === "\\") {
+        escaping = true;
+        continue;
+      }
+      if (ch === "\"") {
+        inString = !inString;
+        continue;
+      }
+      if (inString) continue;
+      if (ch === "{") depth++;
+      if (ch === "}") {
+        depth--;
+        if (depth === 0) {
+          const candidate = normalized.slice(i, j + 1);
+          try {
+            return JSON.parse(candidate);
+          } catch {
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
 const CheckATSScore = Asynchandler(async (req, res) => {
   const { resumeText, jobDescription } = req.body;
 
@@ -18,92 +82,136 @@ const CheckATSScore = Asynchandler(async (req, res) => {
   }
 
   try {
-    const prompt = `You are an extremely strict Applicant Tracking System (ATS) evaluator used in a hiring pipeline. 
-Your job is to objectively measure how well a resume matches a job description.
+    const prompt = `
+    You are a production-grade Applicant Tracking System (ATS) used by top tech companies.
+    
+    You MUST behave like a strict deterministic scoring engine, NOT a helpful assistant.
+    
+    ## CRITICAL RULES (NON-NEGOTIABLE)
+    
+    - DO NOT infer or assume skills.
+    - DO NOT give credit for vague mentions.
+    - ONLY count a skill if there is clear evidence of usage (project, experience, or measurable work).
+    - If a critical requirement is missing, aggressively reduce the score.
+    - If resume domain ≠ job domain → score MUST be below 40.
+    - If more than 40% of core skills are missing → score MUST be below 60.
+    
+    ---
+    
+    ## STEP 1: Extract JD Intelligence
+    
+    From the job description, extract:
+    - Core Skills (most important, max 15)
+    - Secondary Skills (max 15)
+    - Required Experience Level
+    - Domain (e.g., Web Dev, AI, Data, etc.)
+    
+    ---
+    
+    ## STEP 2: Resume Validation
+    
+    For EACH skill:
+    - Check if explicitly present
+    - Check if used in:
+      - Experience ✅ (full credit)
+      - Projects ✅ (medium credit)
+      - Skills section only ⚠️ (low credit)
+      - Mention without context ❌ (no credit)
+    
+    ---
+    
+    ## STEP 3: STRICT SCORING
+    
+    You MUST follow this EXACT formula:
+    
+    ATS Score =
+    (Keyword Match × 0.45) +
+    (Experience Relevance × 0.25) +
+    (Structure × 0.10) +
+    (Impact × 0.10) +
+    (Education × 0.10)
+    
+    ---
+    
+    ### 1. Keyword Match (0–45)
+    - Core skills missing → heavy penalty
+    - Weak context → partial credit only
+    
+    ---
+    
+    ### 2. Experience Relevance (0–25)
+    - Same domain + similar role → high score
+    - Projects only → max 60% of this section
+    - Unrelated domain → very low
+    
+    ---
+    
+    ### 3. Structure (0–10)
+    - Clear sections → high
+    - Missing sections → penalty
+    
+    ---
+    
+    ### 4. Impact (0–10)
+    - Measurable results required
+    - No numbers → score below 5
+    
+    ---
+    
+    ### 5. Education (0–10)
+    - Missing required degree → penalty
+    
+    ---
+    
+    ## STEP 4: HARD PENALTIES
+    
+    Apply these strictly:
+    
+    - Missing ANY critical skill → subtract 10–25 points
+    - No real experience (only projects) → cap total score at 70
+    - No measurable achievements → cap impact ≤ 4
+    - Resume too generic → reduce total score by 10–20%
+    
+    ---
+    
+    ## STEP 5: FINAL SCORE RULES
+    
+    - MUST return integer (0–100)
+    - DO NOT round generously
+    - Be conservative
+    
+    ---
+    
+    ## OUTPUT FORMAT (STRICT JSON ONLY)
+    
+    {"score":<number>,"matchedSkills":["string"],"missingSkills":["string"],"summary":"string","improvementSuggestions":["string"],"resumeMistakes":["string"]}
+    
+    ---
+    
+    ## IMPORTANT OUTPUT RULES
+    
+    - matchedSkills = ONLY skills clearly demonstrated
+    - missingSkills = ONLY important JD skills not found
+    - NO overlap between arrays
+    - summary = 2–4 sentences max
+    - suggestions = actionable, job-specific
+    - resumeMistakes = REAL issues in resume (not JD gaps)
+    
+    ---
+    
+    JOB DESCRIPTION:
+    ${jobDescription}
+    
+    ---
+    
+    RESUME:
+    ${resumeText}
+    `;
 
-Be conservative and unforgiving: do NOT "guess" matches that are not clearly present in the resume. 
-Minor mismatches or missing core skills MUST significantly reduce the score.
-
-## Scoring criteria (0–100, MUST be strict)
-
-1. Keyword & skill match (0–45)
-   - Identify important skills, tools, technologies, responsibilities, and domain terms from the job description.
-   - Give full credit ONLY when the same or very clear synonyms appear in the resume context that proves actual usage.
-   - If a required/critical skill is missing, heavily penalize (large score reduction).
-   - If a keyword appears only in an irrelevant or very weak context, give partial or zero credit.
-
-2. Experience relevance (0–25)
-   - Compare past roles, projects, and responsibilities in the resume to the job description.
-   - Roles in the same domain & level (e.g., "Senior Frontend Engineer" for a senior frontend role) should get high credit.
-   - If experience is in a different field or level (e.g., student projects only for a senior role), penalize.
-
-3. Structure, clarity, and ATS-friendliness (0–10)
-   - Reward clear sections (Experience, Skills, Education, Projects).
-   - Penalize chaotic structure, missing key sections, or walls of text that are hard to parse.
-   - Reward bullet points, consistent formatting, and clear job titles and dates.
-
-4. Quantifiable impact (0–10)
-   - Reward metrics and measurable outcomes (e.g., "increased conversion by 20%", "reduced latency by 35%").
-   - If almost no bullets have numbers/impact, give a low score in this category.
-
-5. Education & credentials (0–10)
-   - Compare required/desired education, certifications, and licenses from the job description to the resume.
-   - Penalize when hard requirements are missing.
-
-## Score interpretation (MUST follow)
-
-- 90–100: Exceptional, extremely strong match; almost all critical skills present; very relevant experience.
-- 75–89: Strong match; most key skills present, relevant experience, only minor gaps.
-- 55–74: Partial match; some important skills or experience missing or weak.
-- 35–54: Weak match; multiple major requirements missing or only loosely related.
-- 0–34: Very poor match; resume is largely unrelated to the role.
-
-You MUST:
-- Output a SINGLE integer between 0 and 100 (no decimals).
-- Base everything ONLY on the provided resume and job description.
-- If key requirements are missing, the score should NOT exceed 60 under any circumstance.
-- If the resume is clearly from a different field, the score should usually be below 40.
-
-## Required output
-
-Return a JSON object with EXACTLY these fields:
-
-- score: integer 0–100 (overall match).
-- matchedSkills: array of strings. Important skills/keywords from the job description that are clearly present in the resume (max 20).
-- missingSkills: array of strings. Important skills/keywords from the job description that are missing or very weak in the resume (max 20).
-- summary: string. 2–4 sentences, concise, objective explanation of the match quality.
-- improvementSuggestions: array of strings. 3–7 concrete, actionable suggestions to improve the resume for THIS job.
-- resumeMistakes: array of strings. 4–10 specific problems or weaknesses IN THE RESUME ITSELF (not just missing JD keywords). Include where relevant: unclear or missing dates, weak or vague bullets, grammar/spelling issues you can infer from the text, messy structure or missing sections (Experience, Education, Skills), walls of text, inconsistent formatting, tables/columns/icons that confuse ATS parsers, lack of measurable impact, unprofessional tone, wrong tense, keyword stuffing, or contact/header issues. Each item must be one clear, standalone sentence. Do not repeat the same point twice.
-
-The same concept or keyword must not appear in both matchedSkills and missingSkills.
-
-## Response format (VERY IMPORTANT)
-
-Respond with ONLY valid JSON. No markdown, no comments, no code fences, no extra text.
-
-Use exactly this structure:
-
-{"score":<number>,"matchedSkills":["string"],"missingSkills":["string"],"summary":"string","improvementSuggestions":["string"],"resumeMistakes":["string"]}
-
----
-
-JOB DESCRIPTION:
-${jobDescription}
-
----
-
-RESUME:
-${resumeText}
-`;
-
-    let raw = await getAiResponse(prompt);
-    raw = (raw || "").replace(/```json/g, "").replace(/```/g, "").trim();
-
-    let parsed;
-    try {
-      parsed = JSON.parse(raw);
-    } catch (e) {
-      console.error("JSON parse error from AI:", e, raw);
+    const raw = await getAiResponse(prompt);
+    const parsed = parseJsonFromAi(raw);
+    if (!parsed || typeof parsed !== "object") {
+      console.error("JSON parse error from AI: unable to parse object", String(raw || "").slice(0, 1200));
       return res
         .status(500)
         .json({ message: "Failed to parse ATS JSON" });

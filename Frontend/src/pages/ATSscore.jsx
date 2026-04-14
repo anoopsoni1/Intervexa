@@ -1,21 +1,25 @@
-import { useId } from "react";
+import { useEffect, useId, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Loader2,
   CheckCircle,
   XCircle,
   FileText,
-  Briefcase,
-  Target,
   Sparkles,
   TrendingUp,
   AlertCircle,
   Zap,
-  ListChecks,
+  ArrowLeft,
 } from "lucide-react";
 import AppHeader from "../components/layout/AppHeader";
 import AppFooter from "../components/layout/AppFooter";
+import AtsAnalysisSteps from "../components/ats/AtsAnalysisSteps.jsx";
+import JobRoleSwiperSection from "../components/ats/JobRoleSwiperSection.jsx";
+import { buildJobDescription } from "../data/atsJobDescriptions.js";
 import { useAtsPageData } from "../hooks/useAtsPageData.js";
+
+const MotionDiv = motion.div;
 
 function getScoreTier(score) {
   if (score >= 80)
@@ -55,7 +59,9 @@ function gradientStops(scoreNum) {
 
 function AtsScoreResult({ result }) {
   const gradId = useId().replace(/:/g, "");
-  const scoreNum = Math.min(100, Math.max(0, Number(result?.score) ?? 0));
+  const rawScore = result?.score;
+  const parsed = typeof rawScore === "number" ? rawScore : Number(rawScore);
+  const scoreNum = Math.min(100, Math.max(0, Number.isFinite(parsed) ? parsed : 0));
   const tier = getScoreTier(scoreNum);
   const matched = result?.matchedKeywords ?? [];
   const missing = result?.missingKeywords ?? [];
@@ -235,7 +241,7 @@ function AtsChecker() {
     error,
     loading,
     authChecking,
-    handleCheckATS,
+    analyzeResume,
     resumeWordCount,
     jdWordCount,
     checkReadiness,
@@ -243,7 +249,19 @@ function AtsChecker() {
     minJdWords,
   } = useAtsPageData();
 
-  const readyToRun = checkReadiness.resumeOk && checkReadiness.jdOk && !loading;
+  const [selectedRoleId, setSelectedRoleId] = useState(null);
+  const [includeAdvancedJd, setIncludeAdvancedJd] = useState(false);
+
+  const handleSelectRole = (roleId) => {
+    setSelectedRoleId(roleId);
+  };
+
+  useEffect(() => {
+    if (!selectedRoleId) return;
+    setJobDescription(buildJobDescription(selectedRoleId, includeAdvancedJd));
+  }, [selectedRoleId, includeAdvancedJd, setJobDescription]);
+
+  const canUseJd = checkReadiness.resumeOk && checkReadiness.jdOk && Boolean(selectedRoleId);
 
   if (authChecking) {
     return (
@@ -264,8 +282,17 @@ function AtsChecker() {
       <div className="flex min-h-screen flex-col">
         <Topbar />
 
-        <main className="flex-1 px-4 py-8 sm:px-6 sm:py-12">
+        <main className="flex-1 min-w-0 overflow-x-clip px-4 py-8 sm:px-6 sm:py-12">
           <div className="mx-auto w-full max-w-8xl">
+            <div className="mb-6 flex justify-start sm:mb-8">
+              <Link
+                to="/upload"
+                className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 text-sm font-medium text-slate-300 shadow-sm transition hover:border-amber-500/35 hover:bg-white/10 hover:text-white active:scale-[0.99]"
+              >
+                <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
+                Back to upload
+              </Link>
+            </div>
             <header className="mb-10 text-center sm:mb-12">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/15 px-4 py-2 text-sm font-medium text-amber-200 shadow-lg shadow-amber-500/10">
                 <TrendingUp className="h-4 w-4 shrink-0" aria-hidden />
@@ -278,8 +305,9 @@ function AtsChecker() {
                 </span>
               </h1>
               <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg">
-                We match your resume text against the job description, surface keyword gaps, and estimate how well you
-                align with what ATS parsers and recruiters typically scan for.
+                Sample job descriptions default to student-friendly and early-career wording. Turn on optional advanced
+                keywords only if your resume already includes senior tools — so you are not scored against complexity you
+                are not claiming.
               </p>
             </header>
 
@@ -300,10 +328,10 @@ function AtsChecker() {
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/25 text-sm font-bold">
                     2
                   </span>
-                  <p className="font-semibold text-indigo-50">Paste full JD</p>
+                  <p className="font-semibold text-indigo-50">Select a job role</p>
                 </div>
                 <p className="text-xs leading-relaxed text-indigo-200/80">
-                  Include responsibilities, must-have skills, and tools — longer postings produce better keyword lists.
+                  Swipe the cards, pick a target role, and we inject a full sample posting for keyword matching.
                 </p>
               </div>
               <div className="rounded-2xl border border-emerald-400/25 bg-emerald-500/10 p-4 text-left">
@@ -320,15 +348,15 @@ function AtsChecker() {
             </div>
 
             <div className="rounded-3xl border border-white/15 bg-zinc-900/60 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:gap-10">
-                <div className="flex min-w-0 flex-col">
+              <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-10 lg:gap-x-12">
+                <div className="flex min-w-0 flex-col lg:col-span-5">
                   <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-500/20">
                         <FileText className="h-5 w-5 text-amber-400" aria-hidden />
                       </div>
                       <div className="min-w-0">
-                        <label className="text-sm font-semibold text-white">Resume text</label>
+                        <p className="text-sm font-semibold text-white">Resume text</p>
                         <p className="text-xs text-slate-500">From your last upload or profile</p>
                       </div>
                     </div>
@@ -350,7 +378,7 @@ function AtsChecker() {
                     readOnly
                     aria-readonly="true"
                     placeholder="Resume text appears here after upload"
-                    className="min-h-[280px] w-full resize-y cursor-not-allowed rounded-2xl border border-white/15 bg-black/35 p-4 text-sm leading-relaxed text-slate-200 shadow-inner shadow-black/20"
+                    className="h-[430px] w-full resize-none overflow-y-auto overscroll-contain rounded-2xl border border-white/15 bg-black/35 p-4 text-sm leading-relaxed text-slate-200 shadow-inner shadow-black/20 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden outline-none ring-0 sm:h-[470px] lg:h-[520px] focus:border-white/15 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
                   />
                   <p className="mt-2 flex items-start gap-1.5 text-xs text-slate-500">
                     <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
@@ -362,43 +390,41 @@ function AtsChecker() {
                   </p>
                 </div>
 
-                <div className="flex min-w-0 flex-col">
-                  <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-400/30 bg-indigo-500/20">
-                        <Briefcase className="h-5 w-5 text-indigo-400" aria-hidden />
-                      </div>
-                      <div className="min-w-0">
-                        <label htmlFor="ats-job-description" className="text-sm font-semibold text-white">
-                          Job description
-                        </label>
-                        <p className="text-xs text-slate-500">Paste the full posting</p>
-                      </div>
+                <div className="min-w-0 overflow-x-clip lg:col-span-7">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-xs text-slate-500">
+                      <span
+                        className={`rounded-full border px-2.5 py-1 font-medium ${
+                          checkReadiness.jdOk
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
+                            : "border-white/10 bg-white/5 text-slate-400"
+                        }`}
+                      >
+                        JD: {jdWordCount} words
+                        {!checkReadiness.jdOk && selectedRoleId && (
+                          <span className="text-amber-200/80"> · aim {minJdWords}+</span>
+                        )}
+                      </span>
+                      {selectedRoleId ? (
+                        <span className="hidden sm:inline text-slate-600">·</span>
+                      ) : null}
+                      {selectedRoleId ? (
+                        <span className="text-slate-500">Role locked in for analysis</span>
+                      ) : (
+                        <span className="text-slate-500">Choose a role to load a sample posting</span>
+                      )}
                     </div>
-                    <span
-                      className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-medium ${
-                        checkReadiness.jdOk
-                          ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-200"
-                          : "border-amber-500/25 bg-amber-500/10 text-amber-200/90"
-                      }`}
-                    >
-                      {jdWordCount} words
-                      {!checkReadiness.jdOk && <span className="text-amber-200/70"> · aim {minJdWords}+</span>}
-                    </span>
                   </div>
-                  <textarea
-                    id="ats-job-description"
-                    value={jobDescription}
-                    onChange={(e) => setJobDescription(e.target.value)}
-                    placeholder="Paste title, summary, responsibilities, and requirements…"
-                    className="min-h-[280px] w-full resize-y rounded-2xl border border-white/15 bg-black/35 p-4 text-sm leading-relaxed text-slate-200 placeholder-slate-500 shadow-inner shadow-black/20 transition focus:border-indigo-500/45 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                    autoComplete="off"
+                  <JobRoleSwiperSection
+                    selectedRoleId={selectedRoleId}
+                    onSelectRole={handleSelectRole}
+                    selectedJdPreview={jobDescription.trim()}
+                    includeAdvancedJd={includeAdvancedJd}
+                    onIncludeAdvancedJdChange={setIncludeAdvancedJd}
+                    onCheckAtsScore={() => analyzeResume(jobDescription)}
+                    checkDisabled={!canUseJd}
+                    analyzing={loading}
                   />
-                  <p className="mt-2 flex items-start gap-2 text-xs text-slate-500">
-                    <ListChecks className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-400/80" aria-hidden />
-                    More JD text → more reliable keyword extraction. Bullet lists and &quot;Requirements&quot; sections
-                    help most.
-                  </p>
                 </div>
               </div>
 
@@ -415,63 +441,49 @@ function AtsChecker() {
               ) : null}
 
               {loading ? (
-                <div
-                  className="mt-8 flex flex-col items-center rounded-2xl border border-white/10 bg-white/4 px-6 py-8 text-center"
+                <MotionDiv
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  className="mt-8 flex flex-col items-center rounded-2xl border border-indigo-500/20 bg-linear-to-b from-indigo-500/10 to-transparent px-4 py-8 text-center shadow-[0_0_0_1px_rgba(99,102,241,0.12)] sm:px-8 sm:py-10"
                   role="status"
                   aria-live="polite"
                 >
-                  <Loader2 className="h-10 w-10 animate-spin text-amber-400" aria-hidden />
-                  <p className="mt-4 font-semibold text-white">Analyzing match…</p>
+                  <AtsAnalysisSteps running={loading} />
+                  <p className="mt-8 font-semibold text-white sm:mt-10">Analyzing ATS score…</p>
                   <p className="mt-2 max-w-md text-sm text-slate-400">
-                    Comparing resume and job description. This usually takes 15–60 seconds; we poll the server so you
-                    don&apos;t have to refresh.
+                    Comparing your resume to the selected job description. This usually takes 15–60 seconds; we poll the
+                    server so you don&apos;t have to refresh.
                   </p>
+                  <div className="relative mt-6 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-white/10">
+                    <MotionDiv
+                      className="absolute top-0 bottom-0 w-2/5 rounded-full bg-linear-to-r from-indigo-400 to-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.35)]"
+                      initial={{ left: "-45%" }}
+                      animate={{ left: "105%" }}
+                      transition={{ repeat: Infinity, duration: 1.35, ease: "easeInOut" }}
+                    />
+                  </div>
                   <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
                     <Zap className="h-3.5 w-3.5 text-amber-400/80" aria-hidden />
                     Tip: keep this tab open until results appear.
                   </div>
-                </div>
+                </MotionDiv>
               ) : null}
 
               {result && !loading ? <AtsScoreResult result={result} /> : null}
 
-              <div className="mt-8 grid grid-cols-1 gap-3 sm:mx-auto sm:mt-10 sm:max-w-2xl sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={handleCheckATS}
-                  disabled={!readyToRun}
-                  aria-busy={loading}
-                  title={
-                    !checkReadiness.resumeOk || !checkReadiness.jdOk
-                      ? "Meet minimum word counts on resume and job description to run a check"
-                      : undefined
-                  }
-                  className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 px-6 font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none sm:px-8"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 size={20} className="animate-spin" aria-hidden />
-                      Analyzing…
-                    </>
-                  ) : (
-                    <>
-                      <Target size={20} aria-hidden />
-                      Check ATS score
-                    </>
-                  )}
-                </button>
-
+              <div className="mt-10 flex justify-center sm:mt-12">
                 {resumeText.trim() ? (
                   <Link
                     to="/edit-resume"
                     state={{ extractedText: resumeText }}
-                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-white/20 bg-white/5 px-6 font-semibold text-slate-200 transition hover:border-indigo-500 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98] sm:px-8"
+                    className="inline-flex h-12 w-full max-w-md items-center justify-center gap-2 rounded-xl border-2 border-white/20 bg-white/5 px-8 font-semibold text-slate-200 transition hover:border-indigo-500 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98]"
                   >
                     <Sparkles size={20} aria-hidden />
                     Optimize with AI
                   </Link>
                 ) : (
-                  <span className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 font-semibold text-slate-500 sm:px-8">
+                  <span className="inline-flex h-12 w-full max-w-md cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-8 font-semibold text-slate-500">
                     <Sparkles size={20} aria-hidden />
                     Optimize with AI
                   </span>

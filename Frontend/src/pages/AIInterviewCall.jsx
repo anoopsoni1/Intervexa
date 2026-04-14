@@ -7,6 +7,11 @@ import gsap from "gsap";
 import { useToast } from "../context/ToastContext";
 
 import { API_BASE } from "../config";
+import {
+  AI_AVATAR_STORAGE_KEY,
+  getAiAvatarPreset,
+  getAiAvatarSrc,
+} from "../utils/aiAvatarSettings.js";
 
 const DURATION_MINUTES = 15; // max time; user can end anytime
 const QUESTION_DURATION_SECONDS = 90; // 1.5 min per question, then auto-advance
@@ -29,6 +34,8 @@ function AIInterviewCall() {
   const [localMuted, setLocalMuted] = useState(false);
   const [aiVoiceEnabled, setAiVoiceEnabled] = useState(true);
   const [aiSpeaking, setAiSpeaking] = useState(false);
+  const [selectedAvatarPreset, setSelectedAvatarPreset] = useState(getAiAvatarPreset());
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
   const [advancingQuestion, setAdvancingQuestion] = useState(false);
   const [size, setSize] = useState({
     width: typeof window !== "undefined" ? window.innerWidth : 768,
@@ -49,6 +56,24 @@ function AIInterviewCall() {
   const waveRafRef = useRef(null);
 
   const toast = useToast();
+  const aiAvatarSrc = getAiAvatarSrc(selectedAvatarPreset);
+
+  useEffect(() => {
+    const syncAvatarPreset = (e) => {
+      if (e?.key && e.key !== AI_AVATAR_STORAGE_KEY) return;
+      setSelectedAvatarPreset(getAiAvatarPreset());
+    };
+    syncAvatarPreset();
+    if (typeof window !== "undefined") {
+      window.addEventListener("storage", syncAvatarPreset);
+      return () => window.removeEventListener("storage", syncAvatarPreset);
+    }
+    return undefined;
+  }, []);
+
+  useEffect(() => {
+    setAvatarLoadError(false);
+  }, [aiAvatarSrc]);
 
   useEffect(() => {
     const handleResize = () =>
@@ -659,8 +684,17 @@ function AIInterviewCall() {
     <div ref={fullscreenContainerRef} className="fixed inset-0 w-screen h-screen min-h-dvh overflow-hidden bg-black">
       {!started ? (
         <div ref={startScreenRef} className="w-full h-full flex flex-col items-center justify-center gap-6 px-4">
-          <div className="start-icon rounded-full w-24 h-24 bg-indigo-600/30 flex items-center justify-center">
-            <FiUser className="w-12 h-12 text-indigo-400" />
+          <div className="start-icon relative rounded-full w-24 h-24 bg-indigo-600/20 ring-2 ring-indigo-400/30 overflow-hidden flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.35)]">
+            {!avatarLoadError ? (
+              <img
+                src={aiAvatarSrc}
+                alt="AI interviewer"
+                className="h-full w-full object-cover"
+                onError={() => setAvatarLoadError(true)}
+              />
+            ) : (
+              <FiUser className="w-12 h-12 text-indigo-300" />
+            )}
           </div>
           <h1 className="start-title text-xl font-bold text-white text-center">AI Interview – {interview.role || "Interview"}</h1>
           <p className="start-desc text-slate-400 text-center max-w-sm">
@@ -716,7 +750,16 @@ function AIInterviewCall() {
                     aiSpeaking ? "scale-105 ring-4 ring-cyan-400/40 shadow-[0_0_50px_rgba(34,211,238,0.5)]" : "scale-100"
                   }`}
                 >
-                  <FiUser className="w-12 h-12 text-white/95" strokeWidth={2} />
+                  {!avatarLoadError ? (
+                    <img
+                      src={aiAvatarSrc}
+                      alt="AI interviewer avatar"
+                      className="h-full w-full object-cover"
+                      onError={() => setAvatarLoadError(true)}
+                    />
+                  ) : (
+                    <FiUser className="w-12 h-12 text-white/95" strokeWidth={2} />
+                  )}
                 </div>
               </div>
               <p className="text-slate-400 text-sm font-medium mb-2">AI Interviewer</p>

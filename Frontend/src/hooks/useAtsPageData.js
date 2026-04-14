@@ -107,11 +107,11 @@ export function useAtsPageData() {
     [resumeWordCount, jdWordCount]
   );
 
-  const handleCheckATS = async () => {
+  const analyzeResume = async (jd) => {
     const r = String(resumeText || "").trim();
-    const j = String(jobDescription || "").trim();
+    const j = String(jd ?? "").trim();
     if (!r || !j) {
-      setError("Resume text and job description are required.");
+      setError("Resume text and a job description are required. Select a job role first.");
       return;
     }
     if (countWords(r) < MIN_RESUME_WORDS) {
@@ -122,11 +122,12 @@ export function useAtsPageData() {
     }
     if (countWords(j) < MIN_JD_WORDS) {
       setError(
-        `Job description is too short (paste at least ${MIN_JD_WORDS} words from the posting — responsibilities and requirements — for accurate keyword matching).`
+        `The selected job description is too short for accurate keyword matching (minimum ${MIN_JD_WORDS} words).`
       );
       return;
     }
 
+    setJobDescription(j);
     setError("");
     setResult(null);
 
@@ -144,6 +145,8 @@ export function useAtsPageData() {
     }
   };
 
+  const handleCheckATS = () => analyzeResume(jobDescription);
+
   return {
     resumeText,
     setResumeText,
@@ -153,6 +156,7 @@ export function useAtsPageData() {
     error,
     loading,
     authChecking,
+    analyzeResume,
     handleCheckATS,
     resumeWordCount,
     jdWordCount,

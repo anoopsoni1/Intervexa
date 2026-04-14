@@ -1,5 +1,7 @@
 # Google OAuth 2.0 Setup
 
+Last updated: 2026-04-14
+
 **If you see "Error 401: invalid_client"** — add valid `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in Backend `.env` (see below).
 
 **If you see "Error 400: redirect_uri_mismatch"** — the redirect URI your app sends to Google does not exactly match any **Authorized redirect URI** in the Google Cloud Console. Fix it like this:

@@ -1,6 +1,8 @@
 # ResumeAI — Features, validation, and usage limits
 
-This document reflects **behavior implemented in the codebase** (backend limits, middleware, and key UI gates). Marketing copy on the pricing page may differ in places; where that happens, it is called out below.
+Last updated: 2026-04-14
+
+This document reflects **behavior implemented in the codebase** (backend limits, middleware, and key UI gates). Marketing copy on the pricing page may differ in places; where that happens, it is called out below. When in doubt, treat backend middleware/controller behavior as the source of truth.
 
 ## How “Premium” is determined
 

@@ -1,6 +1,8 @@
-# Intervexa™ Full Web Frontend-Backend Flow
+# ResumeAI Full Web Frontend-Backend Flow
 
-This document describes the complete request/response and feature flow across the Intervexa™ frontend and backend.
+Last updated: 2026-04-14
+
+This document describes the complete request/response and feature flow across the ResumeAI frontend and backend.
 
 ---
 

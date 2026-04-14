@@ -1,4 +1,6 @@
-# Intervexa™ Template Flow
+# ResumeAI Template Flow
+
+Last updated: 2026-04-14
 
 ## 1) High-Level Flow
 
@@ -138,4 +140,11 @@ npm run seed:templates
 2. Verify each template output matches old design exactly.
 3. Once all layouts are present, remove legacy fallback rendering paths.
 4. Keep only dynamic route usage in frontend (remove old `/api/v1/user/templates/:id` fallback).
+
+---
+
+## 7) Documentation Notes
+
+- This file documents current behavior and compatibility paths.
+- If template APIs or fallback rendering change, update this file together with the related controllers/pages.
 

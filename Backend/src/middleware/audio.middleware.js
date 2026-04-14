@@ -16,6 +16,7 @@ async function processVideocallInterview(interviewId) {
 export const uploadRecording = Asynchandler(async (req, res) => {
   const interviewId = req.params.id;
   const userId = req.user?._id;
+  const localFilePath = req.file?.path;
   if (!userId) {
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }
@@ -28,7 +29,7 @@ export const uploadRecording = Asynchandler(async (req, res) => {
     return res.status(404).json({ success: false, message: "Interview not found" });
   }
 
-  if (!req.file?.path) {
+  if (!localFilePath) {
     console.warn("[upload-recording] No file received", {
       interviewId,
       hasFile: !!req.file,
@@ -44,7 +45,7 @@ export const uploadRecording = Asynchandler(async (req, res) => {
   const MAX_BYTES = 10 * 1024 * 1024;
   if (typeof req.file.size === "number" && req.file.size > MAX_BYTES) {
     // Best-effort cleanup of the oversized temp file
-    fs.unlink(req.file.path, () => {});
+    fs.unlink(localFilePath, () => {});
     return res.status(413).json({
       success: false,
       message: "Recording is too large. Please keep it under 10 MB (shorter interview or lower quality).",
@@ -54,7 +55,7 @@ export const uploadRecording = Asynchandler(async (req, res) => {
   let result;
   try {
     // Store as raw binary in a dedicated folder; we just need a downloadable URL.
-    result = await cloudinary.uploader.upload(req.file.path, {
+    result = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "raw",
       folder: "interview-recordings",
       access_mode: "public",
@@ -73,6 +74,17 @@ export const uploadRecording = Asynchandler(async (req, res) => {
     return res.status(502).json({
       success: false,
       message: "We couldn't save your recording. Please try again in a moment.",
+    });
+  } finally {
+    // Always remove local temp upload file after Cloudinary attempt (success or failure).
+    fs.unlink(localFilePath, (unlinkErr) => {
+      if (unlinkErr && unlinkErr.code !== "ENOENT") {
+        console.warn("[upload-recording] Temp file cleanup failed", {
+          interviewId,
+          path: localFilePath,
+          message: unlinkErr.message,
+        });
+      }
     });
   }
 

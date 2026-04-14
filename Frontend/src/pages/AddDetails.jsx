@@ -33,6 +33,8 @@ import {
   projectStringToFormEntry,
 } from "../utils/projectForm.js";
 import { Skeleton } from "../components/ui/Skeleton.jsx";
+import AddDetailsSuggestionLists from "../components/forms/AddDetailsSuggestionLists.jsx";
+import { SKILLS_ADVANCED, SKILLS_STUDENT } from "../data/formFieldSuggestions.js";
 
 function buildResumeText(form) {
   const lines = [];
@@ -392,6 +394,20 @@ export default function AddDetails() {
       skills: (prev.skills || [""]).filter((_, idx) => idx !== i),
     }));
 
+  const applySkillSuggestion = (value) => {
+    const v = String(value || "").trim();
+    if (!v) return;
+    setForm((prev) => {
+      const skills = [...(prev.skills || [""])];
+      const lastIdx = skills.length - 1;
+      if (lastIdx >= 0 && !String(skills[lastIdx] || "").trim()) {
+        skills[lastIdx] = v;
+        return { ...prev, skills };
+      }
+      return { ...prev, skills: [...skills, v] };
+    });
+  };
+
   const addExperience = () =>
     setForm((prev) => ({
       ...prev,
@@ -623,7 +639,7 @@ export default function AddDetails() {
                   type="text"
                   value={form.role}
                   onChange={(e) => update("role", e.target.value)}
-                  placeholder="Software Engineer"
+                  placeholder="e.g. Web Developer · CS student"
                   className="mt-1 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </label>
@@ -691,7 +707,7 @@ export default function AddDetails() {
               <textarea
                 value={form.summary}
                 onChange={(e) => update("summary", e.target.value)}
-                placeholder="A few sentences about your experience and goals..."
+                placeholder="What you’re studying or building, what you enjoy, and what role you’re aiming for — keep it simple."
                 rows={4}
                 className="mt-1 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 resize-y min-h-[100px]"
               />
@@ -713,6 +729,42 @@ export default function AddDetails() {
                 <Plus size={16} /> Add skill
               </button>
             </div>
+            <p className="text-xs text-slate-500 mb-3">
+              Start with skills you can learn in courses or tutorials. Optional advanced tools are in the same suggestion
+              list and in the expandable section below.
+            </p>
+            <div className="mb-4 space-y-2">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500">Quick add — fundamentals</p>
+              <div className="flex flex-wrap gap-2">
+                {SKILLS_STUDENT.map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => applySkillSuggestion(label)}
+                    className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-xs font-medium text-slate-200 hover:border-indigo-500/40 hover:bg-indigo-500/10 hover:text-white"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <details className="group rounded-xl border border-white/10 bg-black/20 p-3">
+                <summary className="cursor-pointer text-xs font-medium text-slate-400 hover:text-slate-300">
+                  Advanced tools (optional)
+                </summary>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {SKILLS_ADVANCED.map((label) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => applySkillSuggestion(label)}
+                      className="rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 text-xs font-medium text-indigo-200 hover:border-indigo-400/50 hover:bg-indigo-500/20"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </details>
+            </div>
             <div className="space-y-3">
               {(form.skills || [""]).map((s, i) => (
                 <div key={i} className="flex gap-2">
@@ -720,7 +772,8 @@ export default function AddDetails() {
                     type="text"
                     value={s}
                     onChange={(e) => setSkill(i, e.target.value)}
-                    placeholder="e.g. JavaScript, React"
+                    list="adddetails-skills-suggestions"
+                    placeholder="e.g. HTML, Git — or pick from suggestions"
                     className="flex-1 rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   {(form.skills?.length > 1) && (
@@ -770,7 +823,7 @@ export default function AddDetails() {
                             type="text"
                             value={exp.jobTitle || exp.role || ""}
                             onChange={(e) => setExperience(ei, "jobTitle", e.target.value)}
-                            placeholder="e.g. Senior Software Engineer"
+                            placeholder="e.g. Software Developer Intern"
                             className="mt-1 w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                           />
                         </label>
@@ -848,7 +901,8 @@ export default function AddDetails() {
                           type="text"
                           value={b}
                           onChange={(e) => setExperienceBullet(ei, bi, e.target.value)}
-                          placeholder="• Achievement or responsibility"
+                          list="adddetails-exp-bullet-suggestions"
+                          placeholder="What you did — start simple, or choose a suggestion"
                           className="flex-1 rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         />
                         {(exp.bullets?.length > 1) && (
@@ -910,7 +964,8 @@ export default function AddDetails() {
                         type="text"
                         value={p.title}
                         onChange={(e) => setProjectField(i, "title", e.target.value)}
-                        placeholder="Project title"
+                        list="adddetails-project-title-suggestions"
+                        placeholder="e.g. Portfolio site — or pick a suggestion"
                         className="w-full rounded-lg border border-white/10 bg-black/50 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                       />
                       <input
@@ -970,7 +1025,8 @@ export default function AddDetails() {
                     type="text"
                     value={a}
                     onChange={(e) => setAchievement(i, e.target.value)}
-                    placeholder="e.g. Won Smart India Hackathon 2024"
+                    list="adddetails-achievement-suggestions"
+                    placeholder="e.g. Dean's List — or choose a suggestion"
                     className="flex-1 rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   {(form.achievements?.length > 1) && (
@@ -1010,7 +1066,8 @@ export default function AddDetails() {
                     type="text"
                     value={c}
                     onChange={(e) => setCertification(i, e.target.value)}
-                    placeholder="e.g. AWS Solutions Architect, Google UX Certificate"
+                    list="adddetails-cert-suggestions"
+                    placeholder="e.g. freeCodeCamp certificate — advanced certs in suggestions too"
                     className="flex-1 rounded-lg border border-white/10 bg-black/50 px-3 py-2.5 text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   {(form.certifications?.length > 1) && (
@@ -1153,13 +1210,17 @@ export default function AddDetails() {
                 </h2>
                 <ul className="space-y-2 text-sm text-slate-200/90">
                   <li>Use up to {RESUME_ACHIEVEMENTS_MAX} short achievement lines (numbers help).</li>
-                  <li>Keep skills related to your target job.</li>
+                  <li>
+                    Add skills you are learning first; use chips or the suggestion list for optional advanced tools.
+                  </li>
                   <li>Make education lines consistent (degree, school, year).</li>
                 </ul>
               </div>
             </div>
           </aside>
         </div>
+
+        <AddDetailsSuggestionLists />
 
         <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
           <button
