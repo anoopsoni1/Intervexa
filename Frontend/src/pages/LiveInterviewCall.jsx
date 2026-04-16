@@ -3,10 +3,7 @@ import { useDispatch } from "react-redux";
 import { clearUser, setUser } from "../slices/user.slice";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { FiVideo, FiPhoneOff, FiMic, FiMicOff, FiVideoOff, FiMessageCircle } from "react-icons/fi";
-
-
-// Socket.IO from CDN (index.html) as window.io – no npm package required
-const getSocketIO = () => (typeof window !== "undefined" ? window.io : null);
+import { io } from "socket.io-client";
 
 import { API_BASE, API_BASE_URL } from "../config";
 const ICE_SERVERS = [
