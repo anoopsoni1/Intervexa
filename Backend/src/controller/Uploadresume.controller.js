@@ -184,6 +184,84 @@ function stripBoldMarkers(input) {
   return out.replace(/\*\*/g, "");
 }
 
+function extractJsonObjectSegment(text) {
+  const input = String(text || "");
+  const start = input.indexOf("{");
+  if (start < 0) return input.trim();
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = start; i < input.length; i++) {
+    const ch = input[i];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (ch === "\\") {
+        escaped = true;
+      } else if (ch === "\"") {
+        inString = false;
+      }
+      continue;
+    }
+    if (ch === "\"") {
+      inString = true;
+      continue;
+    }
+    if (ch === "{") depth++;
+    if (ch === "}") {
+      depth--;
+      if (depth === 0) return input.slice(start, i + 1).trim();
+    }
+  }
+
+  return input.slice(start).trim();
+}
+
+function buildJsonCandidates(rawText) {
+  const raw = String(rawText || "")
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
+    .replace(/\uFEFF/g, "")
+    .trim();
+
+  const extracted = extractJsonObjectSegment(raw);
+  const wrappedIfMissingBraces =
+    extracted && !extracted.startsWith("{") && extracted.includes("\"name\"")
+      ? `{${extracted}}`
+      : extracted;
+
+  const normalizedQuotes = wrappedIfMissingBraces
+    .replace(/[“”]/g, "\"")
+    .replace(/[‘’]/g, "'");
+
+  const withoutTrailingCommas = normalizedQuotes.replace(/,\s*([}\]])/g, "$1");
+
+  const candidates = [
+    extracted,
+    wrappedIfMissingBraces,
+    normalizedQuotes,
+    withoutTrailingCommas,
+  ]
+    .map((v) => (v || "").trim())
+    .filter(Boolean);
+
+  return Array.from(new Set(candidates));
+}
+
+function parseAiJson(rawText) {
+  let lastError = null;
+  for (const candidate of buildJsonCandidates(rawText)) {
+    try {
+      return { parsed: JSON.parse(candidate), cleaned: candidate };
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  return { parsed: null, cleaned: "", error: lastError };
+}
+
 /** Build plain resume text from structured detail (for backward compatibility / display). */
 function detailToResumeText(d) {
   if (!d) return "";
@@ -284,42 +362,179 @@ export const aiEditResume = Asynchandler(async (req, res) => {
   const isReoptimize = Boolean(reoptimize);
 
   const baseInstruction = isReoptimize
-    ? `You are a professional resume editor. The following text is ALREADY an optimized resume (previously improved by AI). Your task is to FURTHER optimize it while treating these 4 checks as mandatory priorities: (1) ATS parse/readability, (2) quantifying impact, (3) repetition removal this is an important check, and (4) spelling & grammar accuracy. Strengthen wording, add measurable impact where possible without inventing facts, use stronger action verbs, improve ATS keyword density, tighten the summary, and polish every section. Keep long project text to 1-5 lines or 1-2 bullets per project; do not leave or create long paragraphs. Preserve all factual content and the same structure. Return a single JSON object with exactly these keys—no other keys, no markdown, no code fence:`
-    : `You are a professional resume editor focused on ATS optimization. Parse the resume text below and improve it with 4 mandatory priorities: (1) ATS parse/readability, (2) quantifying impact, (3) repetition removal this is an important check, and (4) spelling & grammar accuracy. Use strong action verbs, improve ATS keywords, and return a single JSON object with exactly these keys—no other keys, no markdown, no code fence:`;
-
+    ? `You are an elite ATS resume optimizer AND refinement engine. The following resume is already optimized, but your job is to FURTHER IMPROVE it and ALWAYS increase its ATS score to 95+.
+  
+  Your strict priorities (in order):
+  1. ATS keyword optimization (VERY IMPORTANT)
+  2. Clarity and readability (clean structure, bullet points)
+  3. Strong impact using action verbs
+  4. Remove repetition completely
+  5. Fix grammar, spelling, and punctuation perfectly
+  
+  You are allowed to aggressively rewrite, rephrase, and enhance content.
+  You are NOT allowed to invent fake companies, roles, or numbers.
+  
+  You ARE allowed to:
+  - Add relevant ATS keywords based on role/domain
+  - Improve wording for stronger impact
+  - Convert weak sentences into strong bullet points
+  
+  Return a single JSON object with exactly these keys—no other keys, no markdown, no code fence:`
+    : `You are an elite ATS resume optimizer AND refinement engine. Your job is to parse and IMPROVE the resume so that its ATS score is ALWAYS higher and reaches 95+.
+  
+  Your strict priorities (in order):
+  1. ATS keyword optimization (VERY IMPORTANT)
+  2. Clarity and readability (clean structure, bullet points)
+  3. Strong impact using action verbs
+  4. Remove repetition completely
+  5. Fix grammar, spelling, and punctuation perfectly
+  
+  You are allowed to aggressively rewrite, rephrase, and enhance content.
+  You are NOT allowed to invent fake companies, roles, or numbers.
+  
+  You ARE allowed to:
+  - Add relevant ATS keywords based on role/domain
+  - Improve wording for stronger impact
+  - Convert weak sentences into strong bullet points
+  
+  Return a single JSON object with exactly these keys—no other keys, no markdown, no code fence:`;
+  
   const prompt = `${baseInstruction}
-
-- name (string): full name
-- role (string): job title / professional role
-- summary (string): "strict priority is always write a professional summary (1-3 sentences), always use strong action verbs and quantify impact where possible and always summary was different , don't write the same summary again and again, always write a full paragraph new summary this is very important"
-- skills (array of strings): list of skills, one per element , remove the irrelevant skills and keep the relevant skills only, do not add any other skills here.
-- experience (array of strings): job history. If the resume has a section named "Work Experience", "WORK EXPERIENCE", "Employment", "Professional Experience", "Employment History", "Experience", or similar, or any other section that contains job history,or add his experience here like leetcode,hackerrank,codechef,codeforces,gfg,etc,extract all such entries and put them here , do not education section here , also his rank and rating here of such platform like leetcode,hackerrank,codechef,codeforces,gfg,etc put in this section . Use the key "experience" only.do not add any other section here. If the section only says "Fresher", "No experience", "Seeking first role", or similar, still include it as one entry (e.g. "Fresher" or "Aspiring professional seeking first opportunity"). Each element is one job entry as a single string with newlines, e.g. "Job Title\\nCompany Name\\n2020 – Present\\n• Bullet one\\n• Bullet two"
-- projects (array of strings): each element one project—keep each SHORT (1–2 brief bullets max); plain text only—never use ** or other markdown in project strings
-- achievements (array of strings): include ONLY achievements/accomplishments/awards (one per element, e.g. "Won Smart India Hackathon 2024", "Solved DSA problems on LeetCode", "Solved  DSA problems on LeetCode", "Top 10% in coding competition",every such achievements, codechef rating , leetcode rating , etc , if he has any such achievements, put them here). If none exist, return an empty array [].
-- education (string): education block
-- languageProficiency (string): languages
-- email (string): email address
-- phone (string): phone number
-- github (string): github username
-- linkedin (string): linkedin username
-- references (array of strings, optional): each element is one reference entry, e.g. "Name\\nTitle, Company\\nEmail / Phone". If the resume has no references section, return an empty array or omit this key.
--> strict the rules and do not break the rules.
-Rules:
-- Prioritize these 4 checks in every section: ATS parse/readability, quantifying impact, repetition removal this is an important check, and spelling & grammar.
-- Preserve all factual content; do not invent companies, roles, dates, projects, certifications, or numbers.
-- Fix grammar and spelling.
-- Quantify impact where possible from available facts; if exact numbers are not present, improve impact wording without fabricating metrics.
-- Remove repetitive or duplicated phrases/points.
-- Use strong action verbs and ATS-relevant keywords naturally.
-- Keep projects concise—short title and 1-2 bullet points or 1-3 lines per project; never expand projects into long paragraphs.
-- If achievements/accomplishments are not present in the resume, return achievements as an empty array [].
-- Do not use markdown (no **bold** or __italic__ markers) in any string field—output plain text only.
--do not merge the section to other section.
-- Return ONLY valid JSON. All string values must be properly escaped (e.g. newlines as \\n, quotes escaped).${isReoptimize ? " Focus on elevating the existing content (more impact, better keywords, tighter phrasing) rather than restructuring." : ""}
-
-
-${isReoptimize ? "Already-optimized resume text to further optimize:" : "Resume text to parse and improve:"}
-${resumeText}`;
+  
+  - name (string)
+  - role (string)
+  
+  - summary (string):
+  Write a NEW high-impact summary (1–2 sentences).
+  Include role + key skills + impact.
+  Use strong action verbs and ATS keywords.
+  
+  - skills (array of strings):
+  Keep relevant skills.
+  Remove irrelevant skills.
+  Add missing but logical skills for ATS.
+  
+  - experience (array of strings):
+  Each entry:
+  "Job Title\\nCompany\\nDuration\\n• Action + Impact\\n• Action + Impact"
+  
+  STRICT:
+  - Strong action verbs only
+  - Show impact
+  - Quantification preferred
+  - No weak verbs
+  
+  - projects (array of strings):
+  1–2 bullets per project
+  Action + impact + tech stack
+  
+  - achievements (array of strings):
+  No duplicates
+  
+  - education (string)
+  - languageProficiency (string)
+  - email (string)
+  - phone (string)
+  - github (string)
+  - linkedin (string)
+  - references (array of strings)
+  
+  --------------------------------------------------
+  🚨 ULTRA-STRICT FIX ENGINE (CRITICAL)
+  --------------------------------------------------
+  
+  🔴 TASK 1: WORD REPETITION CONTROL
+  - NO important word (verbs/keywords) should appear more than 2 times
+  - Applies across ENTIRE resume
+  
+  If repeated:
+  → Replace with strong synonyms
+  
+  Examples:
+  - developed → engineered, built, implemented, created
+  - created → designed, crafted
+  - implemented → deployed, executed
+  - specified → defined, outlined, detailed
+  
+  --------------------------------------------------
+  
+  🔴 TASK 2: SENTENCE REPETITION
+  - No duplicate phrases
+  - No similar sentence structures
+  - Each bullet must be UNIQUE
+  
+  If repetition found:
+  → Rewrite completely
+  
+  --------------------------------------------------
+  
+  🔴 TASK 3: GRAMMAR + COMMA FIX
+  - Fix ALL spelling mistakes
+  - Fix ALL grammar issues
+  - Fix ALL punctuation and comma usage
+  
+  STRICT:
+  - Every bullet must be a COMPLETE sentence
+  - Proper comma usage required
+  - No run-on sentences
+  - Professional tone only
+  - Correct tense usage
+  
+  --------------------------------------------------
+  
+  🔴 TASK 4: IMPACT IMPROVEMENT
+  - Strengthen EVERY bullet
+  
+  RULES:
+  - Start with strong action verb
+  - Show clear outcome
+  - Add measurable results IF available
+  - If not → improve wording WITHOUT inventing data
+  
+  --------------------------------------------------
+  
+  🔴 TASK 5: CLARITY + CLEANUP
+  - Remove unnecessary words
+  - Simplify long sentences
+  - Improve readability
+  - Ensure ATS-friendly formatting
+  
+  --------------------------------------------------
+  
+  🔁 FINAL VALIDATION LOOP (MANDATORY)
+  --------------------------------------------------
+  
+  Before returning output:
+  1. Check word repetition → must be ZERO violations
+  2. Check sentence repetition → must be ZERO
+  3. Check grammar → must be PERFECT
+  4. Check commas → must be correct
+  5. Check clarity → must be clean
+  
+  ❗ If ANY issue exists:
+  → Rewrite again
+  → Re-check again
+  
+  Repeat until ALL conditions are satisfied.
+  
+  --------------------------------------------------
+  
+  FINAL OUTPUT CONDITIONS:
+  ✔ No word repeated more than 2 times
+  ✔ No repetition
+  ✔ Perfect grammar
+  ✔ Proper commas
+  ✔ Strong impact
+  
+  --------------------------------------------------
+  
+  STRICT RULES:
+  - Do NOT invent data
+  - Do NOT use markdown
+  - Return ONLY valid JSON
+  - Escape \\n properly
+  
+  ${resumeText}`;
 
   let raw = await getAiResponse(prompt);
   raw = (raw || "").replace(/```json/g, "").replace(/```/g, "").trim();
@@ -329,10 +544,29 @@ ${resumeText}`;
   }
 
   let optimizedDetail = null;
-  let cleaned = raw.replace(/^[\s\S]*?(\{[\s\S]*\})[\s\S]*$/m, "$1").trim();
-  cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```\s*$/, "").trim();
+  let { parsed, cleaned, error } = parseAiJson(raw);
+
+  if (!parsed) {
+    const repairPrompt = `Fix the following into strict valid JSON.
+Rules:
+- Return ONLY JSON object
+- No markdown/code fences
+- Keep same meaning and fields
+- Remove invalid commas/brackets if present
+
+INPUT:
+${raw}`;
+    const repairedRaw = await getAiResponse(repairPrompt);
+    const repaired = parseAiJson(repairedRaw);
+    parsed = repaired.parsed;
+    cleaned = repaired.cleaned;
+    error = repaired.error || error;
+  }
+
   try {
-    const parsed = JSON.parse(cleaned);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw error || new Error("Invalid JSON object from AI");
+    }
     optimizedDetail = {
       name: parsed.name != null ? String(parsed.name).trim() || "Your Name" : "Your Name",
       role: parsed.role != null ? String(parsed.role).trim() || "Your Role" : "Your Role",
@@ -360,7 +594,7 @@ ${resumeText}`;
       linkedin: parsed.linkedin != null ? String(parsed.linkedin).trim() : "",
     };
   } catch (e) {
-    console.error("AI optimize JSON parse error:", e, raw?.slice(0, 300));
+    console.error("AI optimize JSON parse error:", e, cleaned?.slice(0, 300) || raw?.slice(0, 300));
     throw new ApiError(500, "AI returned invalid format; please try again.");
   }
 
