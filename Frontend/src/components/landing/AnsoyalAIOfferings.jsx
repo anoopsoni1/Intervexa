@@ -83,7 +83,7 @@ function BrowserMockup({ active }) {
           <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
         </div>
         <div className="mx-2 min-w-0 flex-1 truncate rounded-lg border border-white/10 bg-white/5 px-3 py-1 text-[10px] text-slate-400 sm:text-xs">
-          app.ansoyal.ai / {active.id}
+          intervexa.co-vid.in / {active.id}
         </div>
       </div>
       <div className="relative min-h-[200px] p-4 sm:min-h-[240px] sm:p-5">

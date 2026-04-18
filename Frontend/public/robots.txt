@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ansoyal-ai.co-vid.in/sitemap.xml
+Sitemap: https://intervexa.co-vid.in/sitemap.xml

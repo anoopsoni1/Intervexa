@@ -20,7 +20,7 @@ import bcrypt from "bcrypt";
 import { Resend } from "resend";
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
-const FRONTEND_BASE_URL = process.env.FRONTEND_URL || "https://ansoyal-ai.co-vid.in";
+const FRONTEND_BASE_URL = process.env.FRONTEND_URL || "https://intervexa.co-vid.in";
 
 // Lazy: read at request time so dotenv has already run (imports run before dotenv.config() in server.js)
 const getResend = () => {
@@ -56,7 +56,7 @@ export async function sendWelcomeEmailIfFirstLogin(userId) {
         <p>Hi ${name},</p>
         <p>Welcome to Ansoyal AI! We're glad you're here.</p>
         <p>You can now build and optimize your resume, make your portfolio, prepare for placements and mock interviews, and get tailored roadmaps. get access to premium features by upgrading to a premium plan.</p>
-        <p>Visit our website at <a href="https://ansoyal-ai.co-vid.in">https://ansoyal-ai.co-vid.in</a> to get started.</p>
+        <p>Visit our website at <a href="https://intervexa.co-vid.in">https://intervexa.co-vid.in</a> to get started.</p>
         <p>If you have any questions, just go to our website and contact us.</p>
         <p>Best ,<br/>The Ansoyal AI Team</p>
       `,

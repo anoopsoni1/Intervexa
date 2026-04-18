@@ -8,8 +8,8 @@ const DEFAULT_CORS_ORIGINS = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "http://localhost:3000",
-  "https://ansoyal-ai.co-vid.in",
-  "https://www.ansoyal-ai.co-vid.in",
+  "https://intervexa.co-vid.in",
+  "https://www.intervexa.co-vid.in",
   "https://resume-ai-frontend-mj2p.vercel.app",
 ];
 const extraOrigins = (process.env.CORS_ORIGINS || "")
