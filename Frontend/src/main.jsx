@@ -70,8 +70,7 @@ const route = createBrowserRouter([
     path: "/",
     element: <GlobalBackgroundLayout />,
     children: [
-      { index: true, element: <Navigate to="/home" replace /> },
-      { path: "home", element: <Home /> },
+      { index: true, element: <Home /> },
       { path: "dashboard", element: <Dashboard /> },
       { path: "login", element: <Login /> },
       { path: "auth/callback", element: <AuthCallback /> },
