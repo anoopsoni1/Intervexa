@@ -13,31 +13,31 @@ import {
 const CAREER_TOOLS = [
   {
     id: "resume",
-    label: "Resume Builder",
+    label: "Resume builder",
     icon: FileText,
-    title: "AI-powered resume creation",
+    title: "Build your resume with AI help",
     description:
-      "Go from a rough draft to an ATS-friendly resume with smart suggestions for impact, keywords, and structure. Pick modern templates and export when you are ready.",
+      "Start from a draft and get simple tips for stronger wording, skills, and layout. Pick a modern template and download when you are ready.",
     cta: "Start building",
     to: "/upload",
   },
   {
     id: "ats",
-    label: "ATS score & checker",
+    label: "Resume score check",
     icon: Target,
-    title: "Know how recruiters see your resume",
+    title: "See how strong your resume is",
     description:
-      "Run an ATS-style analysis to spot gaps before you apply. Get a clear score and targeted fixes aligned with how screening systems read your CV.",
-    cta: "Check your ATS score",
+      "Get a clear score and fixes before you apply. The check follows how hiring software usually reads a resume.",
+    cta: "Check your resume score",
     to: "/atsscore",
   },
   {
     id: "portfolio",
-    label: "Portfolio sites",
+    label: "Portfolio pages",
     icon: LayoutGrid,
-    title: "Showcase projects in minutes",
+    title: "Show your work in a clean page",
     description:
-      "Turn your experience into a polished portfolio layout. Designed for shareable links and a standout first impression alongside your resume.",
+      "Turn your projects into a simple portfolio you can share. It sits next to your resume and is easy for recruiters to open.",
     cta: "Browse portfolio templates",
     to: "/templates",
   },
@@ -45,29 +45,29 @@ const CAREER_TOOLS = [
     id: "interviews",
     label: "Mock interviews",
     icon: Video,
-    title: "Practice with AI-driven interviews",
+    title: "Practice interviews with AI",
     description:
-      "Rehearse video and AI-assisted sessions with feedback on communication and answers. Built for serious prep without the pressure of a real panel.",
+      "Run video-style sessions and get feedback on how you sound and what you say. Practice often without the stress of a real panel.",
     cta: "Open mock interviews",
     to: "/dashboard/interviews",
   },
   {
     id: "coding",
-    label: "Coding interview",
+    label: "Coding practice",
     icon: Terminal,
-    title: "Technical interview practice that feels real",
+    title: "Coding practice that feels like interview day",
     description:
-      "Work through coding-style prompts and timed practice flows designed for interview pacing. Build confidence before you face a real whiteboard or shared editor.",
-    cta: "Open coding interview",
+      "Work through coding questions on a timer so you get used to real interview pacing—before you are in the room or on a live call.",
+    cta: "Open coding practice",
     to: "/coding-interview",
   },
   {
     id: "guidance",
     label: "Career guidance",
     icon: Compass,
-    title: "A clearer path from today to your next role",
+    title: "A clearer path to your next job",
     description:
-      "Turn goals into steps with structured career guidance and roadmap-style planning. See what to prioritize next — skills, projects, or applications.",
+      "Turn a big goal into small steps: what to learn, what to build, and what to apply for next.",
     cta: "View career roadmap",
     to: "/career-roadmap",
   },
@@ -218,11 +218,10 @@ export default function AnsoyalAIOfferings() {
           id="ansoyal-tools-heading"
           className="mx-auto max-w-2xl text-balance text-center text-3xl font-semibold tracking-tight text-white sm:text-4xl"
         >
-          All the career tools you need
+          Everything you need for your job search
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-pretty text-center text-sm text-slate-400 sm:text-base">
-          Ansoyal AI bundles resumes, ATS checks, portfolios, mock interviews, coding practice, and career
-          guidance in one place.
+          Resumes, resume checks, portfolios, mock interviews, coding practice, and career tips—in one place.
         </p>
 
         <div className="mt-8 -mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:pb-0">

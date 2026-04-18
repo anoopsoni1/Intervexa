@@ -22,33 +22,33 @@ import {
 const CAREER_GUIDANCE_BOXES = [
   {
     icon: Compass,
-    title: "Career suggestions that become a plan",
+    title: "Turn ideas into a simple plan",
     description:
-      "Map skills, milestones, and next moves in one roadmap view. Ansoyal AI turns broad goals into steps you can act on—not a wall of generic advice.",
+      "See skills, milestones, and next steps on one roadmap. Big goals become small actions you can do this week.",
     cta: "Open career roadmap",
     to: "/career-roadmap",
   },
   {
     icon: Map,
-    title: "From today’s role to your next title",
+    title: "From your job today to the role you want",
     description:
-      "Plot a realistic lane change: seniority, industry, or specialty—with checkpoints so you are not guessing what comes first.",
+      "Plan a realistic move—level, industry, or focus—with checkpoints so you always know what to do first.",
     cta: "Shape your path",
     to: "/career-roadmap",
   },
   {
     icon: Lightbulb,
-    title: "Skills the market actually asks for",
+    title: "Learn what employers actually want",
     description:
-      "Cross-check learning time with job descriptions you save. Focus on gaps recruiters screen for, not random tutorial rabbit holes.",
+      "Compare job posts you care about with what you already know. Spend time on gaps recruiters look for—not random tutorials.",
     cta: "Prioritize skills",
     to: "/career-roadmap",
   },
   {
     icon: Briefcase,
-    title: "A narrative that fits the roles you want",
+    title: "One story that fits your target jobs",
     description:
-      "Align your headline, bullets, and proof so hiring managers see one coherent arc—from past wins to the job you are targeting next.",
+      "Line up your headline, bullets, and proof so managers see a clear line from past wins to the job you want next.",
     cta: "Sharpen your story",
     to: "/career-roadmap",
   },
@@ -57,33 +57,33 @@ const CAREER_GUIDANCE_BOXES = [
 const AI_INTERVIEW_BOXES = [
   {
     icon: Bot,
-    title: "AI interviews you can run on your schedule",
+    title: "Practice anytime on your own schedule",
     description:
-      "Practice with paced questions and room to think out loud. Rehearse before a real panel without coordinating calendars or burning favors.",
+      "Questions come at a steady pace with space to think out loud. Rehearse before a real interview without booking other people.",
     cta: "Start AI interviews",
     to: "/dashboard/interviews",
   },
   {
     icon: Mic,
-    title: "Speak answers, not just think them",
+    title: "Say your answers out loud",
     description:
-      "Get comfortable hearing your own phrasing—filler words, pacing, and structure—before a human interviewer evaluates the same audio.",
+      "Hear how you sound—filler words, speed, and order—before a person judges the same answer.",
     cta: "Practice speaking",
     to: "/dashboard/interviews",
   },
   {
     icon: Video,
-    title: "Session flow that feels like a real loop",
+    title: "A flow that feels like a real interview",
     description:
-      "Move through screens-style prompts and transitions so the rhythm of a long interview day is less of a shock the first time you live it.",
+      "Move through prompts and pauses like a long interview day so the real thing feels less surprising.",
     cta: "Open mock interviews",
     to: "/dashboard/interviews",
   },
   {
     icon: MessageSquare,
-    title: "Behavioral and role-style prompts",
+    title: "Questions like real managers ask",
     description:
-      "Swap generic worry for targeted practice—stories, trade-offs, and follow-ups aligned with how hiring managers actually probe.",
+      "Practice stories, trade-offs, and follow-ups instead of only worrying in your head.",
     cta: "Browse sessions",
     to: "/dashboard/interviews",
   },
@@ -92,33 +92,33 @@ const AI_INTERVIEW_BOXES = [
 const CODING_INTERVIEW_BOXES = [
   {
     icon: Terminal,
-    title: "Leetcode-style flow with real interview timing",
+    title: "Coding practice with a real timer",
     description:
-      "Editor practice plus a clock that matches on-site pressure. Build the habit of coding and explaining before the hiring loop tightens.",
+      "Use an editor and a clock that feel like interview pressure. Build the habit of coding and talking before the real loop.",
     cta: "Open coding practice",
     to: "/coding-interview",
   },
   {
     icon: Code2,
-    title: "Patterns you will recognize under stress",
+    title: "Problem shapes you will see again",
     description:
-      "Revisit data structures and problem shapes in a focused environment—fewer surprises when the prompt is new but the shape is familiar.",
+      "Review data structures and common patterns in one place—so new prompts feel familiar, not totally foreign.",
     cta: "Start a problem set",
     to: "/coding-interview",
   },
   {
     icon: Timer,
-    title: "A clock you train with, not against",
+    title: "Learn how long 45 minutes really is",
     description:
-      "See how forty-five minutes actually feels while you type, debug, and summarize—so budget during the real loop is instinctive.",
+      "Type, fix bugs, and explain while the timer runs—so you know how to use time on the real day.",
     cta: "Timed practice",
     to: "/coding-interview",
   },
   {
     icon: MessageCircle,
-    title: "Code plus narration, together",
+    title: "Code and explain at the same time",
     description:
-      "Practice the double track panels expect: working solution and a clear play-by-play—so your silent IDE habit does not cost you onsite.",
+      "Panels want working code and a clear explanation. Practice both together so silence does not hurt you onsite.",
     cta: "Try narrated run",
     to: "/coding-interview",
   },
@@ -127,33 +127,33 @@ const CODING_INTERVIEW_BOXES = [
 const PORTFOLIO_BOXES = [
   {
     icon: LayoutGrid,
-    title: "Portfolio builder that matches your resume",
+    title: "A portfolio page next to your resume",
     description:
-      "Ship a shareable project page with clean hierarchy and strong type—something recruiters can open beside your CV in one click.",
+      "Share one link with a clear layout and readable type—recruiters can open it beside your CV in a second.",
     cta: "Browse portfolio templates",
     to: "/templates",
   },
   {
     icon: Palette,
-    title: "Layouts built for scan-first readers",
+    title: "Layouts made for quick skims",
     description:
-      "Choose sections and spacing that reward a ten-second skim—headline, proof, links—without fighting the browser default look.",
+      "Pick sections and spacing that work in the first ten seconds: headline, proof, links—without a messy default page.",
     cta: "See designs",
     to: "/templates",
   },
   {
     icon: Globe,
-    title: "One link worth sending",
+    title: "One simple link to send",
     description:
-      "Replace a buried GitHub profile with a single URL that frames your work the way you would in a conversation.",
+      "Give one URL that presents your work the way you would in a chat—not a long list buried on another site.",
     cta: "Share your page",
     to: "/templates",
   },
   {
     icon: Layers,
-    title: "Projects that read like a product story",
+    title: "Projects that tell a clear story",
     description:
-      "Stack case study, stack, and outcomes in order so each build reinforces the narrative your resume already started.",
+      "Order problem, stack, and results so each project backs up what your resume already says.",
     cta: "Build a case study",
     to: "/templates",
   },
@@ -172,9 +172,9 @@ const PARTS = [
     kicker: "Career roadmap",
     headline: (
       <>
-        Turn vague goals into a path you can{" "}
+        Turn fuzzy goals into steps you can{" "}
         <span className="bg-linear-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
-          follow
+          actually do
         </span>
       </>
     ),
@@ -188,18 +188,18 @@ const PARTS = [
       rows: [
         {
           label: "Clarity",
-          before: "Vague north star—“better job,” no milestones or dates.",
-          after: "Roadmap turns intent into ordered steps you can execute weekly.",
+          before: "You want a “better job” but no dates or steps.",
+          after: "The roadmap orders small tasks you can do each week.",
         },
         {
-          label: "Alignment",
-          before: "Skills you learn don’t match postings you actually want.",
-          after: "Suggestions tied to target roles: gaps, proof, and priority.",
+          label: "Fit",
+          before: "You study topics that do not match jobs you want.",
+          after: "Tips follow the roles you pick: gaps, proof, and what to do first.",
         },
         {
-          label: "Next move",
-          before: "You stop because “what now?” has no obvious answer.",
-          after: "The next action is explicit: project, bullet, or application wave.",
+          label: "Next step",
+          before: "You freeze because “what now?” feels unclear.",
+          after: "The next move is plain: a project, a resume line, or a batch of applications.",
         },
       ],
     },
@@ -211,7 +211,7 @@ const PARTS = [
       <>
         Practice answers before a real panel{" "}
         <span className="bg-linear-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
-          sees you
+          hears you
         </span>
       </>
     ),
@@ -224,19 +224,19 @@ const PARTS = [
       hint: "AI interview",
       rows: [
         {
-          label: "Cadence",
-          before: "One cram session the night before.",
-          after: "Repeated reps on your own clock.",
+          label: "Rhythm",
+          before: "One long cram session the night before.",
+          after: "Short practice rounds whenever you have time.",
         },
         {
           label: "Pressure",
-          before: "First real answer is in the actual interview.",
-          after: "Warm up with AI so the first live answer hits cleaner.",
+          before: "Your first real try is in the live interview.",
+          after: "Warm up with AI so your first human answer sounds smoother.",
         },
         {
           label: "Focus",
-          before: "Generic “tell me about yourself” loops in your head.",
-          after: "Structured prompts that mirror real screens.",
+          before: "You replay “tell me about yourself” in your head.",
+          after: "Prompts that feel closer to real screens.",
         },
       ],
     },
@@ -246,9 +246,9 @@ const PARTS = [
     kicker: "Coding interview",
     headline: (
       <>
-        Code under a clock that feels like the{" "}
+        Code with a timer that feels like the{" "}
         <span className="bg-linear-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
-          real room
+          real interview
         </span>
       </>
     ),
@@ -261,19 +261,19 @@ const PARTS = [
       hint: "Coding interview",
       rows: [
         {
-          label: "Environment",
-          before: "Bookmarked solutions only—never fingers on keys with a deadline.",
-          after: "Same-style editor session: type, run, and iterate like onsite.",
+          label: "Setup",
+          before: "You only read answers—never type under a deadline.",
+          after: "An editor like interview day: type, run, and fix like onsite.",
         },
         {
-          label: "Clock",
-          before: "Forty-five minutes feels abstract until you’re mid-loop.",
-          after: "Timer matches real rounds so pacing becomes muscle memory.",
+          label: "Time",
+          before: "45 minutes feels vague until you are already in the loop.",
+          after: "A timer like real rounds so pacing feels natural.",
         },
         {
-          label: "Voice",
-          before: "You code in silence; the panel expects a play-by-play.",
-          after: "Practice that marries working code with a clear narrative.",
+          label: "Talking",
+          before: "You code in silence; interviewers want a running explanation.",
+          after: "Practice code plus a clear explanation together.",
         },
       ],
     },
@@ -298,19 +298,19 @@ const PARTS = [
       hint: "Portfolio builder",
       rows: [
         {
-          label: "Discovery",
-          before: "GitHub-only signal—recruiters skim past buried repo links.",
-          after: "One URL: headline, narrative, and proof stacked for a fast read.",
+          label: "Finding you",
+          before: "Only GitHub links—easy for recruiters to skip.",
+          after: "One URL with headline, story, and proof in a quick scan.",
         },
         {
-          label: "Structure",
-          before: "Readme walls of text; hierarchy fights the reader.",
-          after: "Templates with clear sections so projects scan like a product page.",
+          label: "Layout",
+          before: "Huge README walls; hard to see what matters.",
+          after: "Templates with clear sections so work reads like a simple product page.",
         },
         {
-          label: "Consistency",
-          before: "Resume says senior polish; the web presence says weekend hack.",
-          after: "Visual tone matches your CV—same story, upgraded surface.",
+          label: "Match",
+          before: "Resume looks senior; the website looks rough.",
+          after: "Looks line up with your CV—same story, cleaner page.",
         },
       ],
     },

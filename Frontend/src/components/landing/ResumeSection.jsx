@@ -8,27 +8,27 @@ import {
 const FEATURES = [
   {
     icon: FileText,
-    title: "Structured, recruiter-ready drafts",
+    title: "Clear sections hiring teams expect",
     description:
-      "Build clear sections—summary, experience, skills, education—so your story reads fast and passes common ATS parsing without awkward gaps or clutter.",
+      "Build summary, experience, skills, and education in order so your story is easy to scan and works with common hiring software.",
   },
   {
     icon: Sparkles,
-    title: "AI suggestions that sharpen impact",
+    title: "AI tips for stronger lines",
     description:
-      "Ansoyal AI helps turn vague bullets into outcome-led lines with stronger verbs, metrics where they fit, and keyword ideas aligned to the roles you target.",
+      "Turn vague bullets into clear wins with stronger verbs, numbers where they help, and wording that fits the jobs you want.",
   },
   {
     icon: LayoutTemplate,
-    title: "Pro layouts you can trust",
+    title: "Layouts that look sharp in print",
     description:
-      "Pick modern templates made for legibility and print-ready spacing. Swap styles without losing your content—same data, polished presentation.",
+      "Choose templates with readable type and spacing. Switch designs anytime without retyping your content.",
   },
   {
     icon: Download,
-    title: "Export and apply the same day",
+    title: "Download and apply today",
     description:
-      "Download a clean PDF when you are happy with the draft. No long turnaround—tweak, export, and attach to applications or share a link in minutes.",
+      "Export a neat PDF when you are ready. Adjust, download, and attach to applications in minutes.",
   },
 ];
 
@@ -59,11 +59,11 @@ export default function ResumeSection() {
           viewport={{ once: true, amount: 0.3 }}
           transition={{ delay: 0.05, duration: 0.5 }}
         >
-          Create your best{" "}
+          Build a strong{" "}
           <span className="bg-linear-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">
             resume
           </span>{" "}
-          yet and download in minutes
+          fast—and download when you are done
         </motion.h2>
 
         <div className="mt-14 grid items-center gap-12 lg:grid-cols-2 lg:gap-16">

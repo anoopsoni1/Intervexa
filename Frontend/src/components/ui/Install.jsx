@@ -66,7 +66,7 @@ const InstallPrompt = () => {
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-white">Install Ansoyal AI</p>
                 <p className="mt-0.5 text-sm text-slate-300">
-                  Add to your home screen for quick access and a smoother experience.
+                  Add the app to your home screen for faster access next time.
                 </p>
 
                 <div className="mt-4 flex flex-wrap items-center gap-3">
