@@ -290,7 +290,7 @@ function PaymentResult() {
               )}
 
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/home")}
                 className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-white text-black font-semibold text-sm hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-200"
               >
                 <Home className="w-5 h-5" />

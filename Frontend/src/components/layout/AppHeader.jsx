@@ -20,7 +20,7 @@ import { API_BASE } from "../../config";
 import OptimizedImage from "../ui/OptimizedImage.jsx";
 
 const MENU_ITEMS = [
-  { to: "/", label: "Home", icon: FaHome },
+  { to: "/home", label: "Home", icon: FaHome },
   { to: "/templates", label: "Templates", icon: FileText },
   { to: "/dashboard", label: "Dashboard", icon: FaUser },
   { to: "/upload", label: "Upload", icon: GrDocumentUpload },
@@ -30,7 +30,7 @@ const MENU_ITEMS = [
 ];
 
 const NAV_LINKS = [
-  { to: "/", label: "Home" },
+  { to: "/home", label: "Home" },
   { to: "/templates", label: "Templates" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/price", label: "Price" },
@@ -147,7 +147,7 @@ export default function AppHeader() {
       }`}
     >
       <div className="mx-auto flex items-center justify-between px-4 py-4">
-        <Link to="/" className="flex items-center gap-2 group">
+        <Link to="/home" className="flex items-center gap-2 group">
           <motion.div
             className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500"
             whileHover={{ scale: 1.1, rotate: 6, boxShadow: "0 10px 30px -5px rgba(79, 70, 229, 0.4)" }}
