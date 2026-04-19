@@ -25,8 +25,8 @@ const CONTACT_CARDS = [
   {
     icon: HiPhone,
     title: "Phone",
-    value: "+91 9981872498",
-    href: "tel:+91 9981872498",
+    value: "+91 7748801549",
+    href: "tel:+91 7748801549",
     delay: 0.05,
   },
   {
