@@ -8,6 +8,20 @@ function normalizeAtsResult(raw) {
     typeof scoreRaw === "number" && !Number.isNaN(scoreRaw)
       ? Math.min(100, Math.max(0, scoreRaw))
       : Number(scoreRaw);
+  const aiRaw = raw.aiMatchScore;
+  const aiMatchScore =
+    typeof aiRaw === "number" && !Number.isNaN(aiRaw)
+      ? Math.min(100, Math.max(0, aiRaw))
+      : aiRaw != null
+        ? Number(aiRaw)
+        : undefined;
+  const prRaw = raw.resumeParseRate;
+  const resumeParseRate =
+    typeof prRaw === "number" && !Number.isNaN(prRaw)
+      ? Math.min(100, Math.max(0, prRaw))
+      : prRaw != null
+        ? Number(prRaw)
+        : undefined;
   const matched = Array.isArray(raw.matchedKeywords) ? raw.matchedKeywords : [];
   const missing = Array.isArray(raw.missingKeywords) ? raw.missingKeywords : [];
   const improvementSuggestions = Array.isArray(raw.improvementSuggestions)
@@ -30,6 +44,8 @@ function normalizeAtsResult(raw) {
   return {
     ...raw,
     score: Number.isFinite(score) ? score : raw.score,
+    ...(Number.isFinite(aiMatchScore) ? { aiMatchScore } : {}),
+    ...(Number.isFinite(resumeParseRate) ? { resumeParseRate } : {}),
     matchedKeywords: dedupe(matched),
     missingKeywords: dedupe(missing),
     improvementSuggestions: dedupe(improvementSuggestions),
@@ -45,7 +61,7 @@ function pollIntervalMs(attempt) {
 
 export function useAtsCheck({ accessToken, hasToken, onUnauthorized }) {
   const saveAtsScoreMutation = useMutation({
-    mutationFn: async (scoreValue) => {
+    mutationFn: async ({ score: scoreValue, parseRate: pr }) => {
       const saveRes = await fetch(`${API_BASE}/create-atsscore`, {
         method: "POST",
         credentials: "include",
@@ -53,7 +69,10 @@ export function useAtsCheck({ accessToken, hasToken, onUnauthorized }) {
           "Content-Type": "application/json",
           ...(hasToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
-        body: JSON.stringify({ score: scoreValue }),
+        body: JSON.stringify({
+          score: scoreValue,
+          ...(pr != null && typeof pr === "number" && !Number.isNaN(pr) ? { parseRate: pr } : {}),
+        }),
       });
 
       if (!saveRes.ok) {
@@ -65,7 +84,10 @@ export function useAtsCheck({ accessToken, hasToken, onUnauthorized }) {
   });
 
   const runAtsCheckMutation = useMutation({
-    mutationFn: async ({ resumeTextValue, jobDescriptionValue }, { signal }) => {
+    mutationFn: async (
+      { resumeTextValue, jobDescriptionValue, parseRate: clientParseRate, extractionMethod },
+      { signal }
+    ) => {
       const resumeText = String(resumeTextValue ?? "").trim();
       const jobDescription = String(jobDescriptionValue ?? "").trim();
 
@@ -74,12 +96,24 @@ export function useAtsCheck({ accessToken, hasToken, onUnauthorized }) {
         ...(hasToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       };
 
+      const ext =
+        extractionMethod === "ocr" || extractionMethod === "native" ? extractionMethod : undefined;
+      const bodyPayload = {
+        resumeText,
+        jobDescription,
+        ...(ext ? { extractionMethod: ext } : {}),
+      };
+      if (clientParseRate != null && clientParseRate !== "") {
+        const n = Number(clientParseRate);
+        if (!Number.isNaN(n)) bodyPayload.parseRate = Math.min(100, Math.max(0, n));
+      }
+
       const res = await fetch(`${API_BASE}/atscheck`, {
         method: "POST",
         credentials: "include",
         headers,
         signal,
-        body: JSON.stringify({ resumeText, jobDescription }),
+        body: JSON.stringify(bodyPayload),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -142,7 +176,11 @@ export function useAtsCheck({ accessToken, hasToken, onUnauthorized }) {
 
       if (typeof score === "number" && !Number.isNaN(score)) {
         try {
-          await saveAtsScoreMutation.mutateAsync(score);
+          const pr =
+            typeof normalized?.resumeParseRate === "number" && !Number.isNaN(normalized.resumeParseRate)
+              ? normalized.resumeParseRate
+              : undefined;
+          await saveAtsScoreMutation.mutateAsync({ score, parseRate: pr });
         } catch (saveErr) {
           console.warn("ATS score save failed:", saveErr?.message || "Unknown error");
         }

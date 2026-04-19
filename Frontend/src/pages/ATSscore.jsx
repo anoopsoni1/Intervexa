@@ -62,6 +62,14 @@ function AtsScoreResult({ result }) {
   const rawScore = result?.score;
   const parsed = typeof rawScore === "number" ? rawScore : Number(rawScore);
   const scoreNum = Math.min(100, Math.max(0, Number.isFinite(parsed) ? parsed : 0));
+  const aiRaw = result?.aiMatchScore;
+  const aiMatchNum =
+    aiRaw != null && Number.isFinite(Number(aiRaw)) ? Math.min(100, Math.max(0, Number(aiRaw))) : null;
+  const parseRaw = result?.resumeParseRate;
+  const parseNum =
+    parseRaw != null && Number.isFinite(Number(parseRaw))
+      ? Math.min(100, Math.max(0, Number(parseRaw)))
+      : null;
   const tier = getScoreTier(scoreNum);
   const matched = result?.matchedKeywords ?? [];
   const missing = result?.missingKeywords ?? [];
@@ -110,7 +118,17 @@ function AtsScoreResult({ result }) {
             <span className={`mt-1 text-xs font-semibold uppercase tracking-wider ${tier.text}`}>{tier.label}</span>
           </div>
         </div>
-        <p className="mt-4 text-sm font-medium text-slate-400">ATS keyword match score</p>
+        <p className="mt-4 text-sm font-medium text-slate-400">Combined ATS score</p>
+        {aiMatchNum != null && parseNum != null && (
+          <p className="mt-2 text-center text-xs text-slate-500 max-w-md leading-relaxed">
+            Job fit (AI): <span className="text-slate-300 font-medium">{aiMatchNum}%</span>
+            {" · "}
+            Resume text quality (parse): <span className="text-slate-300 font-medium">{parseNum}%</span>
+            <span className="block mt-0.5 text-slate-600">
+              Final score blends ~80% job match with ~20% how cleanly your text was extracted for ATS.
+            </span>
+          </p>
+        )}
         {coverage != null && (
           <p className="mt-1 text-center text-xs text-slate-500 max-w-sm">
             {matched.length} of {totalKw} tracked keywords from the job description appear in your resume ({coverage}%

@@ -13,6 +13,7 @@ import {
   ocrPdfBuffer,
   shouldFallbackToOcr,
 } from "../utils/ocrExtract.js";
+import { computeResumeParseRate } from "../utils/resumeParseRate.js";
 
 const IMAGE_MIME = new Set([
   "image/png",
@@ -119,6 +120,11 @@ export const UploadResume = Asynchandler(async (req, res) => {
     });
   }
 
+  const parseRate = computeResumeParseRate(extractedText, {
+    extractionMethod,
+    fileSizeBytes: fileBuffer?.length,
+  });
+
   return res.json(
     new ApiResponse(
       200,
@@ -126,6 +132,7 @@ export const UploadResume = Asynchandler(async (req, res) => {
         fileUrl: cloudinaryRes.secure_url,
         resumeText: extractedText,
         extractionMethod,
+        parseRate,
       },
       extractionMethod === "ocr"
         ? "Resume uploaded & text scanned (OCR) successfully"

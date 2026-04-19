@@ -2,6 +2,10 @@ import dotenv from "dotenv";
 import { Asynchandler } from "../utils/Asynchandler.js";
 import { ApiResponse } from "../utils/Apiresponse.js";
 import { getAiResponse, hasAnyAiProvider } from "../utils/aiClient.js";
+import {
+  blendAtsScoreWithParseRate,
+  computeResumeParseRate,
+} from "../utils/resumeParseRate.js";
 
 dotenv.config();
 
@@ -70,7 +74,7 @@ function parseJsonFromAi(text) {
 }
 
 const CheckATSScore = Asynchandler(async (req, res) => {
-  const { resumeText, jobDescription } = req.body;
+  const { resumeText, jobDescription, extractionMethod, parseRate: parseRateBody } = req.body;
 
   if (!resumeText || !jobDescription) {
     return res
@@ -222,11 +226,36 @@ const CheckATSScore = Asynchandler(async (req, res) => {
       ? parsed.improvementSuggestions
       : [];
 
+    const aiRaw = parsed.score;
+    const aiN = Math.round(Number(aiRaw));
+    const aiMatchScore = Number.isNaN(aiN)
+      ? 0
+      : Math.min(100, Math.max(0, aiN));
+
+    const ext =
+      extractionMethod === "ocr" || extractionMethod === "native"
+        ? extractionMethod
+        : undefined;
+    let parseRate = null;
+    if (parseRateBody != null && parseRateBody !== "") {
+      const n = Math.round(Number(parseRateBody));
+      if (!Number.isNaN(n)) parseRate = Math.min(100, Math.max(0, n));
+    }
+    if (parseRate == null) {
+      parseRate = computeResumeParseRate(resumeText, {
+        extractionMethod: ext,
+      });
+    }
+
+    const score = blendAtsScoreWithParseRate(aiMatchScore, parseRate);
+
     return res.json(
       new ApiResponse(
         200,
         {
-          score: parsed.score,
+          score,
+          aiMatchScore,
+          resumeParseRate: parseRate,
           // Use frontend-friendly field names while preserving AI output
           matchedKeywords: parsed.matchedSkills,
           missingKeywords: parsed.missingSkills,

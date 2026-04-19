@@ -22,8 +22,10 @@ function detailPayloadFromBody(body) {
     linkedin,
     github,
     certifications,
+    resumeParseRate,
+    resumeExtractionMethod,
   } = body;
-  return {
+  const payload = {
     name: name != null && String(name).trim() ? String(name).trim() : "Your Name",
     role: role != null && String(role).trim() ? String(role).trim() : "Your Role",
     summary: summary != null ? String(summary).trim() : "",
@@ -46,6 +48,16 @@ function detailPayloadFromBody(body) {
       ? certifications.map((c) => String(c).trim()).filter(Boolean)
       : [],
   };
+  if (resumeParseRate != null && resumeParseRate !== "") {
+    const n = Number(resumeParseRate);
+    if (!Number.isNaN(n)) {
+      payload.resumeParseRate = Math.min(100, Math.max(0, n));
+    }
+  }
+  if (resumeExtractionMethod != null && String(resumeExtractionMethod).trim()) {
+    payload.resumeExtractionMethod = String(resumeExtractionMethod).trim();
+  }
+  return payload;
 }
 
 /**

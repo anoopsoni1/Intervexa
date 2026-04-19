@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Upload, FileText, Loader2, Sparkles, X, PenLine, BarChart3, LayoutTemplate, Globe, Target } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { setResumeText } from "../slices/Resume.slice";
+import { setResumeUploadMeta } from "../slices/Resume.slice";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { clearUser } from "../slices/user.slice";
@@ -197,16 +197,35 @@ function UploadPage() {
       }
 
       if (res.ok) {
-        const extractedText = data?.data?.resumeText || data?.resumeText || "";
+        const d = data?.data ?? data;
+        const extractedText = d?.resumeText || data?.resumeText || "";
+        const parseRate = d?.parseRate;
+        const extractionMethod = d?.extractionMethod || "";
         if (!extractedText.trim()) {
           setMessage("Could not extract text from this file. Try another resume format.");
           setMessageType("error");
           return;
         }
-        dispatch(setResumeText(extractedText));
+        dispatch(
+          setResumeUploadMeta({
+            resumeText: extractedText,
+            parseRate,
+            extractionMethod,
+          })
+        );
         try {
           const parsed = parseResume(extractedText);
-          const payload = parsed ? parsedToDetailPayload(parsed) : null;
+          const basePayload = parsed ? parsedToDetailPayload(parsed) : null;
+          const payload =
+            basePayload && (parseRate != null || extractionMethod)
+              ? {
+                  ...basePayload,
+                  ...(parseRate != null && !Number.isNaN(Number(parseRate))
+                    ? { resumeParseRate: Number(parseRate) }
+                    : {}),
+                  ...(extractionMethod ? { resumeExtractionMethod: String(extractionMethod) } : {}),
+                }
+              : basePayload;
           if (accessToken && payload) {
             await saveDetailMutation.mutateAsync({ accessToken, payload }).catch(() => {});
           }

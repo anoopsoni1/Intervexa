@@ -35,6 +35,8 @@ export function useAtsPageData() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const resumeTextFromRedux = useSelector((state) => state.resume.resumeText);
+  const resumeParseRateRedux = useSelector((state) => state.resume.resumeParseRate);
+  const resumeExtractionMethodRedux = useSelector((state) => state.resume.resumeExtractionMethod);
   const accessToken = localStorage.getItem("accessToken");
   const hasToken = Boolean(accessToken);
 
@@ -132,9 +134,22 @@ export function useAtsPageData() {
     setResult(null);
 
     try {
+      const parseRate =
+        resumeParseRateRedux != null && !Number.isNaN(Number(resumeParseRateRedux))
+          ? Number(resumeParseRateRedux)
+          : detailData?.resumeParseRate != null
+            ? Number(detailData.resumeParseRate)
+            : undefined;
+      const extractionMethod =
+        (resumeExtractionMethodRedux && String(resumeExtractionMethodRedux).trim()) ||
+        (detailData?.resumeExtractionMethod && String(detailData.resumeExtractionMethod).trim()) ||
+        undefined;
+
       const resultData = await checkAts({
         resumeTextValue: r,
         jobDescriptionValue: j,
+        parseRate,
+        extractionMethod,
       });
       setResult(resultData);
     } catch (err) {

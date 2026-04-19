@@ -13,13 +13,17 @@ import {
 } from "../utils/limitWindow.js";
 // Create or update (upsert) ATS score for current user. Use after atscheck; retry = update.
 const createAtsscore = Asynchandler(async (req, res) => {
-    const { score } = req.body;
+    const { score, parseRate } = req.body;
     const userId = req.user?._id;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
     if (score == null || typeof score !== "number") return res.status(400).json({ message: "score (number) is required" });
+    const update = { score };
+    if (parseRate != null && typeof parseRate === "number" && !Number.isNaN(parseRate)) {
+        update.parseRate = Math.min(100, Math.max(0, parseRate));
+    }
     const atsscore = await Atsscore.findOneAndUpdate(
         { userId },
-        { score },
+        update,
         { new: true, upsert: true }
     );
     return res.status(200).json(new ApiResponse(200, atsscore, "Atsscore saved successfully"));

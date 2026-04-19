@@ -63,6 +63,18 @@ const detailSchema = new mongoose.Schema({
         type: [String],
         default: [],
     },
+    /** Last upload: how readable extracted text was for ATS (0–100). */
+    resumeParseRate: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: null,
+    },
+    /** "native" (PDF text layer / Word) or "ocr" */
+    resumeExtractionMethod: {
+        type: String,
+        default: "",
+    },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
