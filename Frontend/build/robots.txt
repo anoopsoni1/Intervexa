@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://intervexa.co-vid.in/sitemap.xml
