@@ -4,10 +4,19 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "vite",
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "react-snap",
+    "postinstall": "node scripts/patch-prerender-deps.cjs",
     "lint": "eslint .",
     "preview": "vite preview"
+  },
+  "reactSnap": {
+    "inlineCss": true,
+    "crawl": true,
+    "include": ["/", "/resume-builder", "/mock-interview"],
+    "waitFor": 2500
   },
   "dependencies": {
     "@craftjs/core": "^0.2.12",
@@ -30,6 +39,7 @@
     "react-icons": "^5.5.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.10.1",
+    "react-snap": "^1.23.0",
     "react-spinners": "^0.17.0",
     "recharts": "^3.7.0",
     "socket.io-client": "^4.8.1",

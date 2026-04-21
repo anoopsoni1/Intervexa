@@ -8,6 +8,9 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   build: {
+    outDir: 'build',
+    // react-snap uses Puppeteer 1.x (old Chromium); keep output parseable for prerender.
+    target: 'es2015',
     rollupOptions: {
       output: {
         manualChunks(id) {
