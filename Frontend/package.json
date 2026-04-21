@@ -7,7 +7,7 @@
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
-    "postbuild": "react-snap",
+    "snap": "react-snap",
     "postinstall": "node scripts/patch-prerender-deps.cjs",
     "lint": "eslint .",
     "preview": "vite preview"
