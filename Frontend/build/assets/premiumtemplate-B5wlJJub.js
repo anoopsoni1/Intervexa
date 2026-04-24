@@ -1,0 +1,1 @@
+import{j as t}from"./vendor-CUHgHkgj.js";import{S as m}from"./StyleTemplateHub-CVfj8NuA.js";import"./index-CNDYKsVb.js";import"./motion-fybuDPvH.js";import"./graphics-DDPYrfJd.js";import"./AppHeader-CYDMzKMJ.js";import"./AppFooter-DyUcxGZ3.js";import"./branding-Cdyrc3Oq.js";function l(){return t.jsx(m,{styleId:"premium"})}export{l as default};

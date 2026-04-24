@@ -1,7 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { ChevronDown, Search } from "lucide-react";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import TextType from "../components/ui/TextType";
 import AppHeader from "../components/layout/AppHeader";
 import ResumeSection from "../components/landing/ResumeSection.jsx";
@@ -36,21 +38,6 @@ const itemVariant = {
 const stats = [
   { value: "95%", label: "ATS match improvement" },
   { value: "3x", label: "Faster resume creation" },
-];
-
-const features = [
-  {
-    title: "AI Resume Optimization",
-    description: "Get instant suggestions to improve keywords, impact, and clarity.",
-  },
-  {
-    title: "ATS Smart Scoring",
-    description: "Know how well your resume performs before you apply.",
-  },
-  {
-    title: "One-Click Premium Templates",
-    description: "Choose beautiful designs that stay professional and readable.",
-  },
 ];
 
 /** Keep copy aligned with FAQPage JSON-LD in index.html. */
@@ -136,6 +123,188 @@ const FAQ_TOPIC_FILTERS = [
 /** Four equal-height bands so the field is split evenly from hero through footer (same count + settings per band). */
 const HOME_PARTICLE_BAND_COUNT = 4;
 const HOME_PARTICLES_PER_BAND = 58;
+
+function EarthHeroPreview() {
+  const mountRef = useRef(null);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    const mountEl = mountRef.current;
+    if (!mountEl) return undefined;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      mountEl.clientWidth / mountEl.clientHeight || 1,
+      0.1,
+      100
+    );
+    camera.position.set(0, 0, 3.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(mountEl.clientWidth, mountEl.clientHeight);
+    renderer.setClearColor(0x000000, 0);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    mountEl.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.enablePan = false;
+    controls.enableZoom = false;
+    controls.minPolarAngle = Math.PI * 0.35;
+    controls.maxPolarAngle = Math.PI * 0.65;
+
+    const ambient = new THREE.AmbientLight(0xffffff, 0.34);
+    scene.add(ambient);
+
+    const sunLight = new THREE.DirectionalLight(0xffffff, 2.1);
+    sunLight.position.set(5, 2.2, 5);
+    scene.add(sunLight);
+
+    const rimLight = new THREE.DirectionalLight(0x6fb6ff, 0.75);
+    rimLight.position.set(-4, -1.3, -3.5);
+    scene.add(rimLight);
+
+    const fillLight = new THREE.PointLight(0x7ec8ff, 0.45, 12);
+    fillLight.position.set(0.8, -0.4, 2.2);
+    scene.add(fillLight);
+
+    const textureLoader = new THREE.TextureLoader();
+    const EARTH_TEXTURES = {
+      day: "/textures/earth/earth_day_8k.jpg",
+      bump: "/textures/earth/earth_bump_4k.jpg",
+      specular: "/textures/earth/earth_specular_4k.jpg",
+      lights: "/textures/earth/earth_night_4k.png",
+    };
+
+    const configureColorMap = (texture) => {
+      if (!texture) return null;
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      return texture;
+    };
+    const configureLinearMap = (texture) => {
+      if (!texture) return null;
+      texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      return texture;
+    };
+    const safeLoad = (url, onSuccess, onError = null) => {
+      textureLoader.load(url, onSuccess, undefined, onError ?? (() => {}));
+    };
+
+    let earthMesh = null;
+    let earthMaterial = null;
+
+    const earthGeometry = new THREE.SphereGeometry(1.0, 96, 96);
+
+    earthMaterial = new THREE.MeshStandardMaterial({
+      color: 0x7aa5cf,
+      metalness: 0.02,
+      roughness: 0.72,
+      envMapIntensity: 0.45,
+    });
+    earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earthMesh);
+
+    safeLoad(EARTH_TEXTURES.day, (texture) => {
+      earthMaterial.map = configureColorMap(texture);
+      earthMaterial.needsUpdate = true;
+    });
+    safeLoad(EARTH_TEXTURES.bump, (texture) => {
+      earthMaterial.bumpMap = configureLinearMap(texture);
+      earthMaterial.bumpScale = 0.03;
+      earthMaterial.needsUpdate = true;
+    });
+    safeLoad(EARTH_TEXTURES.specular, (texture) => {
+      const linear = configureLinearMap(texture);
+      earthMaterial.roughnessMap = linear;
+      earthMaterial.metalnessMap = linear;
+      earthMaterial.roughness = 0.55;
+      earthMaterial.metalness = 0.08;
+      earthMaterial.needsUpdate = true;
+    });
+    safeLoad(EARTH_TEXTURES.lights, (texture) => {
+      earthMaterial.emissive = new THREE.Color(0x5a5a5a);
+      earthMaterial.emissiveMap = configureColorMap(texture);
+      earthMaterial.emissiveIntensity = 1.2;
+      earthMaterial.needsUpdate = true;
+    });
+    const missing = [];
+    Object.values(EARTH_TEXTURES).forEach((url) => {
+      safeLoad(
+        url,
+        () => {},
+        () => {
+          missing.push(url);
+          if (missing.length === 1) {
+            setLoadError("Earth texture files missing. Add texture files in public/textures/earth.");
+          }
+        }
+      );
+    });
+
+    camera.position.set(0, 0, 2.5);
+    controls.target.set(0, 0, 0);
+    controls.minDistance = 2.5;
+    controls.maxDistance = 2.5;
+    controls.minPolarAngle = 0;
+    controls.maxPolarAngle = Math.PI;
+    let isUserInteracting = false;
+    controls.addEventListener("start", () => {
+      isUserInteracting = true;
+    });
+    controls.addEventListener("end", () => {
+      isUserInteracting = false;
+    });
+
+    let rafId = 0;
+    const tick = () => {
+      if (earthMesh && !isUserInteracting) earthMesh.rotation.y += 0.001;
+      controls.update();
+      renderer.render(scene, camera);
+      rafId = window.requestAnimationFrame(tick);
+    };
+    tick();
+
+    const onResize = () => {
+      if (!mountEl) return;
+      const width = mountEl.clientWidth || 1;
+      const height = mountEl.clientHeight || 1;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
+    };
+
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.cancelAnimationFrame(rafId);
+      controls.dispose();
+      earthGeometry.dispose();
+      earthMaterial?.map?.dispose?.();
+      earthMaterial?.bumpMap?.dispose?.();
+      earthMaterial?.roughnessMap?.dispose?.();
+      earthMaterial?.metalnessMap?.dispose?.();
+      earthMaterial?.emissiveMap?.dispose?.();
+      earthMaterial.dispose();
+      renderer.dispose();
+      if (renderer.domElement.parentNode === mountEl) {
+        mountEl.removeChild(renderer.domElement);
+      }
+    };
+  }, []);
+
+  return (
+    <div ref={mountRef} className="h-full w-full">
+      {loadError ? (
+        <p className="p-2 text-center text-xs text-rose-300">{loadError}</p>
+      ) : null}
+    </div>
+  );
+}
 
 function HomePageParticles({ reduceMotion }) {
   if (reduceMotion) return null;
@@ -507,7 +676,7 @@ function HomeFooter() {
       className="relative z-10 border-t border-white/10 print:hidden"
     >
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-px bg-linear-to-r from-transparent via-indigo-400/35 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 z-1 h-px bg-linear-to-r from-transparent via-indigo-400/35 to-transparent"
         aria-hidden
       />
       <div className="relative z-10 mx-auto max-w-8xl px-4 py-14 sm:px-6 lg:px-10 lg:py-16">
@@ -700,70 +869,12 @@ function Hero({ resumeStats }) {
           className="relative mx-auto w-full max-w-xl"
         >
           <motion.div
-            animate={{ opacity: [0.35, 0.6, 0.35], scale: [1, 1.08, 1] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="pointer-events-none absolute -inset-4 -z-10 rounded-4xl bg-linear-to-r from-indigo-500/25 via-violet-500/15 to-cyan-400/20 blur-2xl"
-          />
-
-          <motion.div
             animate={{ y: [0, -8, 0], rotate: [0, 1, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             whileHover={{ y: -8, rotate: 0.25, scale: 1.02 }}
-            className="relative overflow-hidden rounded-3xl border border-white/20 bg-linear-to-br from-indigo-500/10 via-slate-900/75 to-cyan-500/10 p-5 shadow-2xl shadow-indigo-900/50 backdrop-blur-xl sm:p-7"
+            className="relative mx-auto h-[350px] w-[350px] overflow-hidden rounded-full sm:h-[520px] sm:w-[520px]"
           >
-            <motion.div
-              aria-hidden
-              animate={{ x: ["-120%", "160%"] }}
-              transition={{ duration: 3.8, repeat: Infinity, ease: "linear", repeatDelay: 1.4 }}
-              className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-linear-to-r from-transparent via-white/20 to-transparent blur-md"
-            />
-            <motion.div
-              aria-hidden
-              animate={{ opacity: [0.35, 0.7, 0.35] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="pointer-events-none absolute inset-x-8 top-0 h-px bg-linear-to-r from-transparent via-cyan-300/80 to-transparent"
-            />
-            <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-indigo-500/25 blur-3xl" />
-            <div className="absolute -bottom-12 -left-14 h-32 w-32 rounded-full bg-cyan-400/20 blur-3xl" />
-            <div className="relative space-y-4">
-              <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
-                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-indigo-200">
-                  Why users love Ansoyal AI
-                </p>
-                <span className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-200">
-                  Smart features
-                </span>
-              </div>
-              {features.map((feature, index) => (
-                <motion.div
-                  key={feature.title}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + index * 0.14, duration: 0.45 }}
-                  whileHover={{
-                    y: -5,
-                    scale: 1.012,
-                    borderColor: "rgba(103,232,249,0.45)",
-                    backgroundColor: "rgba(15, 23, 42, 0.62)",
-                    boxShadow: "0 16px 30px -18px rgba(34,211,238,0.55)",
-                  }}
-                  className="relative overflow-hidden rounded-2xl border border-white/15 bg-black/30 p-4 transition-colors"
-                >
-                  <div className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-linear-to-b from-cyan-300/70 via-indigo-300/40 to-transparent" />
-                  <div className="flex items-start gap-3">
-                    <motion.span
-                      animate={{ scale: [1, 1.25, 1], opacity: [0.6, 1, 0.6] }}
-                      transition={{ duration: 2.2, repeat: Infinity, delay: index * 0.2 }}
-                      className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-cyan-300"
-                    />
-                    <div>
-                      <h4 className="text-base font-semibold text-white sm:text-lg">{feature.title}</h4>
-                      <p className="mt-1 text-sm leading-relaxed text-slate-300">{feature.description}</p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            <EarthHeroPreview />
           </motion.div>
         </motion.div>
       </div>
