@@ -1,5 +1,5 @@
 import { StrictMode } from 'react'
-import { createRoot, hydrateRoot } from 'react-dom/client'
+import { createRoot } from 'react-dom/client'
 import './index.css'
 import { createBrowserRouter, RouterProvider, Outlet, Navigate } from "react-router-dom"
 import { Provider } from 'react-redux'
@@ -54,21 +54,16 @@ import GlobalBackgroundLayout from './components/layout/GlobalBackgroundLayout.j
 import RequireAuth from './components/auth/RequireAuth.jsx'
 import RequirePremium from './components/auth/RequirePremium.jsx'
 
-const isReactSnap =
-  typeof navigator !== 'undefined' && /ReactSnap/i.test(navigator.userAgent)
-
-const updateSW = isReactSnap
-  ? () => {}
-  : registerSW({
-      onNeedRefresh() {
-        if (confirm("New content available. Reload?")) {
-          updateSW()
-        }
-      },
-      onOfflineReady() {
-        console.log("App ready to work offline")
-      },
-    })
+const updateSW = registerSW({
+  onNeedRefresh() {
+    if (confirm("New content available. Reload?")) {
+      updateSW()
+    }
+  },
+  onOfflineReady() {
+    console.log("App ready to work offline")
+  },
+})
 
 const route = createBrowserRouter([
   {
@@ -82,16 +77,6 @@ const route = createBrowserRouter([
       { path: "verify-email", element: <VerifyEmailPage /> },
       { path: "register", element: <Register /> },
       { path: "upload", element: <UploadPage /> },
-      { path: "resume-builder", element: <UploadPage /> },
-      {
-        path: "mock-interview",
-        element: (
-          <Navigate
-            to="/coding-interview?role=Frontend%20Developer&difficulty=Beginner"
-            replace
-          />
-        ),
-      },
       { path: "add-details", element: <AddDetails /> },
       { path: "edit-resume", element: <EditResumePage /> },
       { path: "atsscore", element: <AtsChecker /> },
@@ -145,21 +130,15 @@ const route = createBrowserRouter([
   },
 ])
 
-const rootElement = document.getElementById('root')
-const app = (
+createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <ToastProvider>
           <RouterProvider router={route} />
-          {!isReactSnap && <Analytics />}
+          <Analytics />
         </ToastProvider>
       </Provider>
     </QueryClientProvider>
-  </StrictMode>
+  </StrictMode>,
 )
-if (rootElement.hasChildNodes()) {
-  hydrateRoot(rootElement, app)
-} else {
-  createRoot(rootElement).render(app)
-}

@@ -40,6 +40,21 @@ const stats = [
   { value: "3x", label: "Faster resume creation" },
 ];
 
+const mobileSmartFeatures = [
+  {
+    title: "AI Resume Optimization",
+    description: "Get instant suggestions to improve keywords, impact, and clarity.",
+  },
+  {
+    title: "ATS Smart Scoring",
+    description: "Know how well your resume performs before you apply.",
+  },
+  {
+    title: "One-Click Premium Templates",
+    description: "Choose beautiful designs that stay professional and readable.",
+  },
+];
+
 /** Keep copy aligned with FAQPage JSON-LD in index.html. */
 const HOME_FAQ = [
   {
@@ -152,7 +167,8 @@ function EarthHeroPreview() {
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.enablePan = false;
-    controls.enableZoom = false;
+    controls.enableZoom = true;
+    controls.zoomSpeed = 0.7;
     controls.minPolarAngle = Math.PI * 0.35;
     controls.maxPolarAngle = Math.PI * 0.65;
 
@@ -247,8 +263,8 @@ function EarthHeroPreview() {
 
     camera.position.set(0, 0, 2.5);
     controls.target.set(0, 0, 0);
-    controls.minDistance = 2.5;
-    controls.maxDistance = 2.5;
+    controls.minDistance = 2.2;
+    controls.maxDistance = 3.0;
     controls.minPolarAngle = 0;
     controls.maxPolarAngle = Math.PI;
     let isUserInteracting = false;
@@ -868,11 +884,41 @@ function Hero({ resumeStats }) {
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           className="relative mx-auto w-full max-w-xl"
         >
+          <div className="block lg:hidden">
+            <div className="rounded-3xl border border-white/18 bg-linear-to-br from-indigo-500/12 via-slate-900/80 to-cyan-500/12 p-4 shadow-2xl shadow-indigo-900/45 backdrop-blur-xl">
+              <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/30 px-3.5 py-2.5">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-indigo-200">
+                  Why users love Ansoyal AI
+                </p>
+                <span className="rounded-full border border-cyan-300/30 bg-cyan-400/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-cyan-200">
+                  Smart features
+                </span>
+              </div>
+              <div className="mt-3 space-y-3">
+                {mobileSmartFeatures.map((feature) => (
+                  <div
+                    key={feature.title}
+                    className="relative overflow-hidden rounded-2xl border border-white/15 bg-black/35 p-3.5"
+                  >
+                    <div className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-linear-to-b from-cyan-300/70 via-indigo-300/45 to-transparent" />
+                    <div className="flex items-start gap-2.5">
+                      <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-cyan-300" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-white">{feature.title}</h4>
+                        <p className="mt-0.5 text-xs leading-relaxed text-slate-300">{feature.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <motion.div
             animate={{ y: [0, -8, 0], rotate: [0, 1, 0] }}
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             whileHover={{ y: -8, rotate: 0.25, scale: 1.02 }}
-            className="relative mx-auto h-[350px] w-[350px] overflow-hidden rounded-full sm:h-[520px] sm:w-[520px]"
+            className="relative mx-auto hidden h-[78vw] w-[78vw] max-h-[360px] max-w-[360px] overflow-hidden rounded-full lg:block lg:h-[520px] lg:w-[520px] lg:max-h-none lg:max-w-none"
           >
             <EarthHeroPreview />
           </motion.div>

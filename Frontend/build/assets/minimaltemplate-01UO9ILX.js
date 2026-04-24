@@ -1,1 +1,0 @@
-import{j as t}from"./vendor-CUHgHkgj.js";import{S as m}from"./StyleTemplateHub-CVfj8NuA.js";import"./index-CNDYKsVb.js";import"./motion-fybuDPvH.js";import"./graphics-DDPYrfJd.js";import"./AppHeader-CYDMzKMJ.js";import"./AppFooter-DyUcxGZ3.js";import"./branding-Cdyrc3Oq.js";function n(){return t.jsx(m,{styleId:"minimal"})}export{n as default};
