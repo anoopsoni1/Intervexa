@@ -15,7 +15,6 @@ const resumeSlice = createSlice({
   name: "resume",
   initialState ,
 
-
   reducers: {
     setResumeText: (state, action) => {
       state.resumeText = action.payload;

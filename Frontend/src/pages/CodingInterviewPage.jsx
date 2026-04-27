@@ -219,7 +219,7 @@ export default function CodingInterviewPage() {
 
   // Tab visibility: save and quit when user switches tab
   const saveAndQuit = useCallback(async () => {
-    const token = localStorage.getItem("accessToken");
+    
     const attempts = questions.map((q, i) => ({
       question: q,
       code: codeByIndexRef.current[i] ?? "",
@@ -228,11 +228,11 @@ export default function CodingInterviewPage() {
       passed: runResultByIndexRef.current[i]?.passed ?? 0,
       totalTests: runResultByIndexRef.current[i]?.total ?? 0,
     }));
-    if (token && attempts.length > 0) {
+    if (user && attempts.length > 0) {
       try {
         const res = await fetch(`${API_BASE}/coding-interview`, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ attempts, status: "submitted" }),
         });
         if (res.status === 429) {
@@ -248,7 +248,7 @@ export default function CodingInterviewPage() {
       } catch (_) {}
     }
     navigate("/coding-interview/start", { replace: true });
-  }, [questions, navigate, toast, refreshUsage]);
+  }, [questions, navigate, toast, refreshUsage, user]);
 
   // Warn once when user leaves tab, then next time auto save+quit. Always warn on unload.
   useEffect(() => {
@@ -351,8 +351,7 @@ export default function CodingInterviewPage() {
   };
 
   const handleSaveSession = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
+    if (!user) {
       setSaveMessage("Login to save your session.");
       return;
     }
@@ -371,7 +370,6 @@ export default function CodingInterviewPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ attempts, status: "submitted" }),
       });

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { API_BASE } from "../config";
+import { apiJson } from "../services/api";
 
 /** Human-readable time until next UTC day reset (from API `resetsAt`). */
 export function formatResetsLabel(resetsAtIso) {
@@ -27,19 +27,11 @@ export function useUsageStatus(enabled) {
       setLoading(false);
       return;
     }
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      setStatus(null);
-      setLoading(false);
-      return;
-    }
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/usage-status`, {
-        credentials: "include",
-        headers: { Authorization: `Bearer ${token}` },
+      const { res, data: json } = await apiJson("/api/v1/user/usage-status", {
+        method: "GET",
       });
-      const json = await res.json().catch(() => ({}));
       if (res.ok && json?.data) setStatus(json.data);
       else setStatus(null);
     } catch {

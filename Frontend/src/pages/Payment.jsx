@@ -57,13 +57,12 @@ export default function Payment() {
     setError("");
     setLoading(true);
     try {
-      const accessToken = localStorage.getItem("accessToken");
+      
       const res = await fetch(`${API_BASE}/payment`, {
         method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
         body: JSON.stringify({
           amount: PAYMENT_AMOUNT,

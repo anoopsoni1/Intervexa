@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { API_BASE } from "../config";
+import { apiJson } from "../services/api";
 
 function normalizeUserPayload(raw) {
   if (!raw) return null;
@@ -11,19 +11,7 @@ function normalizeUserPayload(raw) {
 }
 
 async function fetchUserData() {
-  if (!API_BASE || String(API_BASE).includes("undefined")) {
-    throw new Error("API is not configured. Set VITE_API_BASE_URL in .env");
-  }
-  const accessToken = localStorage.getItem("accessToken");
-  const res = await fetch(`${API_BASE}/profile`, {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    },
-  });
-
-  const json = await res.json().catch(() => ({}));
+  const { res, data: json } = await apiJson("/api/v1/user/profile", { method: "GET" });
   if (!res.ok) {
     const msg = (json?.message || "").toString();
     if (res.status === 401 || /unauthorized/i.test(msg)) {

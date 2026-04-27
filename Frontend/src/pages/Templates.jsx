@@ -159,8 +159,7 @@ function TemplateCard({
 export default function TemplatesPage() {
   const navigate = useNavigate();
   const user = useSelector((state) => state.user?.userData);
-  const isLoggedIn =
-    typeof window !== "undefined" && Boolean(localStorage.getItem("accessToken")?.trim());
+  const isLoggedIn = Boolean(user);
   const isPremium = Boolean(user?.Premium);
   const loginFromTemplates = `/login?from=${encodeURIComponent("/templates")}`;
   const priceFromTemplates = `/price?from=${encodeURIComponent("/templates")}`;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { API_BASE } from "../config";
+import { apiJson } from "../services/api";
 
-export function useProfileAuthCheck({ accessToken, hasToken, onUnauthorized, onUserLoaded }) {
+export function useProfileAuthCheck({ onUnauthorized, onUserLoaded }) {
   const [authChecking, setAuthChecking] = useState(true);
 
   useEffect(() => {
@@ -10,14 +10,7 @@ export function useProfileAuthCheck({ accessToken, hasToken, onUnauthorized, onU
     async function checkAuth() {
       setAuthChecking(true);
       try {
-        const headers = hasToken ? { Authorization: `Bearer ${accessToken}` } : {};
-        const res = await fetch(`${API_BASE}/profile`, {
-          method: "GET",
-          credentials: "include",
-          headers,
-        });
-
-        const data = await res.json().catch(() => ({}));
+        const { res, data } = await apiJson("/api/v1/user/profile", { method: "GET" });
         if (!res.ok) {
           if (res.status === 401 && typeof onUnauthorized === "function") {
             onUnauthorized();
@@ -38,7 +31,7 @@ export function useProfileAuthCheck({ accessToken, hasToken, onUnauthorized, onU
     return () => {
       cancelled = true;
     };
-  }, [accessToken, hasToken, onUnauthorized, onUserLoaded]);
+  }, [onUnauthorized, onUserLoaded]);
 
   return { authChecking };
 }

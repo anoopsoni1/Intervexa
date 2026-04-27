@@ -2999,7 +2999,7 @@ export default function PortfolioDesignView() {
   const { id } = useParams();
   const user = useSelector((state) => state.user.userData);
   const isPremium = !!user?.Premium;
-  const isLoggedIn = !!user || (typeof window !== "undefined" && !!localStorage.getItem("accessToken"));
+  const isLoggedIn = !!user ;
   const [template, setTemplate] = useState(null);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -3037,13 +3037,13 @@ export default function PortfolioDesignView() {
           : layout === "portfolio1"
             ? FULL_HTML_HEAD_LIGHT + content + FULL_HTML_TAIL
             : FULL_HTML_HEAD_DARK + content + FULL_HTML_TAIL;
-      const accessToken = localStorage.getItem("accessToken");
+      
       const { data: res } = await axios.post(
         `${API_BASE}/deploy-portfolio`,
         { htmlContent },
         {
           withCredentials: true,
-          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+          headers: {},
         }
       );
       const message = res?.message || "Portfolio deployed successfully.";

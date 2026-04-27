@@ -2,39 +2,32 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { setUser } from "../../slices/user.slice";
-import { API_BASE } from "../../config";
+import { apiJson } from "../../services/api";
 
 /**
  * Must be nested under RequireAuth. Redirects to /price if user is not Premium.
- * Hydrates Redux user from /profile when token exists but user is missing (refresh).
+ * Hydrates Redux user from /profile when cookie session exists but user is missing (refresh).
  */
 export default function RequirePremium() {
   const location = useLocation();
   const dispatch = useDispatch();
   const user = useSelector((s) => s.user?.userData);
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken")?.trim() || "" : "";
-
-  const [hydrated, setHydrated] = useState(() => !token || !!user);
+  const [hydrated, setHydrated] = useState(() => !!user);
+  const [isAuthed, setIsAuthed] = useState(true);
 
   useEffect(() => {
     if (user) {
       setHydrated(true);
       return;
     }
-    if (!token) {
-      setHydrated(true);
-      return;
-    }
     let cancelled = false;
-    fetch(`${API_BASE}/profile`, {
-      method: "GET",
-      credentials: "include",
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json().catch(() => ({})))
-      .then((data) => {
+    apiJson("/api/v1/user/profile", { method: "GET" })
+      .then(({ res, data }) => {
         if (cancelled) return;
+        if (!res.ok) {
+          setIsAuthed(false);
+          return;
+        }
         const u = data?.user || data?.data?.user;
         if (u) dispatch(setUser(u));
       })
@@ -47,11 +40,11 @@ export default function RequirePremium() {
     return () => {
       cancelled = true;
     };
-  }, [user, token, dispatch]);
+  }, [user, dispatch]);
 
   const from = `${location.pathname}${location.search}`;
 
-  if (!token) {
+  if (!isAuthed) {
     return <Navigate to={`/login?from=${encodeURIComponent(from || "/templates")}`} replace />;
   }
   if (!hydrated) {

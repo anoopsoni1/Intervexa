@@ -121,7 +121,7 @@ export default function ResumeView() {
   const dispatch = useDispatch();
   const toast = useToast();
   const user = useSelector((state) => state.user?.userData);
-  const isLoggedIn = !!user || (typeof window !== "undefined" && !!localStorage.getItem("accessToken"));
+  const isLoggedIn = !!user ;
   const canRecordDownload =
     isLoggedIn && !!(user?.emailVerified || user?.googleId);
   const { status: usageStatus, refresh: refreshUsage } = useUsageStatus(canRecordDownload);
@@ -151,7 +151,7 @@ export default function ResumeView() {
       setPremiumAccessReady(true);
       return;
     }
-    const tok = typeof window !== "undefined" ? localStorage.getItem("accessToken")?.trim() : "";
+    const tok = "";
     if (!tok) {
       setPremiumAccessReady(true);
       return;
@@ -161,7 +161,7 @@ export default function ResumeView() {
     fetch(`${API_BASE}/profile`, {
       method: "GET",
       credentials: "include",
-      headers: { Authorization: `Bearer ${tok}` },
+      headers: {},
     })
       .then((res) => res.json().catch(() => ({})))
       .then((data) => {
@@ -232,11 +232,6 @@ export default function ResumeView() {
 
   const handleVisualPdfDownload = useCallback(async () => {
     if (exportBlocked) return;
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      toast.error("Sign in to download a PDF.");
-      return;
-    }
     if (!canRecordDownload) {
       toast.error("Verify your email to download your resume.");
       return;
@@ -257,7 +252,6 @@ export default function ResumeView() {
         method: "POST",
         credentials: "include",
         headers: {
-          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ html, css }),

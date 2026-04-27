@@ -6,6 +6,7 @@
  */
 
 import { API_BASE } from "../config";
+import { apiJson } from "../services/api";
 import { sanitizeProjectsArray } from "./stripMarkdownMarkers.js";
 import { RESUME_ACHIEVEMENTS_MAX, limitAchievements } from "./resumeAchievements.js";
 import {
@@ -236,15 +237,10 @@ export function parsedToDetailPayload(parsed) {
  * @returns {Promise<{ name, role, summary, skills, experience, projects, education, languageProficiency, email, phone } | null>}
  */
 export async function fetchDetailForResume() {
-  const token = localStorage.getItem("accessToken");
-  if (!token) return null;
-
   try {
-    const res = await fetch(`${API_BASE}/get-detail`, {
-      credentials: "include",
-      headers: { Authorization: `Bearer ${token}` },
+    const { res, data: json } = await apiJson("/api/v1/user/get-detail", {
+      method: "GET",
     });
-    const json = await res.json().catch(() => ({}));
     if (!res.ok || !json?.data) return null;
 
     const d = json.data;

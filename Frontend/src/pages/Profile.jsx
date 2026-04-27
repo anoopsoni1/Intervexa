@@ -23,8 +23,8 @@ function Profile() {
   const [updateMessage, setUpdateMessage] = useState({ type: "", text: "" });
 
   const getAuthHeaders = () => {
-    const accessToken = localStorage.getItem("accessToken");
-    return { ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}) };
+    
+    return {};
   };
 
   useEffect(() => {

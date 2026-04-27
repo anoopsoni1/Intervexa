@@ -242,9 +242,6 @@ export default function Login() {
         return;
       }
 
-      if (data?.data?.accessToken) {
-        localStorage.setItem("accessToken", data.data.accessToken);
-      }
       if (data?.data?.user) {
         dispatch(setUser(data.data.user));
       }

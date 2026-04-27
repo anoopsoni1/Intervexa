@@ -28,8 +28,8 @@ function VideoCallInterviewCreate() {
   const liveBlocked = isUsageBlocked(usageStatus?.liveInterview);
 
   const getHeaders = () => {
-    const t = localStorage.getItem("accessToken");
-    return t ? { Authorization: `Bearer ${t}` } : {};
+    
+    return {};
   };
 
   useEffect(() => {

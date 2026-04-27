@@ -39,8 +39,8 @@ export default function CareerRoadmapPage() {
     let cancelled = false;
     async function checkPremium() {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-        const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+        
+        const headers = {};
         const res = await fetch(`${API_BASE}/profile`, {
           method: "GET",
           credentials: "include",
@@ -80,10 +80,9 @@ export default function CareerRoadmapPage() {
     setError(null);
     setRoadmap(null);
     try {
-      const accessToken = localStorage.getItem("accessToken");
+      
       const headers = {
         "Content-Type": "application/json",
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       };
       const res = await fetch(`${API_BASE}/generate-roadmap`, {
         method: "POST",
@@ -117,7 +116,7 @@ export default function CareerRoadmapPage() {
           await new Promise((r) => setTimeout(r, intervalMs));
           const jobRes = await fetch(`${JOB_API_BASE}/${jobId}`, {
             credentials: "include",
-            headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+            headers: {},
           });
           const jobJson = await jobRes.json().catch(() => ({}));
           const jobData = jobJson?.data ?? jobJson;

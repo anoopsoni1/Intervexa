@@ -37,9 +37,7 @@ export function useAtsPageData() {
   const resumeTextFromRedux = useSelector((state) => state.resume.resumeText);
   const resumeParseRateRedux = useSelector((state) => state.resume.resumeParseRate);
   const resumeExtractionMethodRedux = useSelector((state) => state.resume.resumeExtractionMethod);
-  const accessToken = localStorage.getItem("accessToken");
-  const hasToken = Boolean(accessToken);
-
+  
   const [resumeText, setResumeText] = useState(resumeTextFromRedux || "");
   const [jobDescription, setJobDescription] = useState("");
   const [result, setResult] = useState(null);
@@ -48,7 +46,7 @@ export function useAtsPageData() {
   const { data: detailData, isLoading: isDetailLoading } = useQuery({
     queryKey: ["resume-detail"],
     queryFn: fetchDetailForResume,
-    enabled: hasToken,
+    enabled: true,
     staleTime: 2 * 60 * 1000,
   });
 
@@ -87,15 +85,11 @@ export function useAtsPageData() {
   );
 
   const { authChecking } = useProfileAuthCheck({
-    accessToken,
-    hasToken,
     onUnauthorized: handleUnauthorized,
     onUserLoaded: handleUserLoaded,
   });
 
   const { checkAts, loading } = useAtsCheck({
-    accessToken,
-    hasToken,
     onUnauthorized: handleUnauthorized,
   });
 

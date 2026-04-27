@@ -42,15 +42,11 @@ export default function EditResumePage() {
     aiOptimizeQuota && aiOptimizeQuota.limit != null && !aiOptimizeQuota.allowed
   );
 
-  const token = () => localStorage.getItem("accessToken");
-
   const refreshAiOptimizeQuota = useCallback(async () => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (!accessToken) return;
     try {
       const res = await fetch(`${API_BASE}/get-optimize`, {
         credentials: "include",
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: {},
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok || !json?.data || typeof json.data.number !== "number") {
@@ -76,11 +72,10 @@ export default function EditResumePage() {
     async function checkAuth() {
       setAuthChecking(true);
       try {
-        const accessToken = token();
         const res = await fetch(`${API_BASE}/profile`, {
           method: "GET",
           credentials: "include",
-          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+          headers: {},
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
@@ -102,10 +97,6 @@ export default function EditResumePage() {
 
   useEffect(() => {
     if (authChecking) return;
-    if (!token()) {
-      setAiOptimizeQuota(null);
-      return;
-    }
     refreshAiOptimizeQuota();
   }, [authChecking, refreshAiOptimizeQuota, user?.plan, user?.Premium]);
 
@@ -120,16 +111,10 @@ export default function EditResumePage() {
         if (!cancelled) setInitialLoadDone(true);
         return;
       }
-      const accessToken = token();
-      if (!accessToken) {
-        if (!cancelled) setText(resumeTextFromRedux);
-        if (!cancelled) setInitialLoadDone(true);
-        return;
-      }
       try {
         const res = await fetch(`${API_BASE}/get-detail`, {
           credentials: "include",
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: {},
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -144,7 +129,7 @@ export default function EditResumePage() {
         } else {
           const fallbackRes = await fetch(`${API_BASE}/get-edited-resume`, {
             credentials: "include",
-            headers: { Authorization: `Bearer ${accessToken}` },
+            headers: {},
           });
           const fallback = await fallbackRes.json().catch(() => ({}));
           if (fallbackRes.ok && typeof fallback?.data?.text === "string" && fallback.data.text.trim()) {
@@ -177,7 +162,6 @@ export default function EditResumePage() {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          ...(token() ? { Authorization: `Bearer ${token()}` } : {}),
         },
         body: JSON.stringify({ resumeText: toImprove }),
       });
@@ -207,7 +191,7 @@ export default function EditResumePage() {
           await new Promise((r) => setTimeout(r, intervalMs));
           const jobRes = await fetch(`${JOB_API_BASE}/${jobId}`, {
             credentials: "include",
-            headers: token() ? { Authorization: `Bearer ${token()}` } : {},
+            headers: {},
           });
           const jobJson = await jobRes.json().catch(() => ({}));
           const jobData = jobJson?.data || {};
@@ -241,17 +225,15 @@ export default function EditResumePage() {
         setText(edited.trim() || buildResumeTextFromDetail(optimizedClean));
         const finalText = edited.trim() || buildResumeTextFromDetail(optimizedClean);
         dispatch(setEditedResumeText({ ...data, data: { optimizedDetail: optimizedClean, editedText: finalText } }));
-        if (token()) {
-          fetch(`${API_BASE}/increment-optimize`, {
-            method: "POST",
-            credentials: "include",
-            headers: { Authorization: `Bearer ${token()}` },
+        fetch(`${API_BASE}/increment-optimize`, {
+          method: "POST",
+          credentials: "include",
+          headers: {},
+        })
+          .then(async (incRes) => {
+            if (incRes.ok) await refreshAiOptimizeQuota();
           })
-            .then(async (incRes) => {
-              if (incRes.ok) await refreshAiOptimizeQuota();
-            })
-            .catch(() => {});
-        }
+          .catch(() => {});
       }
     } catch (err) {
       setError(err?.message || "AI improvement failed");
@@ -264,10 +246,6 @@ export default function EditResumePage() {
     const toSave = text.trim();
     if (!toSave && !optimizedDetail) {
       setError("Nothing to save. Add or paste resume text, or run Improve with AI first.");
-      return;
-    }
-    if (!token()) {
-      setError("Sign in to save to your account.");
       return;
     }
     setSaveLoading(true);
@@ -309,7 +287,6 @@ export default function EditResumePage() {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token()}`,
         },
         body: JSON.stringify(payload),
       });
@@ -398,7 +375,7 @@ export default function EditResumePage() {
                 <button
                   type="button"
                   onClick={handleAiImprove}
-                  disabled={aiLoading || (!!token() && aiOptimizeBlocked)}
+                  disabled={aiLoading || aiOptimizeBlocked}
                   className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
                 >
                   {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
@@ -414,7 +391,7 @@ export default function EditResumePage() {
                   {saveLoading ? "Saving…" : "Save to account"}
                 </button>
               </div>
-              {token() && aiOptimizeQuota && aiOptimizeQuota.limit != null && (
+              {aiOptimizeQuota && aiOptimizeQuota.limit != null && (
                 <p className="mt-3 text-xs text-zinc-400">
                   AI improvements today (UTC):{" "}
                   <span className="text-zinc-300 font-medium">

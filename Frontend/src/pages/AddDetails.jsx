@@ -354,16 +354,12 @@ export default function AddDetails() {
 
   useEffect(() => {
     let cancelled = false;
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+
     (async () => {
       try {
         const res = await fetch(`${API_BASE}/get-detail`, {
           credentials: "include",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {},
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -490,12 +486,6 @@ export default function AddDetails() {
 
   const handleSave = async () => {
     setApiError(null);
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      setSaved(false);
-      setApiError("Sign in to save your details.");
-      return false;
-    }
 
     setSaveLoading(true);
     try {
@@ -505,7 +495,6 @@ export default function AddDetails() {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });

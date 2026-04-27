@@ -251,8 +251,6 @@ function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus, 
   );
 }
 
-
-
 export default function Dashboard() {
   const [size, setSize] = useState({
     width: window.innerWidth,
@@ -299,8 +297,8 @@ export default function Dashboard() {
     async function checkAuth() {
       setAuthChecking(true);
       try {
-        const accessToken = localStorage.getItem("accessToken");
-        const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+        
+        const headers = {};
 
         const res = await fetch(`${API_BASE}/profile`, {
           method: "GET",
@@ -339,10 +337,10 @@ export default function Dashboard() {
     let cancelled = false;
     async function fetchAtsScore() {
       try {
-        const accessToken = localStorage.getItem("accessToken");
+        
         const res = await fetch(`${API_BASE}/get-atsscore`, {
           credentials: "include",
-          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+          headers: {},
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -369,10 +367,10 @@ export default function Dashboard() {
     let cancelled = false;
     async function fetchResumePdfStats() {
       try {
-        const accessToken = localStorage.getItem("accessToken");
+        
         const res = await fetch(`${API_BASE}/get-resume-stats`, {
           credentials: "include",
-          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+          headers: {},
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -407,10 +405,10 @@ export default function Dashboard() {
     let cancelled = false;
     async function fetchOptimize() {
       try {
-        const accessToken = localStorage.getItem("accessToken");
+        
         const res = await fetch(`${API_BASE}/get-optimize`, {
           credentials: "include",
-          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+          headers: {},
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -438,10 +436,10 @@ export default function Dashboard() {
     let cancelled = false;
     async function fetchDeployments() {
       try {
-        const accessToken = localStorage.getItem("accessToken");
+        
         const res = await fetch(`${API_BASE}/get-deployments`, {
           credentials: "include",
-          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+          headers: {},
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -489,11 +487,11 @@ export default function Dashboard() {
   const handleResendVerification = async () => {
     setSendingVerify(true);
     try {
-      const accessToken = localStorage.getItem("accessToken");
+      
       const res = await fetch(`${API_BASE}/resend-verification-email`, {
         method: "POST",
         credentials: "include",
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+        headers: {},
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
@@ -518,13 +516,13 @@ export default function Dashboard() {
   const handleDeleteDeployment = async (dep) => {
     if (!dep._id) return;
     if (!window.confirm("Remove this project from the list and delete it from Vercel? This cannot be undone.")) return;
-    const accessToken = localStorage.getItem("accessToken");
+    
     setDeletingId(dep._id);
     try {
       const res = await fetch(`${API_BASE}/delete-deployment/${dep._id}`, {
         method: "DELETE",
         credentials: "include",
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+        headers: {},
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {

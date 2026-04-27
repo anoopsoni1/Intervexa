@@ -65,7 +65,7 @@ function extractSection(text, startPatterns, endPatterns) {
       }
     }
     let content = normalized.slice(startIndex, endIndex).trim();
-    content = content.replace(/\n{3,}/g, "\n\n");
+    content = content.replace(/\n{3 }/g, "\n\n");
     return content;
   }
   return "";
@@ -238,7 +238,7 @@ export function parseResume(text = "") {
   }
 
   // --- Clean and structure ---
-  summary = stripAsterisks(summary).replace(/\n{3,}/g, "\n\n").trim();
+  summary = stripAsterisks(summary).replace(/\n{3 }/g, "\n\n").trim();
 
   const skillsList = skillsRaw
     .split(/[\n,;|]+/)
@@ -287,8 +287,8 @@ export function parseResume(text = "") {
         .slice(0, RESUME_ACHIEVEMENTS_MAX)
     : [];
 
-  let educationOnly = stripAsterisks(educationRaw).replace(/\n{3,}/g, "\n\n").trim();
-  let languageOnly = stripAsterisks(languageRaw).replace(/\n{3,}/g, "\n\n").trim();
+  let educationOnly = stripAsterisks(educationRaw).replace(/\n{3 }/g, "\n\n").trim();
+  let languageOnly = stripAsterisks(languageRaw).replace(/\n{3 }/g, "\n\n").trim();
 
   const langInEd = educationOnly.match(
     /\n\s*(?:Language\s*Proficiency|Languages?|LANGUAGE\s*PROFICIENCY)\s*:?\s*([\s\S]*)/i

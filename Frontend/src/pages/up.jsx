@@ -159,8 +159,8 @@ function UpPageContent() {
     try {
       const formData = new FormData();
       formData.append("video", videoFile);
-      const accessToken = localStorage.getItem("accessToken");
-      const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+      
+      const headers = {};
       const res = await fetch(`${API_BASE}/upload-video`, {
         method: "POST",
         credentials: "include",

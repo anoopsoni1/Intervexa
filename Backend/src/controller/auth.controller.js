@@ -1,10 +1,6 @@
-/**
- * Google OAuth callback: generate JWT and redirect to frontend with token.
- * Frontend stores token and redirects to dashboard.
- */
 import { Asynchandler } from "../utils/Asynchandler.js";
 import { generateAccessAndRefereshTokens, sendWelcomeEmailIfFirstLogin } from "./user.controller.js";
-import { User } from "../models/User.model.js";
+import { getAuthCookieOptions } from "../utils/cookieOptions.js";
 
 const FRONTEND_URL =   "https://intervexa.co-vid.in";
 // const API_BASE_URL =   "http:localhost:5000";
@@ -21,21 +17,13 @@ export const googleCallback = Asynchandler(async (req, res) => {
   }
 
   try {
-    const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id);
+    const { accessToken } = await generateAccessAndRefereshTokens(user._id);
     await sendWelcomeEmailIfFirstLogin(user._id);
-    const loggedInUser = await User.findById(user._id).select("-password -refreshtoken");
-
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000,
-    };
+    const cookieOptions = getAuthCookieOptions();
     res.cookie("accessToken", accessToken, cookieOptions);
+    res.cookie("token", accessToken, cookieOptions);
 
     const redirectUrl = new URL(`${FRONTEND_URL}/auth/callback`);
-    redirectUrl.searchParams.set("token", accessToken);
-    redirectUrl.searchParams.set("user", encodeURIComponent(JSON.stringify(loggedInUser)));
     return res.redirect(redirectUrl.toString());
   } catch (err) {
     const errorUrl = `${FRONTEND_URL}/login?error=token_failed`;

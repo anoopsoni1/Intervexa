@@ -71,8 +71,6 @@ const features = [
   },
 ];
 
-
-
 function UploadPage() {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -87,13 +85,12 @@ function UploadPage() {
   const fileInputRef = useRef(null);
 
   const saveDetailMutation = useMutation({
-    mutationFn: async ({ accessToken, payload }) => {
+    mutationFn: async ({ payload }) => {
       const res = await fetch(`${API_BASE}/save-user-data`, {
         method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(payload),
       });
@@ -177,14 +174,10 @@ function UploadPage() {
     setMessageType("error");
 
     try {
-      const accessToken = localStorage.getItem("accessToken");
-      const headers = {};
-      if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
-
       const res = await fetch(`${API_BASE}/upload`, {
         method: "POST",
         credentials: "include", 
-        headers,
+        headers: {},
         body: formData,
       });
  
@@ -226,8 +219,8 @@ function UploadPage() {
                   ...(extractionMethod ? { resumeExtractionMethod: String(extractionMethod) } : {}),
                 }
               : basePayload;
-          if (accessToken && payload) {
-            await saveDetailMutation.mutateAsync({ accessToken, payload }).catch(() => {});
+          if (payload) {
+            await saveDetailMutation.mutateAsync({ payload }).catch(() => {});
           }
         } catch (_) {}
         setMessage("Extracted successfully. Redirecting to ATS score...");
@@ -525,6 +518,4 @@ function UploadPage() {
 }
 
 export default UploadPage;
-
-
 

@@ -11,6 +11,7 @@ import AnsoyalAIOfferings from "../components/landing/AnsoyalAIOfferings.jsx";
 import HomePlatformLanes from "../components/landing/HomePlatformLanes.jsx";
 import InstallPrompt from "../components/ui/Install.jsx";
 import Particles from "../components/ui/Lighting.jsx";
+import SEO from "../components/SEO";
 import { API_BASE } from "../config";
 import { intervexaCopyrightLine } from "../constants/branding.js";
 
@@ -951,14 +952,11 @@ function Home() {
 
   useEffect(() => {
     const fetchResumeStats = async () => {
-      const accessToken = localStorage.getItem("accessToken");
-      if (!accessToken) return;
-
       try {
         // Use same source as AdminDashboard: sum downloads from all users.
         const adminRes = await fetch(`${API_BASE}/get-all-users`, {
           credentials: "include",
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: {},
         });
         if (adminRes.ok) {
           const adminData = await adminRes.json();
@@ -975,7 +973,7 @@ function Home() {
         // Fallback for non-admin users.
         const res = await fetch(`${API_BASE}/get-resume-stats`, {
           credentials: "include",
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: {},
         });
         if (!res.ok) return;
         const data = await res.json();
@@ -999,29 +997,38 @@ function Home() {
   }, []);
 
   return (
-    <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-      animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: "easeOut" }}
-      className="relative min-h-screen"
-    >
-      <HomePageParticles reduceMotion={reduceMotion} />
-      <Navbar />
-      <Hero resumeStats={resumeStats} />
+    <>
+      <SEO
+        title="Ansoyal AI - Build Your Career with AI"
+        description="Create ATS-friendly resumes, get AI suggestions, and practice coding and mock interviews on Ansoyal AI."
+        image="/og-home.png"
+        url="https://intervexa.co-vid.in/"
+        keywords="Ansoyal AI, AI resume builder, ATS score checker, mock interview platform"
+      />
       <motion.div
-        initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-        whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.35 }}
-        transition={{ duration: 0.55, ease: "easeOut" }}
+        initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+        animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+        className="relative min-h-screen"
       >
-        <InstallPrompt />
+        <HomePageParticles reduceMotion={reduceMotion} />
+        <Navbar />
+        <Hero resumeStats={resumeStats} />
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.55, ease: "easeOut" }}
+        >
+          <InstallPrompt />
+        </motion.div>
+        <AnsoyalAIOfferings />
+        <ResumeSection />
+        <HomePlatformLanes />
+        <FaqSection />
+        <HomeFooter />
       </motion.div>
-      <AnsoyalAIOfferings />
-      <ResumeSection />
-      <HomePlatformLanes />
-      <FaqSection />
-      <HomeFooter />
-    </motion.div>
+    </>
   );
 }
 

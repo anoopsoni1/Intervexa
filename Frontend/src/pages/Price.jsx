@@ -45,12 +45,9 @@ const plans = [
   },
 ];
 
-
 function PricingSection() {
   const user = useSelector((state) => state.user.userData);
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("accessToken")?.trim() || "" : "";
-  const isLoggedIn = Boolean(user || token);
+  const isLoggedIn = Boolean(user);
 
   const getPlanHref = (plan) => {
     if (user?.Premium && plan.cta === "Start Now") return "/dashboard";

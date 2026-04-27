@@ -25,8 +25,8 @@ function VideoCallInterviews() {
   const emptyRef = useRef(null);
 
   const getHeaders = () => {
-    const t = localStorage.getItem("accessToken");
-    return t ? { Authorization: `Bearer ${t}` } : {};
+    
+    return {};
   };
 
   useEffect(() => {

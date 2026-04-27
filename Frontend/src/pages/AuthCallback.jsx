@@ -1,42 +1,45 @@
 /**
  * Handles redirect from backend after Google OAuth.
- * URL: /auth/callback?token=...&user=...
- * Stores token in localStorage, user in Redux, then redirects to dashboard.
+ * URL: /auth/callback
+ * Reads current user from cookie-authenticated /profile, then redirects.
  */
 import { useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../slices/user.slice";
+import { apiJson } from "../services/api";
 
 export default function AuthCallback() {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const token = searchParams.get("token");
-    const userParam = searchParams.get("user");
-
-    if (token) {
-      localStorage.setItem("accessToken", token);
-      if (userParam) {
-        try {
-          const user = JSON.parse(decodeURIComponent(userParam));
-          dispatch(setUser(user));
-        } catch {
-          // ignore invalid user payload
+    (async () => {
+      let authenticated = false;
+      try {
+        const { res, data } = await apiJson("/api/v1/user/profile", { method: "GET" });
+        if (!res.ok) {
+          return;
         }
+        const user = data?.user || data?.data?.user;
+        if (user) dispatch(setUser(user));
+        authenticated = true;
+      } finally {
+        if (!authenticated) {
+          navigate("/login", { replace: true });
+          return;
+        }
+        const returnUrl = sessionStorage.getItem("loginReturnUrl");
+        if (returnUrl) sessionStorage.removeItem("loginReturnUrl");
+        const target =
+          returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") && !returnUrl.startsWith("http")
+            ? returnUrl
+            : "/dashboard";
+        window.history.replaceState({}, "", target);
+        navigate(target, { replace: true });
       }
-      const returnUrl = sessionStorage.getItem("loginReturnUrl");
-      if (returnUrl) sessionStorage.removeItem("loginReturnUrl");
-      const target = returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") && !returnUrl.startsWith("http") ? returnUrl : "/dashboard";
-      window.history.replaceState({}, "", target);
-      navigate(target, { replace: true });
-      return;
-    }
-
-    navigate("/login", { replace: true });
-  }, [searchParams, navigate, dispatch]);
+    })();
+  }, [navigate, dispatch]);
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">

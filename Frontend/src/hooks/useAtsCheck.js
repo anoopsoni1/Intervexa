@@ -59,7 +59,7 @@ function pollIntervalMs(attempt) {
   return 2500;
 }
 
-export function useAtsCheck({ accessToken, hasToken, onUnauthorized }) {
+export function useAtsCheck({ onUnauthorized }) {
   const saveAtsScoreMutation = useMutation({
     mutationFn: async ({ score: scoreValue, parseRate: pr }) => {
       const saveRes = await fetch(`${API_BASE}/create-atsscore`, {
@@ -67,7 +67,6 @@ export function useAtsCheck({ accessToken, hasToken, onUnauthorized }) {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          ...(hasToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
         body: JSON.stringify({
           score: scoreValue,
@@ -93,7 +92,6 @@ export function useAtsCheck({ accessToken, hasToken, onUnauthorized }) {
 
       const headers = {
         "Content-Type": "application/json",
-        ...(hasToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       };
 
       const ext =
@@ -144,7 +142,7 @@ export function useAtsCheck({ accessToken, hasToken, onUnauthorized }) {
           const jobRes = await fetch(`${JOB_API_BASE}/${jobId}`, {
             credentials: "include",
             signal,
-            headers: hasToken ? { Authorization: `Bearer ${accessToken}` } : {},
+            headers: {},
           });
           const jobJson = await jobRes.json().catch(() => ({}));
           const jobData = jobJson?.data ?? jobJson;

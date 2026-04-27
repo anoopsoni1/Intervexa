@@ -42,8 +42,8 @@ export default function InterviewStartPage() {
     async function checkAuth() {
       setAuthChecking(true);
       try {
-        const accessToken = localStorage.getItem("accessToken");
-        const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+        
+        const headers = {};
         const res = await fetch(`${API_BASE}/profile`, {
           method: "GET",
           credentials: "include",
@@ -51,7 +51,7 @@ export default function InterviewStartPage() {
         });
         if (cancelled) return;
         if (!res.ok) {
-          if (res.status === 401 || !accessToken) {
+          if (res.status === 401) {
             navigate("/login", { replace: true });
             return;
           }

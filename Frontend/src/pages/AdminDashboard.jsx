@@ -78,10 +78,10 @@ function AdminDashboard() {
 
     const fetchUsers = async () => {
       try {
-        const accessToken = localStorage.getItem("accessToken");
+        
         const res = await fetch(`${API_BASE}/get-all-users`, {
           credentials: "include",
-          headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+          headers: {},
         });
         const json = await res.json();
         if (!res.ok) {

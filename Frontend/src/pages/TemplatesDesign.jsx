@@ -99,8 +99,8 @@ export default function TemplatesDesignPage() {
     let cancelled = false;
     async function checkPremium() {
       try {
-        const accessToken = localStorage.getItem("accessToken");
-        const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+        
+        const headers = {};
         const res = await fetch(`${API_BASE}/profile`, {
           method: "GET",
           credentials: "include",

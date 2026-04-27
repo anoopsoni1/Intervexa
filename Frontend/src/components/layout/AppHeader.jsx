@@ -16,7 +16,7 @@ import { FileText, LogOut } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser, clearUser } from "../../slices/user.slice";
 import { useLogout } from "../../utils/authUtils";
-import { API_BASE } from "../../config";
+import { apiJson } from "../../services/api";
 import OptimizedImage from "../ui/OptimizedImage.jsx";
 
 const MENU_ITEMS = [
@@ -42,7 +42,7 @@ const MENU_ANIM_DURATION_MS = 300;
 
 export default function AppHeader() {
   const dispatch = useDispatch();
-  const logout = useLogout(); // Global logout: clears backend session, token, Redux, redirects to /login
+  const logout = useLogout(); // Global logout: clears backend session + Redux, redirects to /login
   const user = useSelector((state) => state.user.userData);
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -53,23 +53,16 @@ export default function AppHeader() {
     height: window.innerHeight,
   });
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-  // Only treat as logged in when Redux has user — a stale accessToken alone used to force "Logout" in the header.
+  // Only treat as logged in when Redux has user.
   const isLoggedIn = !!user;
 
-  // Restore Redux user from backend profile when token exists but user is missing.
+  // Restore Redux user from backend profile when cookie session exists but user is missing.
   useEffect(() => {
     if (user) return;
-    if (!token) return;
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/profile`, {
-          method: "GET",
-          credentials: "include",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json().catch(() => ({}));
+        const { res, data } = await apiJson("/api/v1/user/profile", { method: "GET" });
         if (cancelled) return;
         const currentUser = data?.user || data?.data?.user;
         if (currentUser) dispatch(setUser(currentUser));
@@ -80,7 +73,6 @@ export default function AppHeader() {
           data?.statuscode === 401
         ) {
           dispatch(clearUser());
-          localStorage.removeItem("accessToken");
         }
       } catch {
         /* network / CORS */
@@ -89,7 +81,7 @@ export default function AppHeader() {
     return () => {
       cancelled = true;
     };
-  }, [user, token, dispatch]);
+  }, [user, dispatch]);
 
   useEffect(() => {
     const t = requestAnimationFrame(() => setMounted(true));

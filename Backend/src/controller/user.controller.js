@@ -18,6 +18,7 @@ import { Deployment } from "../models/Deployment.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { Resend } from "resend";
+import { getAuthCookieOptions, getClearCookieOptions } from "../utils/cookieOptions.js";
 
 const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
 const FRONTEND_BASE_URL = process.env.FRONTEND_URL || "https://intervexa.co-vid.in";
@@ -257,7 +258,7 @@ const loginuser = Asynchandler(async(req ,res)=>{
       if (!isPasswordValid) {
         throw new ApiError(400, "Invalid email or password");
       }
-   const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(user._id)
+   const { accessToken } = await generateAccessAndRefereshTokens(user._id)
 
    await sendWelcomeEmailIfFirstLogin(user._id);
 
@@ -269,20 +270,16 @@ const loginuser = Asynchandler(async(req ,res)=>{
    }
 
    const loggedInUser = await User.findById(user._id).select("-password -refreshtoken")
-   const options = {
-        httpOnly: true,
-        // Don't block cookies on http://localhost during dev
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-    }
+   const options = getAuthCookieOptions();
        return res
     .status(200)
     .cookie("accessToken", accessToken, options)
+    .cookie("token", accessToken, options)
     .json(
         new ApiResponse(
             200, 
             {
-                user: loggedInUser, accessToken, refreshToken
+                user: loggedInUser
             },
             "User logged In Successfully"
         )
@@ -290,11 +287,9 @@ const loginuser = Asynchandler(async(req ,res)=>{
 })
 const logoutUser = Asynchandler(async(req, res) => {
    
-  res.clearCookie("accessToken", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  });
+  const clearOptions = getClearCookieOptions();
+  res.clearCookie("accessToken", clearOptions);
+  res.clearCookie("token", clearOptions);
   res.status(200).json({ message: "Logged out" });
 });
 
@@ -410,8 +405,11 @@ const updateAccountDetails = Asynchandler(async (req, res) => {
 });
 
 const makePremium = Asynchandler(async(req, res) => {
-    const { userId } = req.body;
-    const user = await User.findByIdAndUpdate(userId, { $set: { Premium: true } }, { new: true }).select("-password");
+    const requestedUserId = req.body?.userId;
+    const targetUserId = req.user?.isAdmin && requestedUserId ? requestedUserId : req.user?._id;
+    if (!targetUserId) throw new ApiError(401, "Unauthorized");
+    const user = await User.findByIdAndUpdate(targetUserId, { $set: { Premium: true } }, { new: true }).select("-password");
+    if (!user) throw new ApiError(404, "User not found");
     return res.status(200).json(new ApiResponse(200, user, "User made premium successfully"));
 });
 

@@ -114,8 +114,8 @@ function AIInterviewCall() {
   }, []);
 
   const getHeaders = () => {
-    const t = localStorage.getItem("accessToken");
-    return t ? { Authorization: `Bearer ${t}` } : {};
+    
+    return {};
   };
 
   useEffect(() => {

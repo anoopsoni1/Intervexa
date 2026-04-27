@@ -64,8 +64,8 @@ function PaymentResult() {
     async function checkAuth() {
       setAuthChecking(true);
       try {
-        const accessToken = localStorage.getItem("accessToken");
-        const headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+        
+        const headers = {};
 
         const res = await fetch(`${API_BASE}/profile`, {
           method: "GET",
@@ -109,10 +109,9 @@ function PaymentResult() {
           return;
         }
 
-        const accessToken = localStorage.getItem("accessToken");
+        
         const headers = {
           "Content-Type": "application/json",
-          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         };
 
         const res = await fetch(`${API_BASE}/verify-payment`, {
@@ -146,9 +145,6 @@ function PaymentResult() {
             credentials: "include",
             headers: {
               "Content-Type": "application/json",
-              ...(localStorage.getItem("accessToken")
-                ? { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
-                : {}),
             },
             body: JSON.stringify({ userId: user._id }),
           });
