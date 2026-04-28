@@ -2,7 +2,9 @@ import { Asynchandler } from "../utils/Asynchandler.js";
 import { generateAccessAndRefereshTokens, sendWelcomeEmailIfFirstLogin } from "./user.controller.js";
 import { getAuthCookieOptions } from "../utils/cookieOptions.js";
 
-const FRONTEND_URL =   "https://intervexa.co-vid.in";
+const FRONTEND_URL = (process.env.FRONTEND_URL || "https://intervexa.co-vid.in")
+  .trim()
+  .replace(/\/+$/, "");
 // const API_BASE_URL =   "http:localhost:5000";
 
 /**

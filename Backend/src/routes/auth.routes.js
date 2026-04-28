@@ -8,7 +8,9 @@ import passport from "../config/passport.google.js";
 import { googleCallback } from "../controller/auth.controller.js";
 
 const router = Router();
-const frontendUrl = "https://intervexa.co-vid.in";
+const frontendUrl = (process.env.FRONTEND_URL || "https://intervexa.co-vid.in")
+  .trim()
+  .replace(/\/+$/, "");
 
 /** Redirect to Google only if OAuth credentials are set; otherwise redirect to login with error. */
 function requireGoogleConfig(req, res, next) {
