@@ -7,6 +7,11 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 
 export default defineConfig({
+  // GSAP ships ESM in index.js but "require" resolves to CJS; when SSG/SSR leaves
+  // the package external, Node can load index.js as CJS and throw on `import`.
+  ssr: {
+    noExternal: ["gsap", /^gsap\//],
+  },
   ssgOptions: {
     entry: "src/main.jsx",
     dirStyle: "nested",
