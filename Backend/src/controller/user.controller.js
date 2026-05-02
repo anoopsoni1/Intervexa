@@ -584,14 +584,17 @@ const getUsageStatus = Asynchandler(async (req, res) => {
 
 /** Public aggregates for marketing (lifetime AI optimize counts from Optimize collection). */
 const getPlatformAiStats = Asynchandler(async (req, res) => {
-  const [agg] = await Optimize.aggregate([
-    {
-      $group: {
-        _id: null,
-        totalAiOptimizes: { $sum: "$number" },
-        usersUsedAi: { $sum: { $cond: [{ $gt: ["$number", 0] }, 1, 0] } },
+  const [[agg], totalResumeDetails] = await Promise.all([
+    Optimize.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalAiOptimizes: { $sum: "$number" },
+          usersUsedAi: { $sum: { $cond: [{ $gt: ["$number", 0] }, 1, 0] } },
+        },
       },
-    },
+    ]),
+    Detail.countDocuments(),
   ]);
   return res.status(200).json(
     new ApiResponse(
@@ -599,6 +602,7 @@ const getPlatformAiStats = Asynchandler(async (req, res) => {
       {
         totalAiOptimizes: agg?.totalAiOptimizes ?? 0,
         usersUsedAi: agg?.usersUsedAi ?? 0,
+        totalResumeDetails,
       },
       "Platform AI stats"
     )

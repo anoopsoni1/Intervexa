@@ -11,7 +11,7 @@ export default defineConfig({
     entry: "src/main.jsx",
     dirStyle: "nested",
     includedRoutes() {
-      return ["/", "/about", "/contact", "/features", "/price"];
+      return ["/", "/about", "/contact", "/price"];
     },
   },
   build: {

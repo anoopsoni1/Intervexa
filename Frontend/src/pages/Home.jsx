@@ -9,7 +9,6 @@ import AppHeader from "../components/layout/AppHeader";
 import ResumeSection from "../components/landing/ResumeSection.jsx";
 import AnsoyalAIOfferings from "../components/landing/AnsoyalAIOfferings.jsx";
 import HomePlatformLanes from "../components/landing/HomePlatformLanes.jsx";
-import AiOptimizesHeroCard from "../components/landing/AiOptimizesHeroCard.jsx";
 import InstallPrompt from "../components/ui/Install.jsx";
 import Particles from "../components/ui/Lighting.jsx";
 import SEO from "../components/SEO";
@@ -38,7 +37,7 @@ const itemVariant = {
   },
 };
 
-const stats = [
+const HERO_METRICS_STATIC = [
   { value: "95%", label: "ATS match improvement" },
   { value: "3x", label: "Faster resume creation" },
 ];
@@ -772,6 +771,16 @@ function HomeFooter() {
 }
 
 function Hero({ aiPlatform }) {
+  const heroMetrics = useMemo(
+    () => [
+      ...HERO_METRICS_STATIC,
+      {
+        value: (aiPlatform.totalResumeDetails ?? 0).toLocaleString(),
+        label: "Resumes created",
+      },
+    ],
+    [aiPlatform.totalResumeDetails]
+  );
   return (
     <section className="relative z-10 px-4 pb-16 pt-6 sm:px-6 lg:px-10">
       <div className="mx-auto grid w-full max-w-8xl grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
@@ -855,30 +864,24 @@ function Hero({ aiPlatform }) {
             </Link>
           </motion.div>
 
-          <motion.div
-            variants={itemVariant}
-            className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4 md:items-stretch"
-          >
-            {stats.map((stat) => (
-              <motion.div
-                key={stat.label}
-                whileHover={{ y: -4, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 260, damping: 18 }}
-                className="relative flex min-h-[148px] flex-col items-center justify-center rounded-2xl border border-white/15 bg-white/6 px-4 py-5 text-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:min-h-[156px] sm:px-5"
-              >
-                <p className="text-2xl font-bold tracking-tight text-indigo-200 sm:text-3xl">{stat.value}</p>
-                <p className="mt-2 max-w-56 text-xs leading-snug text-slate-300 sm:text-sm">{stat.label}</p>
-              </motion.div>
-            ))}
-            <motion.div
-              whileHover={{ y: -4, scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 260, damping: 18 }}
-            >
-              <AiOptimizesHeroCard
-                totalOptimizes={aiPlatform.totalAiOptimizes}
-                usersUsedAi={aiPlatform.usersUsedAi}
-              />
-            </motion.div>
+          <motion.div variants={itemVariant} className="mt-8 w-full max-w-3xl lg:max-w-none">
+            <div className="rounded-xl border border-white/10 bg-zinc-900/10 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] backdrop-blur-md sm:p-5 sm:gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-3">
+                {heroMetrics.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="flex min-h-[112px] flex-col items-center justify-center rounded-lg border border-white/[0.07] bg-zinc-950/55 px-4 py-5 text-center sm:min-h-[120px]"
+                  >
+                    <p className="text-2xl font-bold tracking-tight text-indigo-300 tabular-nums sm:text-3xl">
+                      {stat.value}
+                    </p>
+                    <p className="mt-2 max-w-56 text-xs font-normal leading-snug text-slate-400 sm:text-sm">
+                      {stat.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </motion.div>
         </motion.div>
 
@@ -952,6 +955,7 @@ function Home() {
   const [aiPlatform, setAiPlatform] = useState({
     totalAiOptimizes: 0,
     usersUsedAi: 0,
+    totalResumeDetails: 0,
   });
 
   useEffect(() => {
@@ -964,6 +968,7 @@ function Home() {
           setAiPlatform({
             totalAiOptimizes: d?.totalAiOptimizes ?? 0,
             usersUsedAi: d?.usersUsedAi ?? 0,
+            totalResumeDetails: d?.totalResumeDetails ?? 0,
           });
           return;
         }
@@ -980,7 +985,8 @@ function Home() {
         const users = adminData?.data?.users ?? [];
         const totalAiOptimizes = users.reduce((sum, u) => sum + (u.optimizeCount ?? 0), 0);
         const usersUsedAi = users.filter((u) => (u.optimizeCount ?? 0) > 0).length;
-        setAiPlatform({ totalAiOptimizes, usersUsedAi });
+        const totalResumeDetails = adminData?.data?.platform?.totalResumeDetails ?? 0;
+        setAiPlatform({ totalAiOptimizes, usersUsedAi, totalResumeDetails });
       } catch {
         /* keep zeros */
       }

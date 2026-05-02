@@ -10,7 +10,6 @@ import { GrDocumentUpload } from "react-icons/gr";
 import { IoMdContacts } from "react-icons/io";
 import { FaBook } from "react-icons/fa";
 import { LuDollarSign } from "react-icons/lu";
-import { Sparkles } from "lucide-react";
 import { FaSignInAlt } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { FileText, LogOut } from "lucide-react";
@@ -26,7 +25,6 @@ const MENU_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: FaUser },
   { to: "/upload", label: "Upload", icon: GrDocumentUpload },
   { to: "/price", label: "Price", icon: LuDollarSign },
-  { to: "/features", label: "Features", icon: Sparkles },
   { to: "/contact", label: "Contact", icon: IoMdContacts },
   { to: "/about", label: "About", icon: FaBook },
 ];
@@ -36,7 +34,6 @@ const NAV_LINKS = [
   { to: "/templates", label: "Templates" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/price", label: "Price" },
-  { to: "/features", label: "Features" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ];
