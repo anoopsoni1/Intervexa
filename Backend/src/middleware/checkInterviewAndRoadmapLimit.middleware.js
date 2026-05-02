@@ -7,7 +7,7 @@ import {
 import { getDailyCount, nextUtcMidnightISOString } from "../utils/limitWindow.js";
 
 function ensurePremium(user, res, featureName) {
-  const isPremium = user?.plan === "premium" || user?.Premium === true;
+  const isPremium = user?.isPremium === true;
   if (!isPremium) {
     res.status(403).json({
       error: "Premium required",
@@ -27,7 +27,7 @@ export async function checkLiveInterviewLimit(req, res, next) {
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
     const user = await User.findById(userId).select(
-      "plan Premium liveInterviewsToday lastLiveInterviewDate"
+      "isPremium liveInterviewsToday lastLiveInterviewDate"
     );
     if (!user) return res.status(401).json({ error: "User not found" });
 
@@ -58,7 +58,7 @@ export async function checkCodingInterviewLimit(req, res, next) {
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
     const user = await User.findById(userId).select(
-      "plan Premium codingInterviewsToday lastCodingInterviewDate"
+      "isPremium codingInterviewsToday lastCodingInterviewDate"
     );
     if (!user) return res.status(401).json({ error: "User not found" });
 
@@ -89,7 +89,7 @@ export async function checkRoadmapLimit(req, res, next) {
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
     const user = await User.findById(userId).select(
-      "plan Premium roadmapSuggestionsToday lastRoadmapSuggestionDate"
+      "isPremium roadmapSuggestionsToday lastRoadmapSuggestionDate"
     );
     if (!user) return res.status(401).json({ error: "User not found" });
 

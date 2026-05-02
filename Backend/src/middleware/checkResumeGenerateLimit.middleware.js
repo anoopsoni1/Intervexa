@@ -13,7 +13,7 @@ export async function checkResumeGenerateLimit(req, res, next) {
     }
 
     const user = await User.findById(userId).select(
-      "plan Premium resumesGeneratedToday lastResumeDate"
+      "isPremium resumesGeneratedToday lastResumeDate"
     );
     if (!user) {
       return res.status(401).json({ error: "User not found" });

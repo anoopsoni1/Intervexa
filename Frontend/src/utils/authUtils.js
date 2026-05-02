@@ -19,6 +19,10 @@ export async function performLogout(dispatch, navigate) {
   } catch (err) {
     console.error("Logout request failed", err);
   } finally {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("accessToken");
+      window.sessionStorage.removeItem("accessToken");
+    }
     if (typeof dispatch === "function") dispatch(clearUser());
     if (typeof navigate === "function") navigate("/login");
   }

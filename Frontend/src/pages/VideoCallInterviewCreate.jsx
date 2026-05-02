@@ -10,6 +10,7 @@ import AppFooter from "../components/layout/AppFooter";
 import { API_BASE } from "../config";
 import { useToast } from "../context/ToastContext";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
+import { getAuthHeaders, messageForPremiumForbidden, UPGRADE_PREMIUM_MESSAGE } from "../services/api";
 
 function VideoCallInterviewCreate() {
   const dispatch = useDispatch();
@@ -39,7 +40,7 @@ function VideoCallInterviewCreate() {
       try {
         const res = await fetch(`${API_BASE}/profile`, {
           credentials: "include",
-          headers: getHeaders(),
+          headers: getAuthHeaders(),
         });
         const data = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -86,7 +87,7 @@ function VideoCallInterviewCreate() {
       const res = await fetch(`${API_BASE}/interviews`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json", ...getHeaders() },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({
           candidateEmail: form.candidateEmail.trim(),
           role: form.role.trim(),
@@ -96,10 +97,13 @@ function VideoCallInterviewCreate() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         let msg = data?.message || data?.error || "Failed to create interview.";
+        const premiumMsg = messageForPremiumForbidden(res.status);
+        if (premiumMsg) msg = premiumMsg;
         if (res.status === 429 && data?.resetsAt) {
           msg = `${msg} ${formatResetsLabel(data.resetsAt)}`;
         }
         setError(msg);
+        if (res.status === 403) toast.error(UPGRADE_PREMIUM_MESSAGE);
         if (res.status === 429) toast.error(msg);
         return;
       }

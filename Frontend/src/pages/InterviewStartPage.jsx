@@ -7,6 +7,7 @@ import AppFooter from "../components/layout/AppFooter";
 
 import { API_BASE } from "../config";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
+import { getAuthHeaders } from "../services/api";
 
 const ROLES = [
   { id: "Frontend Developer", label: "Frontend Developer" },
@@ -43,7 +44,7 @@ export default function InterviewStartPage() {
       setAuthChecking(true);
       try {
         
-        const headers = {};
+        const headers = getAuthHeaders();
         const res = await fetch(`${API_BASE}/profile`, {
           method: "GET",
           credentials: "include",
@@ -57,12 +58,7 @@ export default function InterviewStartPage() {
           }
         }
         if (res.ok) {
-          const data = await res.json();
-          const user = data?.user ?? data;
-          if (!user?.Premium) {
-            navigate("/price", { replace: true });
-            return;
-          }
+          await res.json().catch(() => ({}));
         }
       } catch {
         if (!cancelled) navigate("/login", { replace: true });

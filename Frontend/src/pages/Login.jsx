@@ -245,6 +245,9 @@ export default function Login() {
       if (data?.data?.user) {
         dispatch(setUser(data.data.user));
       }
+      if (data?.data?.accessToken) {
+        localStorage.setItem("accessToken", data.data.accessToken);
+      }
       toast.success("Welcome back! Redirecting…");
       const returnUrl = searchParams.get("from")?.trim();
       const safePath = returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") && !returnUrl.startsWith("http") ? returnUrl : null;

@@ -250,7 +250,7 @@ export default function AnsoyalAIOfferings() {
         <div className="mt-12 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
           <motion.div
             className="relative mx-auto w-full max-w-lg lg:mx-0"
-            initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+            initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 16 }}
             whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5 }}
@@ -262,7 +262,7 @@ export default function AnsoyalAIOfferings() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeTool.id}
-                initial={reduceMotion ? false : { opacity: 0, scale: 0.98 }}
+                initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={reduceMotion ? {} : { opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.25 }}
@@ -275,7 +275,7 @@ export default function AnsoyalAIOfferings() {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTool.id}
-              initial={reduceMotion ? false : { opacity: 0, x: 16 }}
+              initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               exit={reduceMotion ? {} : { opacity: 0, x: -12 }}
               transition={{ duration: 0.3 }}

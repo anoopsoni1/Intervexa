@@ -81,13 +81,13 @@ export default function About() {
               {/* Hero */}
               <motion.div
                 className="text-center mb-14 sm:mb-20"
-                initial={{ opacity: 0, y: 28 }}
+                initial={import.meta.env.SSR ? false : { opacity: 0, y: 28 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
               >
                 <motion.span
                   className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-linear-to-r from-amber-500/10 to-transparent px-4 py-1.5 text-amber-400 text-sm font-medium mb-6"
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={import.meta.env.SSR ? false : { opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.15 }}
                 >
@@ -105,7 +105,7 @@ export default function About() {
               {/* Mission */}
               <motion.div
                 className="rounded-2xl border border-white/10 bg-white/6 backdrop-blur-xl p-6 sm:p-8 lg:p-10 mb-12"
-                initial={{ opacity: 0, y: 28 }}
+                initial={import.meta.env.SSR ? false : { opacity: 0, y: 28 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
@@ -128,7 +128,7 @@ export default function About() {
               {/* Features grid */}
               <motion.div
                 className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 mb-14"
-                initial="initial"
+                initial={import.meta.env.SSR ? false : "initial"}
                 whileInView="animate"
                 viewport={{ once: true, margin: "-40px" }}
                 variants={stagger}
@@ -154,7 +154,7 @@ export default function About() {
               {/* CTA */}
               <motion.div
                 className="text-center"
-                initial={{ opacity: 0, y: 20 }}
+                initial={import.meta.env.SSR ? false : { opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}

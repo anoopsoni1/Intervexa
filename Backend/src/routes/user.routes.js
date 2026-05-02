@@ -9,7 +9,7 @@ import { Payment, VerifyPayment } from "../controller/payment.controller.js";
  import { verifyJWT, requireAdmin, requireEmailVerified } from "../middleware/auth.middleware.js";
  import { uploadAudioToCloudinary } from "../utils/Cloudinary.js";
  import Mail from "../controller/email.controller.js";
- import { makePremium, makeAdmin, forgotPassword, verifyForgotOtp, resetPasswordAfterOtp, getallusers, getUsageStatus, getResumeStats, updateAccountDetails, verifyEmail, resendVerificationEmail } from "../controller/user.controller.js";
+ import { makePremium, makeAdmin, forgotPassword, verifyForgotOtp, resetPasswordAfterOtp, getallusers, getPlatformAiStats, getUsageStatus, getResumeStats, updateAccountDetails, verifyEmail, resendVerificationEmail } from "../controller/user.controller.js";
  import {
     createTemplate,
     getTemplates,
@@ -39,6 +39,7 @@ import {
 } from "../middleware/resumeGenerateRateLimit.middleware.js";
 import { checkAiOptimizeLimit } from "../middleware/checkAiOptimizeLimit.middleware.js";
 import { checkPortfolioDeployLimit } from "../middleware/checkPortfolioDeployLimit.middleware.js";
+import { requirePremium } from "../middleware/requirePremium.middleware.js";
 import {
   checkLiveInterviewLimit,
   checkCodingInterviewLimit,
@@ -72,6 +73,7 @@ const router = Router()
 router.route("/register").post(parseFormData , loginAndRegisterRateLimit,registeruser)
 router.route("/login").post(parseFormData , loginAndRegisterRateLimit, loginuser)
 router.route("/logout").post(logoutUser)
+router.route("/platform-ai-stats").get(getPlatformAiStats)
 router.route("/verify-email").get(verifyEmail)
 router.route("/resend-verification-email").post(verifyJWT, resendVerificationEmail)
 router.route("/profile").get(verifyJWT, getCurrentUser).patch(verifyJWT, updateAccountDetails) 
@@ -113,9 +115,10 @@ router.route("/get-optimize").get(verifyJWT, requireEmailVerified, getOptimize)
 router.route("/increment-optimize").post(verifyJWT, requireEmailVerified, incrementOptimize)
 router.route("/update-optimize/:id").put(verifyJWT, requireEmailVerified, updateOptimize)
 router.route("/upload-audio").post(upload.single("audio"), uploadAudioToCloudinary)
+// Premium: requirePremium uses Bearer JWT + DB isPremium (same chain as POST /api/ai-interview).
 router
   .route("/interviews")
-  .post(verifyJWT, requireEmailVerified, checkLiveInterviewLimit, createInterview)
+  .post(requirePremium, requireEmailVerified, checkLiveInterviewLimit, createInterview)
   .get(verifyJWT, requireEmailVerified, getMyInterviews)
 router.route("/interviews/:id").get(verifyJWT, requireEmailVerified, getInterviewById).put(verifyJWT, requireEmailVerified, updateInterview)
 router.route("/interviews/:id/upload-recording").post(verifyJWT, requireEmailVerified, multerRecording.single("recording"), uploadRecording)
@@ -135,12 +138,12 @@ router.route("/get-edited-resume").get(verifyJWT, requireEmailVerified, getEdite
 router.route("/save-edited-resume").post(verifyJWT, requireEmailVerified, saveEditedResume)
 router
   .route("/deploy-portfolio")
-  .post(verifyJWT, requireEmailVerified, checkPortfolioDeployLimit, deployPortfolio)
+  .post(requirePremium, requireEmailVerified, checkPortfolioDeployLimit, deployPortfolio)
 router.route("/get-deployments").get(verifyJWT, requireEmailVerified, getDeployments)
 router.route("/delete-deployment/:id").delete(verifyJWT, requireEmailVerified, deleteDeployment)
 router
   .route("/generate-roadmap")
-  .post(verifyJWT, requireEmailVerified, checkRoadmapLimit, enqueueGenerateRoadmap);
+  .post(requirePremium, requireEmailVerified, checkRoadmapLimit, enqueueGenerateRoadmap);
 // coding interview: queued (rate limited per IP), save/crud (auth)
 router.route("/interview-question").post(codingQuestionRateLimit, enqueueGenerateQuestion);
 router.route("/interview-questions").post(codingQuestionsBulkRateLimit, enqueueGenerateQuestions);
@@ -150,7 +153,7 @@ router.route("/follow-up").post(followUpQuestionRateLimit, enqueueFollowUpQuesti
 router.route("/leaderboard").get(getLeaderboard)
 router
   .route("/coding-interview")
-  .post(verifyJWT, requireEmailVerified, checkCodingInterviewLimit, createCodingInterview)
+  .post(requirePremium, requireEmailVerified, checkCodingInterviewLimit, createCodingInterview)
 router.route("/get-coding-interview").get(getCodingInterviews)
 router.route("/update-coding-interview/:id").put( updateCodingInterview)
 router.route("/delete-coding-interview/:id").delete(deleteCodingInterview)

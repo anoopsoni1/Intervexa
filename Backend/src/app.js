@@ -58,7 +58,16 @@ import { router } from "./routes/user.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import resumeRouter from "./routes/resume.routes.js";
 import { getJobStatus } from "./controller/queue.controller.js";
+import {
+  aiInterviewRouter,
+  portfolioRouter,
+  resumeBuilderRouter,
+} from "./routes/premiumAliases.routes.js";
 // import { roadmapRouter } from "./routes/roadmap.routes.js";
+
+app.use("/api/ai-interview", globalApiRateLimit, aiInterviewRouter);
+app.use("/api/portfolio", globalApiRateLimit, portfolioRouter);
+app.use("/api/resume-builder", globalApiRateLimit, resumeBuilderRouter);
 
 app.use("/api/v1/user", router);
 app.use("/api/v1/auth", authRouter);

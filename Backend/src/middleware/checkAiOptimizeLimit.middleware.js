@@ -18,7 +18,7 @@ export async function checkAiOptimizeLimit(req, res, next) {
 
     const limit = getAiOptimizeLimit(req.user);
     const user = await User.findById(userId)
-      .select("plan Premium aiOptimizesToday lastAiOptimizeDate")
+      .select("isPremium aiOptimizesToday lastAiOptimizeDate")
       .lean();
     if (!user) {
       return res.status(401).json({ error: "User not found" });
@@ -28,7 +28,7 @@ export async function checkAiOptimizeLimit(req, res, next) {
     const resetsAt = nextUtcMidnightISOString();
 
     if (used >= limit) {
-      const isPremium = user.plan === "premium" || user.Premium === true;
+      const isPremium = user.isPremium === true;
       return res.status(429).json({
         error: "AI optimize limit reached.",
         limit,

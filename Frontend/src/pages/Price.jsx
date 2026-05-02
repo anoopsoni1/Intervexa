@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import AppHeader from "../components/layout/AppHeader";
 import AppFooter from "../components/layout/AppFooter";
+import SEO from "../components/SEO";
 
 const plans = [
   {
@@ -70,6 +71,13 @@ function PricingSection() {
 
   return (
       <div className="min-h-screen">
+        <SEO
+          title="Pricing | Ansoyal AI"
+          description="Simple pricing for Ansoyal AI: free tier with core resume tools and Pro with unlimited downloads, templates, and more."
+          image="/one.png"
+          url="https://intervexa.co-vid.in/price"
+          keywords="Ansoyal AI pricing, resume builder plans, Pro plan"
+        />
         <AppHeader />
 
         <section className="py-16 md:py-20  relative z-20">

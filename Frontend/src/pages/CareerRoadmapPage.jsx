@@ -10,6 +10,7 @@ import Particles from "../components/ui/Lighting.jsx";
 import { API_BASE, JOB_API_BASE } from "../config";
 import { useToast } from "../context/ToastContext";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
+import { getAuthHeaders, UPGRADE_PREMIUM_MESSAGE } from "../services/api";
 
 function Topbar() {
   return <AppHeader />;
@@ -29,18 +30,18 @@ export default function CareerRoadmapPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [roadmap, setRoadmap] = useState(null);
-  const [premiumChecked, setPremiumChecked] = useState(false);
-  const { status: usageStatus, refresh: refreshUsage } = useUsageStatus(premiumChecked);
+  const [authChecked, setAuthChecked] = useState(false);
+  const { status: usageStatus, refresh: refreshUsage } = useUsageStatus(authChecked);
   const roadmapBlocked = isUsageBlocked(usageStatus?.roadmap);
 
   const returnPath = safeReturnPath(location.pathname) || "/career-roadmap";
 
   useEffect(() => {
     let cancelled = false;
-    async function checkPremium() {
+    async function checkAuth() {
       try {
         
-        const headers = {};
+        const headers = getAuthHeaders();
         const res = await fetch(`${API_BASE}/profile`, {
           method: "GET",
           credentials: "include",
@@ -52,20 +53,15 @@ export default function CareerRoadmapPage() {
           return;
         }
         if (res.ok) {
-          const data = await res.json();
-          const user = data?.user ?? data;
-          if (!user?.Premium) {
-            navigate("/price", { replace: true });
-            return;
-          }
+          await res.json().catch(() => ({}));
         }
       } catch {
         if (!cancelled) navigate(`/login?from=${encodeURIComponent(returnPath)}`, { replace: true });
       } finally {
-        if (!cancelled) setPremiumChecked(true);
+        if (!cancelled) setAuthChecked(true);
       }
     }
-    checkPremium();
+    checkAuth();
     return () => { cancelled = true; };
   }, [navigate, returnPath]);
 
@@ -81,9 +77,9 @@ export default function CareerRoadmapPage() {
     setRoadmap(null);
     try {
       
-      const headers = {
+      const headers = getAuthHeaders({
         "Content-Type": "application/json",
-      };
+      });
       const res = await fetch(`${API_BASE}/generate-roadmap`, {
         method: "POST",
         credentials: "include",
@@ -94,6 +90,9 @@ export default function CareerRoadmapPage() {
 
       if (!res.ok && res.status !== 202) {
         let message =
+          res.status === 403
+            ? UPGRADE_PREMIUM_MESSAGE
+            : 
           res.status === 429
             ? json?.message || json?.error || "Daily roadmap limit reached."
             : json?.message || "Failed to generate roadmap";
@@ -101,6 +100,7 @@ export default function CareerRoadmapPage() {
           message = `${message} ${formatResetsLabel(json.resetsAt)}`;
         }
         setError(message);
+        if (res.status === 403) toast.error(UPGRADE_PREMIUM_MESSAGE);
         if (res.status === 429) toast.error(message);
         return;
       }

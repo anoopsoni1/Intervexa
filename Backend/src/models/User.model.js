@@ -25,7 +25,7 @@ const userschema = new mongoose.Schema({
         required : false ,
         minlength : [8, "Password must be at least 8 characters"],
       }, 
-      Premium : {
+      isPremium : {
         type : Boolean ,
         default : false ,
       },
@@ -82,13 +82,26 @@ const userschema = new mongoose.Schema({
       emailVerificationToken : { type : String },
       emailVerificationTokenExpiresAt : { type : Date },
 
-} , { timestamps : true, validateBeforeSave: true })
+} , {
+  timestamps : true,
+  validateBeforeSave: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+})
 
 // Promise-based hook (avoids "next is not a function" issues)
 userschema.pre("save", async function () {
   if (!this.isModified("password") || !this.password || this.password.length === 0) return;
   this.password = await bcrypt.hash(this.password, 10);
 });
+
+userschema.virtual("Premium")
+  .get(function () {
+    return this.isPremium;
+  })
+  .set(function (value) {
+    this.isPremium = value;
+  });
 
 userschema.methods.isPasswordCorrect = async function(password) {
   if (!password || !this.password) return false;

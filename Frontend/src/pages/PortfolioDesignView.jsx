@@ -17,6 +17,7 @@ import { getResumeContentForView } from "../utils/detailApi.js";
 import { useToast } from "../context/ToastContext";
 import { API_BASE } from "../config";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
+import { getAuthHeaders, UPGRADE_PREMIUM_MESSAGE } from "../services/api";
 import OptimizedImage from "../components/ui/OptimizedImage.jsx";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -3043,7 +3044,7 @@ export default function PortfolioDesignView() {
         { htmlContent },
         {
           withCredentials: true,
-          headers: {},
+          headers: getAuthHeaders(),
         }
       );
       const message = res?.message || "Portfolio deployed successfully.";
@@ -3067,6 +3068,9 @@ export default function PortfolioDesignView() {
     } catch (err) {
       const d = err?.response?.data;
       let msg = d?.message ?? err?.message ?? "Deployment failed";
+      if (err?.response?.status === 403) {
+        msg = UPGRADE_PREMIUM_MESSAGE;
+      }
       if (err?.response?.status === 429 && d?.resetsAt) {
         msg = `${msg} ${formatResetsLabel(d.resetsAt)}`;
       }

@@ -12,6 +12,7 @@ export const PaymentResult = lazy(() => import("../pages/Paymentresult.jsx"));
 export const Profile = lazy(() => import("../pages/Profile.jsx"));
 export const Contact = lazy(() => import("../pages/Contact.jsx"));
 export const About = lazy(() => import("../pages/About.jsx"));
+export const Features = lazy(() => import("../pages/Features.jsx"));
 export const TemplatesPage = lazy(() => import("../pages/Templates.jsx"));
 export const ResumeView = lazy(() => import("../pages/ResumeView.jsx"));
 export const PortfolioDesignView = lazy(() => import("../pages/PortfolioDesignView.jsx"));

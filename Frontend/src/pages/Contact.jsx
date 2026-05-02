@@ -119,13 +119,13 @@ export default function Contact() {
             <div className="w-full max-w-5xl mx-auto">
               <motion.div
                 className="text-center mb-12 sm:mb-16"
-                initial={{ opacity: 0, y: 24 }}
+                initial={import.meta.env.SSR ? false : { opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
               >
                 <motion.span
                   className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-amber-400 text-sm font-medium mb-6"
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={import.meta.env.SSR ? false : { opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
                 >
@@ -142,7 +142,7 @@ export default function Contact() {
               <motion.div
                 className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8"
                 variants={stagger}
-                initial="initial"
+                initial={import.meta.env.SSR ? false : "initial"}
                 animate="animate"
               >
                 {CONTACT_CARDS.map((item, i) => (
@@ -165,7 +165,7 @@ export default function Contact() {
 
               <motion.div
                 className="mt-8 sm:mt-10"
-                initial={{ opacity: 0, y: 32 }}
+                initial={import.meta.env.SSR ? false : { opacity: 0, y: 32 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
@@ -239,7 +239,7 @@ export default function Contact() {
                       </div>
                       {status.text && (
                         <motion.p
-                          initial={{ opacity: 0, y: 8 }}
+                          initial={import.meta.env.SSR ? false : { opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
                           className={`text-sm font-medium ${status.type === "success" ? "text-amber-400" : "text-red-400"}`}
                         >
@@ -268,7 +268,7 @@ export default function Contact() {
 
               <motion.p
                 className="mt-8 text-center text-slate-500 text-sm"
-                initial={{ opacity: 0 }}
+                initial={import.meta.env.SSR ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >

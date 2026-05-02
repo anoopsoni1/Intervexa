@@ -34,6 +34,7 @@ import PremiumLayout3 from "../layouts/PremiumLayout3";
 import MinimalLayout from "../layouts/MinimalLayout";
 
 import { API_BASE } from "../config";
+import { getAuthHeaders } from "../services/api";
 import { intervexaCopyrightLine } from "../constants/branding.js";
 import { setUser } from "../slices/user.slice";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
@@ -161,7 +162,7 @@ export default function ResumeView() {
     fetch(`${API_BASE}/profile`, {
       method: "GET",
       credentials: "include",
-      headers: {},
+      headers: getAuthHeaders(),
     })
       .then((res) => res.json().catch(() => ({})))
       .then((data) => {
@@ -251,9 +252,7 @@ export default function ResumeView() {
       const res = await fetch(`${API_BASE}/resume-visual-pdf`, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ html, css }),
       });
       if (!res.ok) {

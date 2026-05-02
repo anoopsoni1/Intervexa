@@ -7,6 +7,13 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 
 export default defineConfig({
+  ssgOptions: {
+    entry: "src/main.jsx",
+    dirStyle: "nested",
+    includedRoutes() {
+      return ["/", "/about", "/contact", "/features", "/price"];
+    },
+  },
   build: {
     rollupOptions: {
       output: {

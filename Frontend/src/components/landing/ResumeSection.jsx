@@ -43,7 +43,7 @@ export default function ResumeSection() {
       <div className="mx-auto max-w-8xl">
         <motion.p
           className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-indigo-200/90"
-          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+          initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 10 }}
           whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.45 }}
@@ -54,7 +54,7 @@ export default function ResumeSection() {
         <motion.h2
           id="resume-section-heading"
           className="mx-auto mt-4 max-w-3xl text-center text-balance text-3xl font-semibold tracking-tight text-white"
-          initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+          initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 16 }}
           whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ delay: 0.05, duration: 0.5 }}
@@ -70,7 +70,7 @@ export default function ResumeSection() {
           {/* Features */}
           <motion.div
             className="mx-auto w-full max-w-xl lg:mx-0 lg:max-w-none"
-            initial={reduceMotion ? false : { opacity: 0, x: -20 }}
+            initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, x: -20 }}
             whileInView={reduceMotion ? {} : { opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ delay: 0.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -79,7 +79,7 @@ export default function ResumeSection() {
               {FEATURES.map(({ icon: Icon, title, description }, index) => (
                 <motion.div
                   key={`resume-feature-${index}`}
-                  initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                  initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 14 }}
                   whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.15 }}
                   transition={{
@@ -113,7 +113,7 @@ export default function ResumeSection() {
           {/* Resume preview */}
           <motion.div
             className="relative mx-auto flex w-full max-w-md justify-center lg:mx-0 lg:max-w-lg lg:justify-end"
-            initial={reduceMotion ? false : { opacity: 0, x: 24 }}
+            initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, x: 24 }}
             whileInView={reduceMotion ? {} : { opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ delay: 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}

@@ -5,18 +5,19 @@ import { User } from "../models/User.model.js";
 
 export const verifyJWT = Asynchandler(async(req, _, next) => {
     try {
-        const token = req.cookies?.accessToken || req.cookies?.token
+        const authHeader = req.headers?.authorization || "";
+        const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
+        const token = bearerToken || req.cookies?.accessToken || req.cookies?.token
              
         if (!token) {
             throw new ApiError(401, "Unauthorized request")
         }
     
         // Your `.env` uses ACCESS_TOKEN (not ACCESS_TOKEN_SECRET)
-        const secret = process.env.ACCESS_TOKEN || process.env.ACCESS_TOKEN_SECRET
+        const secret = process.env.JWT_SECRET || process.env.ACCESS_TOKEN || process.env.ACCESS_TOKEN_SECRET
         const decodedToken = jwt.verify(token, secret)
     
-        // token payload uses `user` in `loginuser`
-        const userId = decodedToken?._id || decodedToken?.user
+        const userId = decodedToken?.userId || decodedToken?._id || decodedToken?.user
         const user = await User.findById(userId).select("-password -refreshtoken")
             
         if (!user) {

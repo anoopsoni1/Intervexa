@@ -42,7 +42,11 @@ function GlobalBackgroundLayout() {
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={reduceMotion ? false : { opacity: 0, y: 10, filter: "blur(4px)" }}
+            initial={
+              import.meta.env.SSR || reduceMotion
+                ? false
+                : { opacity: 0, y: 10, filter: "blur(4px)" }
+            }
             animate={reduceMotion ? {} : { opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={reduceMotion ? {} : { opacity: 0, y: -8, filter: "blur(2px)" }}
             transition={{ duration: 0.28, ease: "easeOut" }}

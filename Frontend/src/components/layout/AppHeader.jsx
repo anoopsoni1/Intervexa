@@ -10,6 +10,7 @@ import { GrDocumentUpload } from "react-icons/gr";
 import { IoMdContacts } from "react-icons/io";
 import { FaBook } from "react-icons/fa";
 import { LuDollarSign } from "react-icons/lu";
+import { Sparkles } from "lucide-react";
 import { FaSignInAlt } from "react-icons/fa";
 import { FaUser } from "react-icons/fa";
 import { FileText, LogOut } from "lucide-react";
@@ -25,6 +26,7 @@ const MENU_ITEMS = [
   { to: "/dashboard", label: "Dashboard", icon: FaUser },
   { to: "/upload", label: "Upload", icon: GrDocumentUpload },
   { to: "/price", label: "Price", icon: LuDollarSign },
+  { to: "/features", label: "Features", icon: Sparkles },
   { to: "/contact", label: "Contact", icon: IoMdContacts },
   { to: "/about", label: "About", icon: FaBook },
 ];
@@ -34,6 +36,7 @@ const NAV_LINKS = [
   { to: "/templates", label: "Templates" },
   { to: "/dashboard", label: "Dashboard" },
   { to: "/price", label: "Price" },
+  { to: "/features", label: "Features" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ];
@@ -48,10 +51,10 @@ export default function AppHeader() {
   const [closing, setClosing] = useState(false);
   const [mounted, setMounted] = useState(false);
   const closeTimeoutRef = useRef(null);
-  const [size, setSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const [size, setSize] = useState(() => ({
+    width: typeof window !== "undefined" ? window.innerWidth : 1024,
+    height: typeof window !== "undefined" ? window.innerHeight : 768,
+  }));
 
   // Only treat as logged in when Redux has user.
   const isLoggedIn = !!user;
@@ -135,7 +138,7 @@ export default function AppHeader() {
   return (
     <header
       className={`sticky top-0 z-30 backdrop-blur-xl bg-black/60 border-b border-white/5 transition-all duration-500 ease-out ${
-        mounted ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
+        import.meta.env.SSR || mounted ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
       }`}
     >
       <div className="mx-auto flex items-center justify-between px-4 py-4">

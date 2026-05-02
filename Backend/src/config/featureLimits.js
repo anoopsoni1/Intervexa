@@ -3,7 +3,7 @@ export const RESUME_GENERATE_DAILY_LIMIT_NORMAL = 5;
 export const RESUME_GENERATE_DAILY_LIMIT_PREMIUM = 20;
 
 export function getResumeGenerateDailyLimit(user) {
-  const isPremium = user?.plan === "premium" || user?.Premium === true;
+  const isPremium = user?.isPremium === true;
   return isPremium ? RESUME_GENERATE_DAILY_LIMIT_PREMIUM : RESUME_GENERATE_DAILY_LIMIT_NORMAL;
 }
 
@@ -18,6 +18,6 @@ export const AI_OPTIMIZE_LIMIT_NORMAL = 10;
 export const AI_OPTIMIZE_LIMIT_PREMIUM = 30;
 
 export function getAiOptimizeLimit(user) {
-  const isPremium = user?.plan === "premium" || user?.Premium === true;
+  const isPremium = user?.isPremium === true;
   return isPremium ? AI_OPTIMIZE_LIMIT_PREMIUM : AI_OPTIMIZE_LIMIT_NORMAL;
 }

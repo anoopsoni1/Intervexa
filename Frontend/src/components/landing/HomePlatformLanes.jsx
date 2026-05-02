@@ -382,7 +382,7 @@ export default function HomePlatformLanes() {
             <div className="relative z-10 mx-auto max-w-8xl">
               <motion.p
                 className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-indigo-200/90"
-                initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+                initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 10 }}
                 whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.25 }}
                 transition={{ duration: 0.45 }}
@@ -393,7 +393,7 @@ export default function HomePlatformLanes() {
               <motion.h2
                 id={`platform-${block.id}-heading`}
                 className="mx-auto mt-4 max-w-3xl text-center text-balance text-3xl font-semibold tracking-tight text-white"
-                initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+                initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 16 }}
                 whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.25 }}
                 transition={{ delay: 0.05, duration: 0.5 }}
@@ -404,7 +404,7 @@ export default function HomePlatformLanes() {
               <div className="mt-16 grid items-start gap-10 lg:grid-cols-2 lg:items-stretch lg:gap-x-12 lg:gap-y-10 xl:gap-x-14">
                 <motion.div
                   className={`mx-auto flex w-full max-w-xl flex-col lg:mx-0 lg:max-w-none ${reverse ? "lg:order-2" : ""} ${featureBoxes ? "lg:max-w-none" : ""}`}
-                  initial={reduceMotion ? false : { opacity: 0, x: reverse ? 20 : -20 }}
+                  initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, x: reverse ? 20 : -20 }}
                   whileInView={reduceMotion ? {} : { opacity: 1, x: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ delay: 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -419,7 +419,7 @@ export default function HomePlatformLanes() {
                           className="block rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                         >
                           <motion.div
-                            initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                            initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 14 }}
                             whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
                             viewport={{ once: true, amount: 0.12 }}
                             transition={{
@@ -458,7 +458,7 @@ export default function HomePlatformLanes() {
 
                 <motion.div
                   className={`relative mx-auto flex w-full max-w-md justify-center  self-stretch lg:mx-0 lg:max-w-lg ${reverse ? "lg:order-1 lg:justify-start" : "lg:justify-end"}`}
-                  initial={reduceMotion ? false : { opacity: 0, x: reverse ? -24 : 24 }}
+                  initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, x: reverse ? -24 : 24 }}
                   whileInView={reduceMotion ? {} : { opacity: 1, x: 0 }}
                   viewport={{ once: true, amount: 0.2 }}
                   transition={{ delay: 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}

@@ -11,11 +11,11 @@ export async function checkPortfolioDeployLimit(req, res, next) {
     if (!userId) return res.status(401).json({ error: "Unauthorized" });
 
     const user = await User.findById(userId).select(
-      "plan Premium portfolioDeploysToday lastPortfolioDeployDate"
+      "isPremium portfolioDeploysToday lastPortfolioDeployDate"
     );
     if (!user) return res.status(401).json({ error: "User not found" });
 
-    const isPremium = user.plan === "premium" || user.Premium === true;
+    const isPremium = user.isPremium === true;
     if (!isPremium) {
       return res.status(403).json({
         error: "Premium required",

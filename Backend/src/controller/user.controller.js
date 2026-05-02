@@ -181,13 +181,10 @@ async function sendVerificationEmailToUser(userId) {
         if (!user) {
             throw new Error("User not found");
         }
+        // Access token payload: userId only (never isPremium or role flags — load from DB per request).
         const accessToken = jwt.sign(
-          {user : user._id ,
-            FirstName : user.FirstName,
-            LastName : user.LastName ,
-            email : user.email
-          } ,
-          process.env.ACCESS_TOKEN ,
+          { userId: user._id } ,
+          process.env.JWT_SECRET || process.env.ACCESS_TOKEN || process.env.ACCESS_TOKEN_SECRET ,
           {
            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
           }
@@ -279,7 +276,8 @@ const loginuser = Asynchandler(async(req ,res)=>{
         new ApiResponse(
             200, 
             {
-                user: loggedInUser
+                user: loggedInUser,
+                accessToken
             },
             "User logged In Successfully"
         )
@@ -408,7 +406,11 @@ const makePremium = Asynchandler(async(req, res) => {
     const requestedUserId = req.body?.userId;
     const targetUserId = req.user?.isAdmin && requestedUserId ? requestedUserId : req.user?._id;
     if (!targetUserId) throw new ApiError(401, "Unauthorized");
-    const user = await User.findByIdAndUpdate(targetUserId, { $set: { Premium: true } }, { new: true }).select("-password");
+    const user = await User.findByIdAndUpdate(
+      targetUserId,
+      { $set: { isPremium: true, plan: "premium" } },
+      { new: true }
+    ).select("-password");
     if (!user) throw new ApiError(404, "User not found");
     return res.status(200).json(new ApiResponse(200, user, "User made premium successfully"));
 });
@@ -502,12 +504,12 @@ const getUsageStatus = Asynchandler(async (req, res) => {
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
   const user = await User.findById(userId)
     .select(
-      "plan Premium resumesGeneratedToday lastResumeDate liveInterviewsToday lastLiveInterviewDate codingInterviewsToday lastCodingInterviewDate roadmapSuggestionsToday lastRoadmapSuggestionDate portfolioDeploysToday lastPortfolioDeployDate aiOptimizesToday lastAiOptimizeDate"
+      "isPremium resumesGeneratedToday lastResumeDate liveInterviewsToday lastLiveInterviewDate codingInterviewsToday lastCodingInterviewDate roadmapSuggestionsToday lastRoadmapSuggestionDate portfolioDeploysToday lastPortfolioDeployDate aiOptimizesToday lastAiOptimizeDate"
     )
     .lean();
   if (!user) return res.status(404).json({ message: "User not found" });
 
-  const isPremium = user.plan === "premium" || user.Premium === true;
+  const isPremium = user.isPremium === true;
   const resetsAt = nextUtcMidnightISOString();
 
   const aiOptimizeUsed = getDailyCount(user, "aiOptimizesToday", "lastAiOptimizeDate");
@@ -580,13 +582,36 @@ const getUsageStatus = Asynchandler(async (req, res) => {
   );
 });
 
+/** Public aggregates for marketing (lifetime AI optimize counts from Optimize collection). */
+const getPlatformAiStats = Asynchandler(async (req, res) => {
+  const [agg] = await Optimize.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalAiOptimizes: { $sum: "$number" },
+        usersUsedAi: { $sum: { $cond: [{ $gt: ["$number", 0] }, 1, 0] } },
+      },
+    },
+  ]);
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        totalAiOptimizes: agg?.totalAiOptimizes ?? 0,
+        usersUsedAi: agg?.usersUsedAi ?? 0,
+      },
+      "Platform AI stats"
+    )
+  );
+});
+
 /** Get current user's resume generation and download stats (for dashboard). */
 const getResumeStats = Asynchandler(async (req, res) => {
   const userId = req.user?._id;
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
   const user = await User.findById(userId)
     .select(
-      "plan Premium resumesGeneratedToday lastResumeDate resumesDownloadedToday lastResumeDownloadDate"
+      "isPremium resumesGeneratedToday lastResumeDate resumesDownloadedToday lastResumeDownloadDate"
     )
     .lean();
   if (!user) return res.status(404).json({ message: "User not found" });
@@ -620,6 +645,7 @@ export {
     verifyForgotOtp,
     resetPasswordAfterOtp,
     getallusers,
+    getPlatformAiStats,
     getUsageStatus,
     getResumeStats,
     generateAccessAndRefereshTokens,

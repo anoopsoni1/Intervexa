@@ -7,6 +7,7 @@ import CodingEditor, { STARTER_CODE } from "./CodingEditor";
 import { API_BASE, API_BASE_URL } from "../config";
 import { useToast } from "../context/ToastContext";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
+import { getAuthHeaders, UPGRADE_PREMIUM_MESSAGE } from "../services/api";
 
 const JOB_POLL_INTERVAL_MS = 2000;
 const JOB_POLL_TIMEOUT_MS = 120000; // 2 min for 15 questions
@@ -18,9 +19,7 @@ export default function CodingInterviewPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const user = useSelector((state) => state.user?.userData);
-  const isPremium = Boolean(user?.Premium || user?.plan === "premium");
-  const usageEnabled =
-    Boolean(user && (user.emailVerified || user.googleId) && isPremium);
+  const usageEnabled = Boolean(user && (user.emailVerified || user.googleId));
   const { status: usageStatus, refresh: refreshUsage } = useUsageStatus(usageEnabled);
   const codingBlocked = isUsageBlocked(usageStatus?.codingInterview);
 
@@ -232,9 +231,13 @@ export default function CodingInterviewPage() {
       try {
         const res = await fetch(`${API_BASE}/coding-interview`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: getAuthHeaders({ "Content-Type": "application/json" }),
           body: JSON.stringify({ attempts, status: "submitted" }),
         });
+        if (res.status === 403) {
+          toast.error(UPGRADE_PREMIUM_MESSAGE);
+          return;
+        }
         if (res.status === 429) {
           const json = await res.json().catch(() => ({}));
           let msg =
@@ -368,9 +371,9 @@ export default function CodingInterviewPage() {
     try {
       const res = await fetch(`${API_BASE}/coding-interview`, {
         method: "POST",
-        headers: {
+        headers: getAuthHeaders({
           "Content-Type": "application/json",
-        },
+        }),
         body: JSON.stringify({ attempts, status: "submitted" }),
       });
       const json = await res.json();
@@ -379,6 +382,9 @@ export default function CodingInterviewPage() {
         refreshUsage();
       } else {
         let msg = json?.message || json?.error || "Save failed.";
+        if (res.status === 403) {
+          msg = UPGRADE_PREMIUM_MESSAGE;
+        }
         if (res.status === 429 && json?.resetsAt) {
           msg = `${msg} ${formatResetsLabel(json.resetsAt)}`;
         }

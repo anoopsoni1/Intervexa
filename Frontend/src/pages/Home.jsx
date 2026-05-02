@@ -9,9 +9,11 @@ import AppHeader from "../components/layout/AppHeader";
 import ResumeSection from "../components/landing/ResumeSection.jsx";
 import AnsoyalAIOfferings from "../components/landing/AnsoyalAIOfferings.jsx";
 import HomePlatformLanes from "../components/landing/HomePlatformLanes.jsx";
+import AiOptimizesHeroCard from "../components/landing/AiOptimizesHeroCard.jsx";
 import InstallPrompt from "../components/ui/Install.jsx";
 import Particles from "../components/ui/Lighting.jsx";
 import SEO from "../components/SEO";
+import HomeJsonLd from "../components/HomeJsonLd.jsx";
 import { API_BASE } from "../config";
 import { intervexaCopyrightLine } from "../constants/branding.js";
 
@@ -397,14 +399,14 @@ function FaqSection() {
           {/* Intro column — sticky on large screens */}
           <motion.div
             className="flex flex-col justify-center lg:sticky lg:top-24 lg:self-start"
-            initial={reduceMotion ? false : { opacity: 0, x: -32 }}
+            initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, x: -32 }}
             whileInView={reduceMotion ? {} : { opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           >
             <motion.p
               className="text-xs font-semibold uppercase tracking-[0.28em] text-indigo-200/90"
-              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 12 }}
               whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.05, duration: 0.5 }}
@@ -417,7 +419,7 @@ function FaqSection() {
             >
               <motion.span
                 className="inline-block"
-                initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+                initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 24 }}
                 whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
@@ -427,7 +429,7 @@ function FaqSection() {
               <span className="relative inline-block">
                 <motion.span
                   className="inline-block bg-linear-to-r from-cyan-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent"
-                  initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                  initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 14 }}
                   whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.18, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -438,7 +440,7 @@ function FaqSection() {
                   <motion.span
                     aria-hidden
                     className="pointer-events-none absolute -bottom-1 left-0 block h-px w-full rounded-full bg-linear-to-r from-transparent via-cyan-300/60 to-transparent"
-                    initial={{ opacity: 0, scaleX: 0 }}
+                    initial={import.meta.env.SSR ? false : { opacity: 0, scaleX: 0 }}
                     whileInView={{ opacity: 1, scaleX: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.55, duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
@@ -449,7 +451,7 @@ function FaqSection() {
             </h2>
             <motion.p
               className="mt-5 max-w-md text-pretty text-base leading-relaxed text-slate-300 sm:text-lg"
-              initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+              initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 16 }}
               whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.22, duration: 0.55 }}
@@ -459,7 +461,7 @@ function FaqSection() {
             </motion.p>
             <motion.div
               className="mt-8 flex flex-wrap gap-2"
-              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+              initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 10 }}
               whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.26, duration: 0.5 }}
@@ -484,7 +486,7 @@ function FaqSection() {
             </motion.div>
             <motion.div
               className="mt-8 hidden h-px max-w-xs overflow-hidden rounded-full bg-white/10 lg:block"
-              initial={reduceMotion ? false : { scaleX: 0 }}
+              initial={(import.meta.env.SSR || reduceMotion) ? false : { scaleX: 0 }}
               whileInView={reduceMotion ? {} : { scaleX: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.35, duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
@@ -492,7 +494,7 @@ function FaqSection() {
             />
             <motion.div
               className="mt-8 rounded-2xl border border-white/10 bg-black/30 p-4 backdrop-blur-sm sm:p-5"
-              initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+              initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 12 }}
               whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.32, duration: 0.55 }}
@@ -686,7 +688,7 @@ function HomeFooter() {
   return (
     <motion.footer
       role="contentinfo"
-      initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+      initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 24 }}
       whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -699,7 +701,7 @@ function HomeFooter() {
       <div className="relative z-10 mx-auto max-w-8xl px-4 py-14 sm:px-6 lg:px-10 lg:py-16">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-12">
           <motion.div
-            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 12 }}
             whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.05, duration: 0.45 }}
@@ -720,7 +722,7 @@ function HomeFooter() {
           {homeFooterLinks.map((group, gi) => (
             <motion.div
               key={group.title}
-              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 14 }}
               whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.08 + gi * 0.06, duration: 0.45 }}
@@ -743,7 +745,7 @@ function HomeFooter() {
         </div>
 
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0 }}
+          initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0 }}
           whileInView={reduceMotion ? {} : { opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2, duration: 0.45 }}
@@ -769,21 +771,13 @@ function HomeFooter() {
   );
 }
 
-function Hero({ resumeStats }) {
-  const statsForDisplay = [
-    ...stats,
-    {
-      value: `${resumeStats.totalDownloads}`,
-      label: "Total Resume downloads",
-    },
-  ];
-
+function Hero({ aiPlatform }) {
   return (
     <section className="relative z-10 px-4 pb-16 pt-6 sm:px-6 lg:px-10">
       <div className="mx-auto grid w-full max-w-8xl grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
         <motion.div
           variants={containerVariant}
-          initial="hidden"
+          initial={import.meta.env.SSR ? "visible" : "hidden"}
           animate="visible"
           className="text-center lg:text-left"
         >
@@ -863,24 +857,33 @@ function Hero({ resumeStats }) {
 
           <motion.div
             variants={itemVariant}
-            className="mt-8 grid grid-cols-3 gap-3 rounded-2xl border border-white/15 bg-white/5 p-3 backdrop-blur-sm sm:gap-4 sm:p-4 lg:grid-cols-3"
+            className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4 md:items-stretch"
           >
-            {statsForDisplay.map((stat) => (
+            {stats.map((stat) => (
               <motion.div
                 key={stat.label}
                 whileHover={{ y: -4, scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 260, damping: 18 }}
-                className="rounded-xl border border-white/10 bg-black/20 px-2 py-4 text-center"
+                className="relative flex min-h-[148px] flex-col items-center justify-center rounded-2xl border border-white/15 bg-white/6 px-4 py-5 text-center shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-md sm:min-h-[156px] sm:px-5"
               >
-                <p className="text-xl font-bold text-indigo-300 sm:text-2xl">{stat.value}</p>
-                <p className="mt-1 text-xs text-slate-300 sm:text-sm">{stat.label}</p>
+                <p className="text-2xl font-bold tracking-tight text-indigo-200 sm:text-3xl">{stat.value}</p>
+                <p className="mt-2 max-w-56 text-xs leading-snug text-slate-300 sm:text-sm">{stat.label}</p>
               </motion.div>
             ))}
+            <motion.div
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 260, damping: 18 }}
+            >
+              <AiOptimizesHeroCard
+                totalOptimizes={aiPlatform.totalAiOptimizes}
+                usersUsedAi={aiPlatform.usersUsedAi}
+              />
+            </motion.div>
           </motion.div>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, x: 30 }}
+          initial={import.meta.env.SSR ? false : { opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
           className="relative mx-auto w-full max-w-xl"
@@ -927,7 +930,7 @@ function Hero({ resumeStats }) {
       </div>
 
       <motion.div
-        initial={{ opacity: 0 }}
+        initial={import.meta.env.SSR ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.6 }}
         className="mt-10 flex justify-center"
@@ -946,54 +949,44 @@ function Hero({ resumeStats }) {
 
 function Home() {
   const reduceMotion = useReducedMotion();
-  const [resumeStats, setResumeStats] = useState({
-    totalDownloads: 0,
+  const [aiPlatform, setAiPlatform] = useState({
+    totalAiOptimizes: 0,
+    usersUsedAi: 0,
   });
 
   useEffect(() => {
-    const fetchResumeStats = async () => {
+    const loadAiPlatformStats = async () => {
       try {
-        // Use same source as AdminDashboard: sum downloads from all users.
+        const pub = await fetch(`${API_BASE}/platform-ai-stats`, { credentials: "include" });
+        if (pub.ok) {
+          const body = await pub.json();
+          const d = body?.data ?? body;
+          setAiPlatform({
+            totalAiOptimizes: d?.totalAiOptimizes ?? 0,
+            usersUsedAi: d?.usersUsedAi ?? 0,
+          });
+          return;
+        }
+      } catch {
+        /* use admin fallback */
+      }
+      try {
         const adminRes = await fetch(`${API_BASE}/get-all-users`, {
           credentials: "include",
           headers: {},
         });
-        if (adminRes.ok) {
-          const adminData = await adminRes.json();
-          const raw = adminData?.data;
-          const users = Array.isArray(raw) ? raw : (raw?.users ?? []);
-          const totalDownloads = users.reduce(
-            (sum, u) => sum + (u.downloadCount ?? u.resumesDownloadedToday ?? 0),
-            0
-          );
-          setResumeStats({ totalDownloads });
-          return;
-        }
-
-        // Fallback for non-admin users.
-        const res = await fetch(`${API_BASE}/get-resume-stats`, {
-          credentials: "include",
-          headers: {},
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        const statsData = data?.data ?? {};
-        const fallbackTotal =
-          statsData.totalDownloads ??
-          statsData.totalDownloadCount ??
-          statsData.downloadCount ??
-          statsData.resumesDownloadedTotal ??
-          statsData.resumesdownloadedtotal ??
-          statsData.resumesDownloadedToday ??
-          statsData.resumesdownloadedToday ??
-          0;
-        setResumeStats({ totalDownloads: fallbackTotal });
+        if (!adminRes.ok) return;
+        const adminData = await adminRes.json();
+        const users = adminData?.data?.users ?? [];
+        const totalAiOptimizes = users.reduce((sum, u) => sum + (u.optimizeCount ?? 0), 0);
+        const usersUsedAi = users.filter((u) => (u.optimizeCount ?? 0) > 0).length;
+        setAiPlatform({ totalAiOptimizes, usersUsedAi });
       } catch {
-        // Keep fallback values if request fails.
+        /* keep zeros */
       }
     };
 
-    fetchResumeStats();
+    loadAiPlatformStats();
   }, []);
 
   return (
@@ -1005,17 +998,18 @@ function Home() {
         url="https://intervexa.co-vid.in/"
         keywords="Ansoyal AI, AI resume builder, ATS score checker, mock interview platform"
       />
+      <HomeJsonLd />
       <motion.div
-        initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+        initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 8 }}
         animate={reduceMotion ? {} : { opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: "easeOut" }}
         className="relative min-h-screen"
       >
         <HomePageParticles reduceMotion={reduceMotion} />
         <Navbar />
-        <Hero resumeStats={resumeStats} />
+        <Hero aiPlatform={aiPlatform} />
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+          initial={(import.meta.env.SSR || reduceMotion) ? false : { opacity: 0, y: 20 }}
           whileInView={reduceMotion ? {} : { opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.35 }}
           transition={{ duration: 0.55, ease: "easeOut" }}
