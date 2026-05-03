@@ -29,6 +29,10 @@
       "destination": "/robots.txt"
     },
     {
+      "source": "/api/:path*",
+      "destination": "https://intervexa.onrender.com/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

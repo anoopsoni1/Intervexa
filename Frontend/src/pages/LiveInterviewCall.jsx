@@ -5,7 +5,8 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { FiVideo, FiPhoneOff, FiMic, FiMicOff, FiVideoOff, FiMessageCircle } from "react-icons/fi";
 import { io } from "socket.io-client";
 
-import { API_BASE, API_BASE_URL } from "../config";
+import { API_BASE, SOCKET_ORIGIN } from "../config";
+import { getAuthHeaders } from "../services/api";
 const ICE_SERVERS = [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" },
@@ -38,11 +39,6 @@ function LiveInterviewCall() {
   const localStreamRef = useRef(null);
   const remoteSocketIdRef = useRef(null);
 
-  const getHeaders = () => {
-    
-    return {};
-  };
-
   const endCall = useCallback(() => {
     if (socketRef.current) {
       socketRef.current.emit("leave-room");
@@ -69,7 +65,7 @@ function LiveInterviewCall() {
       try {
         const res = await fetch(`${API_BASE}/profile`, {
           credentials: "include",
-          headers: getHeaders(),
+          headers: getAuthHeaders(),
         });
         const data = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -99,7 +95,7 @@ function LiveInterviewCall() {
       try {
         const res = await fetch(`${API_BASE}/interviews/${id}`, {
           credentials: "include",
-          headers: getHeaders(),
+          headers: getAuthHeaders(),
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -125,7 +121,7 @@ function LiveInterviewCall() {
       setCallState("error");
       return;
     }
-    let socket = io(API_BASE_URL, {
+    let socket = io(SOCKET_ORIGIN, {
       withCredentials: true,
       transports: ["websocket", "polling"],
       reconnectionAttempts: 5,
@@ -151,7 +147,7 @@ function LiveInterviewCall() {
         await fetch(`${API_BASE}/interviews/${id}`, {
           method: "PUT",
           credentials: "include",
-          headers: { "Content-Type": "application/json", ...getHeaders() },
+          headers: getAuthHeaders({ "Content-Type": "application/json" }),
           body: JSON.stringify({
             status: "in_progress",
             startedAt: new Date().toISOString(),
@@ -270,7 +266,7 @@ function LiveInterviewCall() {
       await fetch(`${API_BASE}/interviews/${id}`, {
         method: "PUT",
         credentials: "include",
-        headers: { "Content-Type": "application/json", ...getHeaders() },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify({ status: "ended", endedAt: new Date().toISOString() }),
       });
     } catch {}
