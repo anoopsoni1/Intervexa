@@ -10,6 +10,7 @@ import AppFooter from "../components/layout/AppFooter";
 import { useToast } from "../context/ToastContext";
 
 import { API_BASE } from "../config";
+import { getAuthHeaders } from "../services/api";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
 
 function Topbar() {
@@ -297,13 +298,10 @@ export default function Dashboard() {
     async function checkAuth() {
       setAuthChecking(true);
       try {
-        
-        const headers = {};
-
         const res = await fetch(`${API_BASE}/profile`, {
           method: "GET",
           credentials: "include",
-          headers,
+          headers: getAuthHeaders(),
         });
 
         const data = await res.json().catch(() => ({}));
@@ -340,7 +338,7 @@ export default function Dashboard() {
         
         const res = await fetch(`${API_BASE}/get-atsscore`, {
           credentials: "include",
-          headers: {},
+          headers: getAuthHeaders(),
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -370,7 +368,7 @@ export default function Dashboard() {
         
         const res = await fetch(`${API_BASE}/get-resume-stats`, {
           credentials: "include",
-          headers: {},
+          headers: getAuthHeaders(),
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -408,7 +406,7 @@ export default function Dashboard() {
         
         const res = await fetch(`${API_BASE}/get-optimize`, {
           credentials: "include",
-          headers: {},
+          headers: getAuthHeaders(),
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -439,7 +437,7 @@ export default function Dashboard() {
         
         const res = await fetch(`${API_BASE}/get-deployments`, {
           credentials: "include",
-          headers: {},
+          headers: getAuthHeaders(),
         });
         const json = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -491,7 +489,7 @@ export default function Dashboard() {
       const res = await fetch(`${API_BASE}/resend-verification-email`, {
         method: "POST",
         credentials: "include",
-        headers: {},
+        headers: getAuthHeaders(),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
@@ -522,7 +520,7 @@ export default function Dashboard() {
       const res = await fetch(`${API_BASE}/delete-deployment/${dep._id}`, {
         method: "DELETE",
         credentials: "include",
-        headers: {},
+        headers: getAuthHeaders(),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
