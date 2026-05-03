@@ -8,6 +8,7 @@ import AppHeader from "../components/layout/AppHeader";
 import { useToast } from "../context/ToastContext";
 
 import { API_BASE, API_BASE_URL } from "../config";
+import { parseResponseJson } from "../services/api";
 
 const container = {
   hidden: { opacity: 0 },
@@ -234,7 +235,7 @@ export default function Login() {
         body: JSON.stringify({ email: email.trim(), password }),
       });
 
-      const data = await res.json();
+      const data = await parseResponseJson(res);
 
       if (!res.ok) {
         toast.error(data?.message || data?.error || "Login failed");
