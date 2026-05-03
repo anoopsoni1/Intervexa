@@ -190,21 +190,13 @@ async function sendVerificationEmailToUser(userId) {
           }
         )
         
-        const refreshSecret =
-          process.env.REFRESH_TOKEN ||
-          process.env.JWT_SECRET ||
-          process.env.ACCESS_TOKEN ||
-          process.env.ACCESS_TOKEN_SECRET;
-        if (!refreshSecret) {
-          throw new Error("REFRESH_TOKEN or JWT_SECRET must be set for session tokens");
-        }
         const refreshToken = jwt.sign(
-          { user: user._id },
-          refreshSecret,
+          {user : user._id} ,
+          process.env.REFRESH_TOKEN ,
           {
-            expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+           expiresIn: process.env.REFRESH_TOKEN_EXPIRY
           }
-        );
+        )
  
         user.refreshtoken = refreshToken;
         await user.save({ validateBeforeSave: false });
@@ -224,18 +216,17 @@ const registeruser = Asynchandler(async(req ,res)=>{
       
   if(!FirstName?.trim()) throw new ApiError(400 , "Firstname is required")
  if(!LastName?.trim()) throw new ApiError(400 , "Lastname is required")
-  const emailTrim = typeof email === "string" ? email.trim() : "";
-  if(!emailTrim) throw new ApiError(400 ,  "Email is required")
+  if(!email?.trim()) throw new ApiError(400 ,  "Email is required")
   if(!password?.trim()) throw new ApiError(400 , "Password is required")
 
-    const existeduser = await User.findOne({ email: emailTrim }).collation({ locale: "en", strength: 2 })
+    const existeduser = await User.findOne({email : email})
 
     if(existeduser) throw new ApiError(400 , "user existed")
 
       const user = await User.create({
         FirstName ,
         LastName ,
-        email: emailTrim ,
+        email ,
         password
       })
 
@@ -253,11 +244,10 @@ const loginuser = Asynchandler(async(req ,res)=>{
    
        const {email , password} = req.body
  
-      const emailTrim = typeof email === "string" ? email.trim() : "";
-      if(!emailTrim) throw new ApiError(400 , "Email is required")
+      if(!email) throw new ApiError(400 , "Email is required")
       if(!password) throw new ApiError(400 , "Password is required")
 
-      const user = await User.findOne({ email: emailTrim }).collation({ locale: "en", strength: 2 })
+      const user = await User.findOne({ email })
 
       if(!user) throw new ApiError(400 , "User does not exist")
 

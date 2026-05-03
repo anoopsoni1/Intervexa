@@ -44,8 +44,7 @@ export default defineConfig({
         // SPA fallback is registered as NavigationRoute → index.html; without this,
         // /sitemap.xml, /robots.txt, etc. get the React app instead of real files.
         navigateFallback: '/index.html',
-        // Never treat /api as SPA navigation — avoids caching or fallback that could return HTML for API calls.
-        navigateFallbackDenylist: [/^\/api\//, /^\/(sitemap\.xml|robots\.txt)$/],
+        navigateFallbackDenylist: [/^\/(sitemap\.xml|robots\.txt)$/],
       },
       registerType: 'autoUpdate',
       manifest: {

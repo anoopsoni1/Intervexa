@@ -1,2 +1,0 @@
-# Netlify (and similar): proxy API to Render so /api returns JSON, not the SPA index.html.
-/api/* https://intervexa.onrender.com/api/:splat 200

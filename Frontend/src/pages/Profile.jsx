@@ -8,7 +8,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { useUserData } from "../hooks/useUserData.js";
 
 import { API_BASE } from "../config";
-import { getAuthHeaders } from "../services/api";
 
 function Profile() {
   const dispatch = useDispatch();
@@ -22,6 +21,11 @@ function Profile() {
   const [editEmail, setEditEmail] = useState("");
   const [updateLoading, setUpdateLoading] = useState(false);
   const [updateMessage, setUpdateMessage] = useState({ type: "", text: "" });
+
+  const getAuthHeaders = () => {
+    
+    return {};
+  };
 
   useEffect(() => {
     if (user) {
