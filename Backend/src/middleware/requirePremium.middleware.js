@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.model.js";
 
-function extractBearerToken(headerValue) {
-  if (!headerValue || typeof headerValue !== "string") return null;
-  const [scheme, token] = headerValue.split(" ");
-  if (scheme !== "Bearer" || !token) return null;
-  return token.trim();
+function resolveAccessToken(req) {
+  const authHeader = req.headers?.authorization || "";
+  const bearer =
+    authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : null;
+  return bearer || req.cookies?.accessToken || req.cookies?.token || null;
 }
 
 function getJwtSecret() {
@@ -13,12 +13,12 @@ function getJwtSecret() {
 }
 
 /**
- * Premium gate: Bearer JWT only (no cookie fallback). Loads user from DB and sets req.user.
- * Authorization must come from user.isPremium — never from token claims.
+ * Premium gate: same token sources as verifyJWT (Bearer or access cookies).
+ * Loads user from DB and sets req.user. Premium status comes from DB — never from token claims.
  */
 export async function requirePremium(req, res, next) {
   try {
-    const token = extractBearerToken(req.headers?.authorization);
+    const token = resolveAccessToken(req);
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }

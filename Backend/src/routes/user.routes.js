@@ -115,7 +115,7 @@ router.route("/get-optimize").get(verifyJWT, requireEmailVerified, getOptimize)
 router.route("/increment-optimize").post(verifyJWT, requireEmailVerified, incrementOptimize)
 router.route("/update-optimize/:id").put(verifyJWT, requireEmailVerified, updateOptimize)
 router.route("/upload-audio").post(upload.single("audio"), uploadAudioToCloudinary)
-// Premium: requirePremium uses Bearer JWT + DB isPremium (same chain as POST /api/ai-interview).
+// Premium: requirePremium uses Bearer or access cookies + DB isPremium (same chain as POST /api/ai-interview).
 router
   .route("/interviews")
   .post(requirePremium, requireEmailVerified, checkLiveInterviewLimit, createInterview)
