@@ -7,6 +7,7 @@ import gsap from "gsap";
 import { useToast } from "../context/ToastContext";
 
 import { API_BASE } from "../config";
+import AuthSessionLoader from "../components/auth/AuthSessionLoader.jsx";
 
 const DURATION_MINUTES = 15; // max time; user can end anytime
 const QUESTION_DURATION_SECONDS = 90; // 1.5 min per question, then auto-advance
@@ -701,7 +702,7 @@ function AIInterviewCall() {
   if (authChecking || loading) {
     return (
       <div ref={fullscreenContainerRef} className="fixed inset-0 w-screen h-screen min-h-dvh bg-black flex items-center justify-center">
-        <p className="text-white">{authChecking ? "Checking session…" : "Loading…"}</p>
+        <AuthSessionLoader className="flex items-center justify-center min-h-0 bg-transparent p-0" spinnerClassName="h-10 w-10 text-white/90" />
       </div>
     );
   }

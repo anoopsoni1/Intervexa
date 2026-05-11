@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { clearUser } from "../slices/user.slice";
 import { API_BASE } from "../config";
+import { clearDashboardFirstWelcomeFlags } from "./dashboardWelcome.js";
 
 const LOGOUT_URL = `${API_BASE}/logout`;
 
@@ -22,6 +23,7 @@ export async function performLogout(dispatch, navigate) {
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("accessToken");
       window.sessionStorage.removeItem("accessToken");
+      clearDashboardFirstWelcomeFlags();
     }
     if (typeof dispatch === "function") dispatch(clearUser());
     if (typeof navigate === "function") navigate("/login");

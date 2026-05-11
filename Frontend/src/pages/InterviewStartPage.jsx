@@ -6,6 +6,7 @@ import AppHeader from "../components/layout/AppHeader";
 import AppFooter from "../components/layout/AppFooter";
 
 import { API_BASE } from "../config";
+import AuthSessionLoader from "../components/auth/AuthSessionLoader.jsx";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
 import { getAuthHeaders } from "../services/api";
 
@@ -77,14 +78,7 @@ export default function InterviewStartPage() {
   };
 
   if (authChecking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm px-8 py-6 text-center">
-          <p className="text-white font-semibold">Checking authorization…</p>
-          <p className="mt-1 text-sm text-slate-400">Please wait.</p>
-        </div>
-      </div>
-    );
+    return <AuthSessionLoader className="min-h-screen w-full flex items-center justify-center bg-black" />;
   }
 
   return (

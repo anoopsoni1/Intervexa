@@ -81,6 +81,8 @@ const userschema = new mongoose.Schema({
       emailVerified : { type : Boolean , default : false },
       emailVerificationToken : { type : String },
       emailVerificationTokenExpiresAt : { type : Date },
+      /** Set on first successful login (password or Google). Used for client greeting logic. */
+      firstLoginAt : { type : Date , default : null },
 
 } , {
   timestamps : true,

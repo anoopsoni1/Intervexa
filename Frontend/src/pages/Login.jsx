@@ -8,6 +8,7 @@ import AppHeader from "../components/layout/AppHeader";
 import { useToast } from "../context/ToastContext";
 
 import { API_BASE, API_BASE_URL } from "../config";
+import { setDashboardFirstWelcomeFlag } from "../utils/dashboardWelcome.js";
 
 const container = {
   hidden: { opacity: 0 },
@@ -244,11 +245,14 @@ export default function Login() {
 
       if (data?.data?.user) {
         dispatch(setUser(data.data.user));
+        if (data?.data?.isFirstLogin) {
+          setDashboardFirstWelcomeFlag(data.data.user?._id);
+        }
       }
       if (data?.data?.accessToken) {
         localStorage.setItem("accessToken", data.data.accessToken);
       }
-      toast.success("Welcome back! Redirecting…");
+      toast.success(data?.data?.isFirstLogin ? "Welcome! Redirecting…" : "Welcome back! Redirecting…");
       const returnUrl = searchParams.get("from")?.trim();
       const safePath = returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") && !returnUrl.startsWith("http") ? returnUrl : null;
       const target = safePath || sessionStorage.getItem("loginReturnUrl") || "/dashboard";

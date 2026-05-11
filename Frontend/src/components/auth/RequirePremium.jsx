@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { setUser } from "../../slices/user.slice";
 import { apiJson } from "../../services/api";
+import AuthSessionLoader from "./AuthSessionLoader.jsx";
 
 /**
  * Must be nested under RequireAuth. Redirects to /price if user is not Premium.
@@ -49,9 +50,10 @@ export default function RequirePremium() {
   }
   if (!hydrated) {
     return (
-      <div className="min-h-[50vh] flex items-center justify-center text-zinc-400 text-sm">
-        Loading…
-      </div>
+      <AuthSessionLoader
+        className="min-h-[50vh] w-full flex items-center justify-center bg-transparent px-4"
+        spinnerClassName="h-8 w-8 text-zinc-400"
+      />
     );
   }
   if (!user) {

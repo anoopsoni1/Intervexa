@@ -2,7 +2,6 @@ import { useEffect, useId, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  Loader2,
   CheckCircle,
   XCircle,
   FileText,
@@ -18,6 +17,7 @@ import AtsAnalysisSteps from "../components/ats/AtsAnalysisSteps.jsx";
 import JobRoleSwiperSection from "../components/ats/JobRoleSwiperSection.jsx";
 import { buildJobDescription } from "../data/atsJobDescriptions.js";
 import { useAtsPageData } from "../hooks/useAtsPageData.js";
+import AuthSessionLoader from "../components/auth/AuthSessionLoader.jsx";
 
 const MotionDiv = motion.div;
 
@@ -283,15 +283,10 @@ function AtsChecker() {
 
   if (authChecking) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="max-w-sm rounded-2xl border border-white/15 bg-zinc-900/80 p-8 text-center shadow-xl backdrop-blur-sm">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20">
-            <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
-          </div>
-          <p className="font-semibold text-white">Checking session…</p>
-          <p className="mt-1 text-sm text-slate-400">Verifying authentication.</p>
-        </div>
-      </div>
+      <AuthSessionLoader
+        className="flex min-h-screen w-full items-center justify-center px-4"
+        spinnerClassName="h-10 w-10 text-amber-400"
+      />
     );
   }
 

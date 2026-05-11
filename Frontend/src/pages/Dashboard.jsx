@@ -11,6 +11,9 @@ import { useToast } from "../context/ToastContext";
 
 import { API_BASE } from "../config";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
+import { DashboardAnalyticScoreCards } from "../components/dashboard/DashboardAnalyticScoreCards.jsx";
+import AuthSessionLoader from "../components/auth/AuthSessionLoader.jsx";
+import { shouldShowDashboardFirstWelcome } from "../utils/dashboardWelcome.js";
 
 function Topbar() {
   return <AppHeader />;
@@ -88,7 +91,7 @@ function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus, 
     },
     {
       icon: <AiOutlineFileText className="w-6 h-6" />,
-      title: "Upload & edit resume",
+      title: "Upload ",
       desc: "Upload a PDF/DOCX, then edit and improve with AI.",
       link: "/upload",
     },
@@ -100,13 +103,13 @@ function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus, 
     },
     {
       icon: <FiTarget className="w-6 h-6" />,
-      title: "Add details for resume or project",
+      title: "Add details ",
       desc: "Build your resume or project by filling in your details.",
       link: "/add-details",
     },
     {
       icon: <MdAutoAwesome className="w-6 h-6" />,
-      title: "Edit or optimize resume",
+      title: "Optimize resume",
       desc: "Edit your saved text and improve with AI.",
       link: "/edit-resume",
     },
@@ -163,7 +166,7 @@ function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus, 
             <Card
               key={i}
               {...cardProps}
-              className="group rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 hover:border-amber-500/50 hover:bg-white/8 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-200"
+              className="group rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 hover:border-amber-500/50 hover:bg-white/8 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-200 motion-safe:hover:-translate-y-0.5"
             >
               <div className="flex items-start justify-between">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-indigo-400 group-hover:border-amber-500/30 group-hover:text-amber-400/90 transition-colors">
@@ -185,6 +188,7 @@ function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus, 
             </Card>
           );
         })}
+        <DashboardAnalyticScoreCards />
       </div>
 
       <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mt-8 sm:mt-10 mb-4 px-1">
@@ -273,6 +277,7 @@ export default function Dashboard() {
   const toast = useToast();
 
   const needsEmailVerification = user && !user.emailVerified && !user.googleId;
+  const showFirstLoginWelcome = Boolean(user?._id && shouldShowDashboardFirstWelcome(user._id));
 
   const { status: usageStatus } = useUsageStatus(
     !!user && !!(user.emailVerified || user.googleId)
@@ -539,16 +544,7 @@ export default function Dashboard() {
   };
 
   if (authChecking) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-4">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
-          <p className="text-white font-semibold">Checking session…</p>
-          <p className="mt-1 text-sm text-slate-300">
-            Verifying authentication with the server.
-          </p>
-        </div>
-      </div>
-    );
+    return <AuthSessionLoader className="min-h-screen w-full flex items-center justify-center bg-black px-4" />;
   }
 
   return (
@@ -640,7 +636,7 @@ export default function Dashboard() {
 
             <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-4 sm:p-6 md:p-8">
               <h2 className="text-xl sm:text-2xl font-bold text-white">
-                Welcome back,{" "}
+                {showFirstLoginWelcome ? "Welcome, " : "Welcome back, "}
                 <span className="text-amber-400">
                   {user?.FirstName} {user?.LastName}
                 </span>
@@ -648,7 +644,9 @@ export default function Dashboard() {
               <p className="mt-2 text-sm text-slate-400 max-w-xl">
                 {needsEmailVerification
                   ? "Verify your email above to access your stats and features."
-                  : "Your resume is performing well. Here are your latest stats and quick actions."}
+                  : showFirstLoginWelcome
+                    ? "Let's get started — here are your stats and quick actions."
+                    : "Your resume is performing well. Here are your latest stats and quick actions."}
               </p>
             </div>
 

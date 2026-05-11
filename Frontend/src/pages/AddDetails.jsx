@@ -12,8 +12,8 @@ import {
   Save,
   ArrowLeft,
   Award,
-  CheckCircle2,
-  XCircle,
+  Eye,
+  LayoutGrid,
 } from "lucide-react";
 import AppHeader from "../components/layout/AppHeader";
 import AppFooter from "../components/layout/AppFooter";
@@ -35,6 +35,59 @@ import {
 import { Skeleton } from "../components/ui/Skeleton.jsx";
 import AddDetailsSuggestionLists from "../components/forms/AddDetailsSuggestionLists.jsx";
 import { SKILLS_ADVANCED, SKILLS_STUDENT } from "../data/formFieldSuggestions.js";
+import {
+  Resume1Layout,
+  Resume2Layout,
+  Resume3Layout,
+  Resume4Layout,
+  Resume5Layout,
+  Resume6Layout,
+  Resume7Layout,
+  Resume8Layout,
+  Resume9Layout,
+  Resume10Layout,
+  Resume11Layout,
+  Resume12Layout,
+  Resume13Layout,
+  Resume14Layout,
+  Resume15Layout,
+  Resume16Layout,
+} from "../layouts/modernResumeLayouts";
+import ClassicLayout from "../layouts/ClassicLayout";
+import ClassicLayout1 from "../layouts/ClassicLayout1";
+import PremiumLayout from "../layouts/PremiumLayout";
+import PremiumLayout2 from "../layouts/PremiumLayout2";
+import PremiumLayout3 from "../layouts/PremiumLayout3";
+import MinimalLayout from "../layouts/MinimalLayout";
+
+const PREVIEW_TEMPLATE_STORAGE_KEY = "adddetails:previewTemplateId";
+
+const PREVIEW_TEMPLATES = [
+  { id: "modern-1", label: "Modern · Resume 1", Component: Resume1Layout },
+  { id: "modern-2", label: "Modern · Resume 2", Component: Resume2Layout },
+  { id: "modern-3", label: "Modern · Resume 3", Component: Resume3Layout },
+  { id: "modern-4", label: "Modern · Resume 4", Component: Resume4Layout },
+  { id: "modern-5", label: "Modern · Resume 5", Component: Resume5Layout },
+  { id: "modern-6", label: "Modern · Resume 6", Component: Resume6Layout },
+  { id: "modern-7", label: "Modern · Resume 7", Component: Resume7Layout },
+  { id: "modern-8", label: "Modern · Resume 8", Component: Resume8Layout },
+  { id: "modern-9", label: "Modern · Resume 9", Component: Resume9Layout },
+  { id: "modern-10", label: "Modern · Resume 10", Component: Resume10Layout },
+  { id: "modern-11", label: "Modern · Resume 11", Component: Resume11Layout },
+  { id: "modern-12", label: "Modern · Resume 12", Component: Resume12Layout },
+  { id: "modern-13", label: "Modern · Resume 13", Component: Resume13Layout },
+  { id: "modern-14", label: "Modern · Resume 14", Component: Resume14Layout },
+  { id: "modern-15", label: "Modern · Resume 15", Component: Resume15Layout },
+  { id: "modern-16", label: "Modern · Resume 16", Component: Resume16Layout },
+  { id: "classic-1", label: "Classic · 1", Component: ClassicLayout1 },
+  { id: "classic-2", label: "Classic · 2", Component: ClassicLayout },
+  { id: "minimal-1", label: "Minimal", Component: MinimalLayout },
+  { id: "premium-1", label: "Premium · 1", Component: PremiumLayout },
+  { id: "premium-2", label: "Premium · 2 (Ivy)", Component: PremiumLayout2 },
+  { id: "premium-3", label: "Premium · 3", Component: PremiumLayout3 },
+];
+
+const DEFAULT_PREVIEW_TEMPLATE_ID = "modern-3";
 
 function buildResumeText(form) {
   const lines = [];
@@ -241,50 +294,31 @@ export default function AddDetails() {
   const [loading, setLoading] = useState(true);
   const [saveLoading, setSaveLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
+  const [previewTemplateId, setPreviewTemplateId] = useState(() => {
+    if (typeof window === "undefined") return DEFAULT_PREVIEW_TEMPLATE_ID;
+    try {
+      const saved = window.localStorage.getItem(PREVIEW_TEMPLATE_STORAGE_KEY);
+      if (saved && PREVIEW_TEMPLATES.some((t) => t.id === saved)) return saved;
+    } catch (_) {
+      /* ignore */
+    }
+    return DEFAULT_PREVIEW_TEMPLATE_ID;
+  });
 
-  const completion = useMemo(() => {
-    const hasText = (v) => String(v || "").trim().length > 0;
-    const skillsOk = Array.isArray(form.skills) ? form.skills.filter((s) => hasText(s)).length > 0 : false;
-    const expOk = Array.isArray(form.experience)
-      ? form.experience.some((raw) => {
-          const e = normalizeExperienceFormItem(raw);
-          return (
-            hasText(e.jobTitle) ||
-            hasText(e.company) ||
-            hasText(e.dates) ||
-            hasText(e.location) ||
-            (e.bullets || []).some((b) => hasText(b))
-          );
-        })
-      : false;
-    const projectsOk = Array.isArray(form.projects)
-      ? form.projects.some((raw) => {
-          const p = normalizeProjectFormItem(raw);
-          return hasText(p.title) || hasText(p.link) || hasText(p.description);
-        })
-      : false;
-    const educationOk = hasText(form.education);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(PREVIEW_TEMPLATE_STORAGE_KEY, previewTemplateId);
+    } catch (_) {
+      /* ignore */
+    }
+  }, [previewTemplateId]);
 
-    const items = [
-      { id: "personal", label: "Name & Role", ok: hasText(form.name) && hasText(form.role) },
-      { id: "summary", label: "Summary", ok: hasText(form.summary) },
-      { id: "skills", label: "Skills", ok: skillsOk },
-      { id: "experience", label: "Experience", ok: expOk },
-      { id: "projects", label: "Projects", ok: projectsOk },
-      { id: "education", label: "Education", ok: educationOk },
-    ];
-
-    const done = items.filter((x) => x.ok).length;
-    const total = items.length || 1;
-    const percent = Math.round((done / total) * 100);
-    return { items, done, total, percent };
-  }, [form]);
-
-  const scrollToSection = (id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  const previewData = useMemo(() => formToPayload(form), [form]);
+  const ActiveTemplate = useMemo(() => {
+    const match = PREVIEW_TEMPLATES.find((t) => t.id === previewTemplateId);
+    return (match || PREVIEW_TEMPLATES[0]).Component;
+  }, [previewTemplateId]);
 
   const languageItems = useMemo(() => {
     const raw = String(form.languageProficiency || "");
@@ -545,7 +579,7 @@ export default function AddDetails() {
     <div className="min-h-screen text-white flex flex-col">
       <AppHeader />
 
-        <main className="flex-1 py-6 sm:py-8 px-4 sm:px-6  mx-auto w-full">
+        <main className="flex-1 py-6 sm:py-8 px-4 sm:px-6  mx-auto w-full max-w-[1600px]">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <div className="flex items-center gap-3">
             <Link
@@ -599,8 +633,8 @@ export default function AddDetails() {
           </div>
         )}
 
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
-          <div className="flex-1 space-y-8">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 lg:h-[calc(100vh-13rem)] lg:items-stretch">
+          <div className="w-full lg:w-1/2 min-w-0 lg:h-full lg:overflow-y-auto lg:pr-3 space-y-8 add-details-scroll">
           {/* Personal */}
           <section id="personal" className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 sm:p-6">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-4">
@@ -1157,55 +1191,45 @@ export default function AddDetails() {
           </section>
           </div>
 
-          <aside className="w-full lg:max-w-sm xl:w-[360px] shrink-0">
-            <div className="sticky top-6 space-y-4">
-              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 sm:p-6">
-                <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-3">
-                  <FileText size={20} className="text-indigo-400" />
-                  Completion
-                </h2>
-                <p className="text-xs text-slate-300 mb-3">
-                  {completion.done}/{completion.total} sections done ({completion.percent}%)
-                </p>
-                <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden mb-4">
-                  <div
-                    className="h-full bg-indigo-500"
-                    style={{ width: `${completion.percent}%` }}
-                  />
-                </div>
-                <div className="space-y-2">
-                  {completion.items.map((it) => (
-                    <button
-                      key={it.id}
-                      type="button"
-                      onClick={() => scrollToSection(it.id)}
-                      className="w-full flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/20 hover:bg-black/10 px-3 py-2 transition-colors"
+          <aside className="w-full lg:w-1/2 shrink-0 min-w-0 lg:h-full lg:overflow-y-auto lg:pr-1 space-y-4 add-details-scroll">
+            {/* Live preview pane */}
+            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-4 py-3 border-b border-white/10 bg-black/30 sticky top-0 z-10 backdrop-blur-md">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Eye size={16} className="text-indigo-400 shrink-0" />
+                    <span className="text-sm font-semibold text-white truncate">
+                      Live preview
+                    </span>
+                    <span className="hidden sm:inline-flex items-center rounded-full bg-indigo-500/15 border border-indigo-400/20 px-2 py-0.5 text-[10px] font-medium text-indigo-200">
+                      Updates as you type
+                    </span>
+                  </div>
+                  <label className="flex items-center gap-2 text-xs text-slate-300">
+                    <LayoutGrid size={14} className="text-slate-400" />
+                    <span className="sr-only sm:not-sr-only">Template</span>
+                    <select
+                      value={previewTemplateId}
+                      onChange={(e) => setPreviewTemplateId(e.target.value)}
+                      className="rounded-lg border border-white/15 bg-black/60 px-2 py-1.5 text-xs text-white focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                     >
-                      <span className="text-sm font-medium text-white/90 text-left">{it.label}</span>
-                      {it.ok ? (
-                        <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
-                      ) : (
-                        <XCircle size={18} className="text-rose-400 shrink-0" />
-                      )}
-                    </button>
-                  ))}
+                      {PREVIEW_TEMPLATES.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="bg-zinc-100 p-3 sm:p-4">
+                  <div
+                    className="origin-top mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden text-black ring-1 ring-black/5"
+                    style={{ width: "100%" }}
+                  >
+                    <ActiveTemplate data={previewData} />
+                  </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 sm:p-6">
-                <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-3">
-                  <Award size={20} className="text-indigo-400" />
-                  Quick tips
-                </h2>
-                <ul className="space-y-2 text-sm text-slate-200/90">
-                  <li>Use up to {RESUME_ACHIEVEMENTS_MAX} short achievement lines (numbers help).</li>
-                  <li>
-                    Add skills you are learning first; use chips or the suggestion list for optional advanced tools.
-                  </li>
-                  <li>Make education lines consistent (degree, school, year).</li>
-                </ul>
-              </div>
-            </div>
           </aside>
         </div>
 

@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { apiJson } from "../../services/api";
+import AuthSessionLoader from "./AuthSessionLoader.jsx";
 
 /**
  * Redirects to login when no auth cookie/session. Preserves return path in ?from=
@@ -28,7 +29,12 @@ export default function RequireAuth() {
   }, []);
 
   if (isChecking) {
-    return <div className="min-h-[50vh] flex items-center justify-center text-zinc-400 text-sm">Loading…</div>;
+    return (
+      <AuthSessionLoader
+        className="min-h-[50vh] w-full flex items-center justify-center bg-transparent px-4"
+        spinnerClassName="h-8 w-8 text-zinc-400"
+      />
+    );
   }
 
   if (!isAuthed) {

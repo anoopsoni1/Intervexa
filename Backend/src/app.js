@@ -57,6 +57,7 @@ import { Router } from "express";
 import { router } from "./routes/user.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import resumeRouter from "./routes/resume.routes.js";
+import dashboardRouter from "./routes/dashboard.routes.js";
 import { getJobStatus } from "./controller/queue.controller.js";
 import {
   aiInterviewRouter,
@@ -70,6 +71,7 @@ app.use("/api/portfolio", globalApiRateLimit, portfolioRouter);
 app.use("/api/resume-builder", globalApiRateLimit, resumeBuilderRouter);
 
 app.use("/api/v1/user", router);
+app.use("/api/dashboard", globalApiRateLimit, dashboardRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/resume", resumeRouter);
 const jobRouter = Router();

@@ -8,6 +8,7 @@ import AppHeader from "../components/layout/AppHeader";
 import AppFooter from "../components/layout/AppFooter";
 
 import { API_BASE } from "../config";
+import { DASHBOARD_SCORES_REFRESH } from "../constants/dashboardEvents.js";
 import { Skeleton } from "../components/ui/Skeleton.jsx";
 
 function VideoCallInterviewDetail() {
@@ -18,6 +19,7 @@ function VideoCallInterviewDetail() {
   const [interview, setInterview] = useState(null);
   const [loading, setLoading] = useState(true);
   const mainRef = useRef(null);
+  const prevInterviewStatusRef = useRef(null);
 
   const getHeaders = () => {
     
@@ -78,6 +80,20 @@ function VideoCallInterviewDetail() {
     const interval = setInterval(fetchInterview, 4000);
     return () => clearInterval(interval);
   }, [id, interview?.status, fetchInterview]);
+
+  useEffect(() => {
+    if (!interview) return;
+    const prev = prevInterviewStatusRef.current;
+    prevInterviewStatusRef.current = interview.status;
+    if (
+      interview.status === "completed" &&
+      interview.aiReport &&
+      typeof interview.aiReport.communicationScore === "number" &&
+      prev === "processing"
+    ) {
+      window.dispatchEvent(new CustomEvent(DASHBOARD_SCORES_REFRESH));
+    }
+  }, [interview]);
 
   useEffect(() => {
     if (!interview || !mainRef.current) return;

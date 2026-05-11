@@ -84,6 +84,26 @@ export async function sendWelcomeEmailIfFirstLogin(userId) {
 }
 
 /**
+ * Persists first successful login time. Returns whether this request was the user's first stored login.
+ * Used for dashboard copy ("Welcome" vs "Welcome back") and Google redirect hint.
+ */
+export async function recordUserSessionLogin(userId) {
+  try {
+    const doc = await User.findById(userId).select("firstLoginAt");
+    if (!doc) return { isFirstLogin: false };
+    const isFirstLogin = !doc.firstLoginAt;
+    if (isFirstLogin) {
+      doc.firstLoginAt = new Date();
+      await doc.save({ validateBeforeSave: false });
+    }
+    return { isFirstLogin };
+  } catch (err) {
+    console.warn("[recordUserSessionLogin]", err?.message || err);
+    return { isFirstLogin: false };
+  }
+}
+
+/**
  * Generate verification token, save to user, and send verification email.
  * Used on register and on "resend verification email".
  * Uses onboarding@resend.dev so it works on Resend free tier (custom/Gmail from must be verified in Resend).
@@ -255,6 +275,7 @@ const loginuser = Asynchandler(async(req ,res)=>{
       if (!isPasswordValid) {
         throw new ApiError(400, "Invalid email or password");
       }
+   const { isFirstLogin } = await recordUserSessionLogin(user._id);
    const { accessToken } = await generateAccessAndRefereshTokens(user._id)
 
    await sendWelcomeEmailIfFirstLogin(user._id);
@@ -277,7 +298,8 @@ const loginuser = Asynchandler(async(req ,res)=>{
             200, 
             {
                 user: loggedInUser,
-                accessToken
+                accessToken,
+                isFirstLogin,
             },
             "User logged In Successfully"
         )

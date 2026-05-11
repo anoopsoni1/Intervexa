@@ -42,6 +42,30 @@
   }
 }
 
+/* Thin scrollbar for split-view scroll panes (Add details page, etc.) */
+.add-details-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99, 102, 241, 0.45) transparent;
+}
+.add-details-scroll::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+  height: 8px;
+}
+.add-details-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.add-details-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(99, 102, 241, 0.35);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.add-details-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(99, 102, 241, 0.6);
+  background-clip: padding-box;
+}
+
 /* Custom animations */
 @keyframes fadeIn {
   from {

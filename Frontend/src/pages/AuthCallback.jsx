@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../slices/user.slice";
 import { apiJson } from "../services/api";
+import { setDashboardFirstWelcomeFlag } from "../utils/dashboardWelcome.js";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -16,6 +17,9 @@ export default function AuthCallback() {
   useEffect(() => {
     (async () => {
       let authenticated = false;
+      const firstLoginHint =
+        typeof window !== "undefined" &&
+        new URLSearchParams(window.location.search).get("firstLogin") === "1";
       try {
         const { res, data } = await apiJson("/api/v1/user/profile", { method: "GET" });
         if (!res.ok) {
@@ -23,6 +27,9 @@ export default function AuthCallback() {
         }
         const user = data?.user || data?.data?.user;
         if (user) dispatch(setUser(user));
+        if (firstLoginHint && user?._id != null) {
+          setDashboardFirstWelcomeFlag(user._id);
+        }
         authenticated = true;
       } finally {
         if (!authenticated) {

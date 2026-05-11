@@ -6,6 +6,7 @@ import { FiVideo, FiPhoneOff, FiMic, FiMicOff, FiVideoOff, FiMessageCircle } fro
 import { io } from "socket.io-client";
 
 import { API_BASE, API_BASE_URL } from "../config";
+import AuthSessionLoader from "../components/auth/AuthSessionLoader.jsx";
 const ICE_SERVERS = [
   { urls: "stun:stun.l.google.com:19302" },
   { urls: "stun:stun1.l.google.com:19302" },
@@ -290,11 +291,7 @@ function LiveInterviewCall() {
   };
 
   if (authChecking || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-white">{authChecking ? "Checking session…" : "Loading interview…"}</p>
-      </div>
-    );
+    return <AuthSessionLoader className="min-h-screen w-full flex items-center justify-center bg-black" />;
   }
 
   if (!interview) {

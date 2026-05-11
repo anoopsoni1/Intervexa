@@ -8,6 +8,9 @@ const API_BASE_URL = rawApiBaseUrl.trim().replace(/\/+$/, "");
 /** Base URL for user API: ${API_BASE_URL}/api/v1/user */
 export const API_BASE = `${API_BASE_URL}/api/v1/user`;
 
+/** Dashboard analytics (scores): ${API_BASE_URL}/api/dashboard */
+export const DASHBOARD_API_BASE = `${API_BASE_URL}/api/dashboard`;
+
 /** Base URL for job status (poll after aiedit returns 202): ${API_BASE_URL}/api/v1/job */
 export const JOB_API_BASE = `${API_BASE_URL}/api/v1/job`;
 

@@ -8,6 +8,7 @@ import { API_BASE, API_BASE_URL } from "../config";
 import { useToast } from "../context/ToastContext";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
 import { getAuthHeaders, UPGRADE_PREMIUM_MESSAGE } from "../services/api";
+import { DASHBOARD_SCORES_REFRESH } from "../constants/dashboardEvents.js";
 
 const JOB_POLL_INTERVAL_MS = 2000;
 const JOB_POLL_TIMEOUT_MS = 120000; // 2 min for 15 questions
@@ -247,6 +248,8 @@ export default function CodingInterviewPage() {
           if (json?.resetsAt) msg = `${msg} ${formatResetsLabel(json.resetsAt)}`;
           toast.error(msg);
           refreshUsage();
+        } else if (res.ok) {
+          window.dispatchEvent(new CustomEvent(DASHBOARD_SCORES_REFRESH));
         }
       } catch (_) {}
     }
@@ -380,6 +383,7 @@ export default function CodingInterviewPage() {
       if (res.ok) {
         setSaveMessage("Session saved.");
         refreshUsage();
+        window.dispatchEvent(new CustomEvent(DASHBOARD_SCORES_REFRESH));
       } else {
         let msg = json?.message || json?.error || "Save failed.";
         if (res.status === 403) {

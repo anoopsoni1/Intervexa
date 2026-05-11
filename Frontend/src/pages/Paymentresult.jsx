@@ -6,6 +6,7 @@ import { clearUser, setUser } from "../slices/user.slice";
 import Particles from "../components/ui/Lighting.jsx";
 
 import { API_BASE } from "../config";
+import AuthSessionLoader from "../components/auth/AuthSessionLoader.jsx";
 
 const statusConfig = {
   success: {
@@ -188,13 +189,10 @@ function PaymentResult() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen bg-[#0a0a0b] flex items-center justify-center px-4">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-8 text-center max-w-sm animate-fadeIn">
-          <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/60 mx-auto mb-4 animate-spin" />
-          <p className="text-white font-medium tracking-tight">Checking session…</p>
-          <p className="mt-2 text-sm text-zinc-400">Verifying authentication</p>
-        </div>
-      </div>
+      <AuthSessionLoader
+        className="min-h-screen w-full flex items-center justify-center bg-[#0a0a0b] px-4"
+        spinnerClassName="h-10 w-10 text-white/80"
+      />
     );
   }
 

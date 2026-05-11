@@ -8,6 +8,7 @@ import AppHeader from "../components/layout/AppHeader";
 import AppFooter from "../components/layout/AppFooter";
 
 import { API_BASE } from "../config";
+import AuthSessionLoader from "../components/auth/AuthSessionLoader.jsx";
 import { useToast } from "../context/ToastContext";
 import { useUsageStatus, formatResetsLabel, isUsageBlocked } from "../hooks/useUsageStatus.js";
 import { getAuthHeaders, messageForPremiumForbidden, UPGRADE_PREMIUM_MESSAGE } from "../services/api";
@@ -134,11 +135,7 @@ function VideoCallInterviewCreate() {
   }, [authChecking]);
 
   if (authChecking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-white">Checking session…</p>
-      </div>
-    );
+    return <AuthSessionLoader className="min-h-screen w-full flex items-center justify-center" />;
   }
 
   return (

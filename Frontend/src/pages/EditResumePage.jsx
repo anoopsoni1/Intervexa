@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Sparkles, Save, Loader2, FileText, ChevronRight, ArrowLeft } from "lucide-react";
+import AuthSessionLoader from "../components/auth/AuthSessionLoader.jsx";
 import { clearUser, setUser } from "../slices/user.slice";
 import { setEditedResumeText } from "../slices/Resume.slice";
 import AppHeader from "../components/layout/AppHeader";
@@ -308,9 +309,10 @@ export default function EditResumePage() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <p className="text-zinc-400">Checking session…</p>
-      </div>
+      <AuthSessionLoader
+        className="min-h-screen w-full flex items-center justify-center px-4"
+        spinnerClassName="h-10 w-10 text-zinc-400"
+      />
     );
   }
 
