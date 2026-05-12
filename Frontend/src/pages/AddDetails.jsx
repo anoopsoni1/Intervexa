@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   User,
@@ -286,7 +286,6 @@ function formToPayload(form) {
 }
 
 export default function AddDetails() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user?.userData);
   const [form, setForm] = useState(initialForm);
@@ -550,11 +549,6 @@ export default function AddDetails() {
     }
   };
 
-  const handleSaveAndContinue = async () => {
-    const ok = await handleSave();
-    if (ok) navigate("/templates");
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen text-white flex flex-col">
@@ -611,20 +605,12 @@ export default function AddDetails() {
             >
               <Save size={18} /> {saveLoading ? "Saving…" : "Save"}
             </button>
-            <button
-              type="button"
-              onClick={handleSaveAndContinue}
-              disabled={saveLoading}
-              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors disabled:opacity-50"
-            >
-              {saveLoading ? "Saving…" : "Save & choose template →"}
-            </button>
           </div>
         </div>
 
         {saved && (
           <div className="mb-6 rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
-            Details saved. Use "Save & choose template" to build your resume or project.
+            Details saved.
           </div>
         )}
         {apiError && (
@@ -1234,23 +1220,6 @@ export default function AddDetails() {
         </div>
 
         <AddDetailsSuggestionLists />
-
-        <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
-          <button
-            type="button"
-            onClick={handleSave}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
-          >
-            <Save size={18} /> Save details
-          </button>
-          <button
-            type="button"
-            onClick={handleSaveAndContinue}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-500"
-          >
-            Save & choose template →
-          </button>
-        </div>
       </main>
 
       <AppFooter />
