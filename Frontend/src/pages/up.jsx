@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import Particles from "../components/ui/Lighting.jsx";
+import { getAuthHeaders } from "../services/api.js";
 
 import { API_BASE } from "../config";
 const TEMPLATES_API = `${API_BASE}/templates`;
@@ -13,7 +14,10 @@ export async function fetchAllTemplates(typeFilter = "") {
   const url = typeFilter && (typeFilter === "resume" || typeFilter === "portfolio")
     ? `${TEMPLATES_API}?type=${typeFilter}`
     : TEMPLATES_API;
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    credentials: "include",
+    headers: getAuthHeaders(),
+  });
   const json = await res.json();
   if (!res.ok) throw new Error(json?.message || "Failed to fetch templates");
   return json.data;
@@ -21,7 +25,10 @@ export async function fetchAllTemplates(typeFilter = "") {
 
 /** GET single template by id */
 export async function fetchTemplateById(id) {
-  const res = await fetch(`${TEMPLATES_API}/${id}`);
+  const res = await fetch(`${TEMPLATES_API}/${id}`, {
+    credentials: "include",
+    headers: getAuthHeaders(),
+  });
   const json = await res.json();
   if (!res.ok) throw new Error(json?.message || "Failed to fetch template");
   return json.data;
@@ -36,6 +43,8 @@ export async function createTemplate(name, imageFile, type = "resume", style = "
   formData.append("style", ["modern", "classic", "minimal", "premium"].includes(style) ? style : "modern");
   const res = await fetch(TEMPLATES_API, {
     method: "POST",
+    credentials: "include",
+    headers: getAuthHeaders(),
     body: formData,
   });
   const json = await res.json();
@@ -45,7 +54,11 @@ export async function createTemplate(name, imageFile, type = "resume", style = "
 
 /** DELETE template by id */
 export async function deleteTemplate(id) {
-  const res = await fetch(`${TEMPLATES_API}/${id}`, { method: "DELETE" });
+  const res = await fetch(`${TEMPLATES_API}/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers: getAuthHeaders(),
+  });
   const json = await res.json();
   if (!res.ok) throw new Error(json?.message || "Failed to delete template");
   return json.data;
@@ -159,12 +172,11 @@ function UpPageContent() {
     try {
       const formData = new FormData();
       formData.append("video", videoFile);
-      
-      const headers = {};
+
       const res = await fetch(`${API_BASE}/upload-video`, {
         method: "POST",
         credentials: "include",
-        headers,
+        headers: getAuthHeaders(),
         body: formData,
       });
       const json = await res.json().catch(() => ({}));

@@ -1,0 +1,80 @@
+{
+  "name": "Robert Johnson",
+  "role": "Financial Analyst | CFA Level I Candidate",
+  "summary": "Detail-oriented Financial Analyst with 5 years of experience in financial modeling, forecasting, and data analysis. Proven ability to deliver actionable insights to senior management. Expertise in Excel, SQL, and financial reporting. Strong track record in M&A transaction analysis and budget optimization.",
+  "email": "robert.johnson@email.com",
+  "phone": "+1 (555) 432-7654",
+  "location": "New York, NY",
+  "linkedin": "linkedin.com/in/robertjohnson",
+  "github": "github.com/rjohnson",
+  "experience": [
+    {
+      "role": "Senior Financial Analyst",
+      "company": "Goldman Sachs",
+      "dates": "Mar 2022 - Present",
+      "location": "New York, NY",
+      "bullets": [
+        "Led cross-functional financial analysis for M&A transactions valued at $5B+, delivering comprehensive due diligence reports",
+        "Implemented advanced forecasting models reducing forecast error by 15% year-over-year",
+        "Developed quarterly investor presentations and financial reports for senior management, presenting to C-suite and board members"
+      ]
+    },
+    {
+      "role": "Financial Analyst",
+      "company": "JP Morgan",
+      "dates": "Jul 2020 - Feb 2022",
+      "location": "Jersey City, NJ",
+      "bullets": [
+        "Created comprehensive financial models supporting $500M cost-saving opportunities across business operations",
+        "Analyzed P&L statements for 8 business units, identifying key performance drivers and variance trends",
+        "Conducted variance analysis on $125M budget, implementing corrective actions that improved accuracy by 18%"
+      ]
+    },
+    {
+      "role": "Junior Financial Analyst",
+      "company": "Goldman Sachs",
+      "dates": "Jun 2018 - Aug 2018",
+      "location": "New York, NY",
+      "bullets": [
+        "Supported senior analysts in preparing financial models for equity research and investment banking transactions",
+        "Built financial models supporting acquisition analysis and valuation methodologies (DCF, Comparable Companies)"
+      ]
+    }
+  ],
+  "education": "Bachelor of Science in Finance\nNew York University - Stern School of Business\nSep 2018 - May 2019\nCGPA: 3.75",
+  "skills": [
+    "Financial Modeling: Expert",
+    "Excel & VBA: Expert",
+    "Financial Analysis: Advanced",
+    "DCF & Valuation: Expert",
+    "Power BI & Tableau: Advanced",
+    "Bloomberg Terminal: Intermediate",
+    "SQL & R: Beginner",
+    "Variance Analysis: Expert",
+    "Budget Management: Advanced",
+    "Financial Reporting: Expert"
+  ],
+  "certifications": [
+    "CFA Level 1 Candidate\nCFA Institute\nPassed Level (2022) | Scheduled for Exam"
+  ],
+  "languageProficiency": [
+    "English: Fluent"
+  ],
+  "achievements": [
+    "Implemented advanced forecasting models that reduced forecast error by 15% YoY",
+    "Led analysis for M&A transactions valued at $5B+ with successful deal completion",
+    "Identified cost-saving opportunities totaling $500M across business operations",
+    "Improved budget variance accuracy by 18% through enhanced monitoring procedures"
+  ],
+  "projects": [
+    {
+      "title": "Financial Dashboard Development",
+      "description": "Built interactive Power BI dashboard for real-time P&L monitoring across 8 business units, improving reporting efficiency by 40%"
+    },
+    {
+      "title": "DCF Valuation Model",
+      "description": "Developed comprehensive DCF model for equity research, used for multiple investment decisions worth $2B+",
+      "link": "github.com/rjohnson/dcf-model"
+    }
+  ]
+}

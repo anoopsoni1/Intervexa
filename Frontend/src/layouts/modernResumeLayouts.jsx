@@ -15,3 +15,4 @@ export { default as Resume13Layout } from "./Resume13Layout";
 export { default as Resume14Layout } from "./Resume14Layout";
 export { default as Resume15Layout } from "./Resume15Layout";
 export { default as Resume16Layout } from "./Resume16Layout";
+export { default as Resume17Layout } from "./Resume17Layout";

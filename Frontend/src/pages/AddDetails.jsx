@@ -52,6 +52,7 @@ import {
   Resume14Layout,
   Resume15Layout,
   Resume16Layout,
+  Resume17Layout,
 } from "../layouts/modernResumeLayouts";
 import ClassicLayout from "../layouts/ClassicLayout";
 import ClassicLayout1 from "../layouts/ClassicLayout1";
@@ -79,6 +80,7 @@ const PREVIEW_TEMPLATES = [
   { id: "modern-14", label: "Modern · Resume 14", Component: Resume14Layout },
   { id: "modern-15", label: "Modern · Resume 15", Component: Resume15Layout },
   { id: "modern-16", label: "Modern · Resume 16", Component: Resume16Layout },
+  { id: "modern-17", label: "Modern · Resume 17 (Finance)", Component: Resume17Layout },
   { id: "classic-1", label: "Classic · 1", Component: ClassicLayout1 },
   { id: "classic-2", label: "Classic · 2", Component: ClassicLayout },
   { id: "minimal-1", label: "Minimal", Component: MinimalLayout },
