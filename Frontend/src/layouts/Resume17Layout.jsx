@@ -1,22 +1,22 @@
 /**
- * Resume 17 — Modern Finance Template: Two-column layout with clean typography,
- * navy/slate accents. Left sidebar: Contact, Skills, Education, Certifications.
- * Right column: Summary, Experience, Languages. ATS-optimized with professional hierarchy.
+ * Resume 17 — Classic Two-Column Finance Resume
+ * Left: Summary, Professional Experience
+ * Right: Technical Skills, Education, Languages, Certifications
+ * Header: Name, Title, Contact Info (top-right)
+ * Light gray sidebar background
  */
 
-import { Phone, Mail, MapPin, Linkedin, Github } from "lucide-react";
+import { Mail, MapPin, Phone, Linkedin } from "lucide-react";
 import { resumeExternalHref, resumeHttpNewTabProps, resumeMailtoHref, resumeTelHref } from "../utils/resumeContactHref";
 import { limitAchievements } from "../utils/resumeAchievements";
-import { parseLanguageProficiencyList } from "../utils/resumeLanguage";
 import { parseProjectForResume } from "../utils/projectForm";
 import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
-const NAVY = "#1e3a5f";
-const LIGHT_GRAY = "#f8f9fa";
-const ACCENT_BLUE = "#0066cc";
-
 const DOCUMENT_CLASS =
-  "resume-document w-full mx-auto bg-white text-neutral-900 rounded-none shadow-lg overflow-visible print:shadow-none flex-1 min-h-0 flex flex-col font-sans antialiased [print-color-adjust:exact]";
+  "resume-document max-w-4xl mx-auto bg-white text-black shadow-lg rounded-none sm:rounded-md overflow-visible print:shadow-none print:rounded-none flex-1 min-h-0 flex flex-col antialiased font-sans relative";
+
+const NAVY = "#1e3a5f";
+const LIGHT_BG = "#e8eef5";
 
 function cleanLink(url) {
   return String(url || "")
@@ -27,15 +27,12 @@ function cleanLink(url) {
 
 function parseFullName(raw) {
   const s = String(raw || "").trim();
-  if (!s) return { first: "YOUR", last: "NAME", initial: "N" };
+  if (!s) return { first: "YOUR", last: "NAME" };
   const parts = s.split(/\s+/).filter(Boolean);
-  if (parts.length === 1) {
-    const w = parts[0].toUpperCase();
-    return { first: "", last: w, initial: (w[0] || "Y").toUpperCase() };
-  }
-  const last = parts[parts.length - 1].toUpperCase();
-  const first = parts.slice(0, -1).join(" ").toUpperCase();
-  return { first, last, initial: (last[0] || "?").toUpperCase() };
+  if (parts.length === 1) return { first: "", last: parts[0] };
+  const last = parts[parts.length - 1];
+  const first = parts.slice(0, -1).join(" ");
+  return { first, last };
 }
 
 function parseExperience(entry) {
@@ -70,21 +67,18 @@ function parseEducationBlocks(education) {
     .filter(Boolean)
     .map((block) => {
       const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
-      const yearLine =
-        lines.find(
-          (l) =>
-            /\d{4}\s*[—–-]\s*\d{4}/i.test(l) ||
-            /\d{4}\s*[—–-]\s*present/i.test(l) ||
-            /^\d{4}$/.test(l) ||
-            /^\w+\s+\d{4}/.test(l)
-        ) || "";
+      const yearLine = lines.find(
+        (l) =>
+          /\d{4}\s*[—–-]\s*\d{4}/i.test(l) ||
+          /\d{4}\s*[—–-]\s*present/i.test(l) ||
+          /^\w+\s+\d{4}/.test(l)
+      ) || "";
       const rest = lines.filter((l) => l !== yearLine);
       const degree = rest[0] || "";
       const school = rest[1] || "";
       const extra = rest.slice(2).join(" ").trim();
       return { degree, school, years: yearLine, extra };
-    })
-    .filter((b) => b.degree || b.school || b.years);
+    });
 }
 
 function flattenSkills(skills) {
@@ -119,26 +113,15 @@ function parseCert(cert) {
   return { title: lines[0] || "", body: lines.slice(1).join(" ").trim() };
 }
 
-function SidebarSection({ title, children }) {
+function SectionHeader({ children }) {
   return (
-    <div className="mb-6">
-      <h3 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider mb-2.5" style={{ color: NAVY }}>
-        {title}
-      </h3>
-      <div className="space-y-1.5">{children}</div>
-    </div>
-  );
-}
-
-function MainSection({ title, children }) {
-  return (
-    <div className="mb-6">
-      <div className="flex items-center gap-2 pb-2 border-b" style={{ borderColor: ACCENT_BLUE }}>
-        <h2 className="text-[12px] sm:text-[13px] font-bold uppercase tracking-wide" style={{ color: NAVY }}>
-          {title}
-        </h2>
-      </div>
-      <div className="mt-3">{children}</div>
+    <div className="flex items-center gap-2 mb-2">
+      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: NAVY }}>
+        ●
+      </span>
+      <h2 className="text-xs font-bold uppercase tracking-wider" style={{ color: NAVY }}>
+        {children}
+      </h2>
     </div>
   );
 }
@@ -152,167 +135,171 @@ export default function Resume17Layout({ data }) {
   const email = (data?.email || "").trim();
   const location = (data?.location || data?.address || "").trim();
   const linkedin = cleanLink(data?.linkedin || "");
-  const github = cleanLink(data?.github || "");
 
   const educationBlocks = parseEducationBlocks(data?.education);
   const skillLines = flattenSkills(data?.skills);
-  const languageLines = parseLanguageProficiencyList(data?.languageProficiency);
-  const achievements = limitAchievements(data?.achievements, 5);
+  const languageLines = (data?.languageProficiency || "").split("\n").map(l => l.trim()).filter(Boolean);
+  const certifications = (Array.isArray(data?.certifications) ? data.certifications : [])
+    .map(parseCert)
+    .filter((c) => c.title || c.body);
 
   const experienceItems = (Array.isArray(data?.experience) ? data.experience : [])
     .map(parseExperience)
     .filter((j) => j.title || j.company || j.bullets.length > 0);
 
-  const certifications = (Array.isArray(data?.certifications) ? data.certifications : [])
-    .map(parseCert)
-    .filter((c) => c.title || c.body);
-
   return (
     <div className={DOCUMENT_CLASS}>
-      <div className="flex flex-1 flex-col sm:flex-row">
-        {/* SIDEBAR */}
-        <aside
-          className="w-full sm:w-1/3 px-5 sm:px-6 py-8 print:py-6"
-          style={{ backgroundColor: LIGHT_GRAY }}
-        >
-          {/* CONTACT BLOCK */}
-          <div className="mb-8">
-            <h1 className="text-lg sm:text-xl font-bold mb-1" style={{ color: NAVY }}>
-              {firstName} {lastName}
-            </h1>
-            <p className="text-sm font-semibold" style={{ color: ACCENT_BLUE }}>
-              {role}
-            </p>
-          </div>
+      {/* HEADER */}
+      <div className="px-6 py-5 border-b border-gray-300 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: NAVY }}>
+            {firstName} {lastName}
+          </h1>
+          <p className="text-sm italic text-gray-700">{role}</p>
+        </div>
+        <div className="text-right text-xs space-y-0.5 text-gray-700">
+          {email && (
+            <div className="flex items-center justify-end gap-1">
+              <Mail className="h-3 w-3" />
+              <a href={resumeMailtoHref(email)} {...resumeHttpNewTabProps} className="hover:opacity-70">
+                {email}
+              </a>
+            </div>
+          )}
+          {phone && (
+            <div className="flex items-center justify-end gap-1">
+              <Phone className="h-3 w-3" />
+              <a href={resumeTelHref(phone)} {...resumeHttpNewTabProps} className="hover:opacity-70">
+                {phone}
+              </a>
+            </div>
+          )}
+          {linkedin && (
+            <div className="flex items-center justify-end gap-1">
+              <Linkedin className="h-3 w-3" />
+              <a href={resumeExternalHref(linkedin)} {...resumeHttpNewTabProps} className="hover:opacity-70">
+                {linkedin}
+              </a>
+            </div>
+          )}
+          {location && (
+            <div className="flex items-center justify-end gap-1">
+              <MapPin className="h-3 w-3" />
+              <span>{location}</span>
+            </div>
+          )}
+        </div>
+      </div>
 
-          <SidebarSection title="Contact">
-            {email && (
-              <a href={resumeMailtoHref(email)} {...resumeHttpNewTabProps} className="block text-xs leading-relaxed hover:opacity-70 transition-opacity">
-                <span className="font-semibold">Email:</span> {email}
-              </a>
-            )}
-            {phone && (
-              <a href={resumeTelHref(phone)} {...resumeHttpNewTabProps} className="block text-xs leading-relaxed hover:opacity-70 transition-opacity">
-                <span className="font-semibold">Phone:</span> {phone}
-              </a>
-            )}
-            {location && (
-              <p className="text-xs leading-relaxed">
-                <span className="font-semibold">Location:</span> {location}
-              </p>
-            )}
-            {linkedin && (
-              <a href={resumeExternalHref(linkedin)} {...resumeHttpNewTabProps} className="block text-xs leading-relaxed hover:opacity-70 transition-opacity">
-                <span className="font-semibold">LinkedIn:</span> {linkedin}
-              </a>
-            )}
-            {github && (
-              <a href={resumeExternalHref(github)} {...resumeHttpNewTabProps} className="block text-xs leading-relaxed hover:opacity-70 transition-opacity">
-                <span className="font-semibold">GitHub:</span> {github}
-              </a>
-            )}
-          </SidebarSection>
+      {/* TWO-COLUMN LAYOUT */}
+      <div className="flex flex-1">
+        {/* LEFT COLUMN */}
+        <div className="flex-1 px-6 py-5 border-r border-gray-300">
+          {/* SUMMARY */}
+          {summary && (
+            <div className="mb-5">
+              <SectionHeader>Summary</SectionHeader>
+              <p className="text-xs leading-relaxed text-gray-800 mt-2">{summary}</p>
+            </div>
+          )}
 
-          {/* SKILLS */}
+          {/* PROFESSIONAL EXPERIENCE */}
+          {experienceItems.length > 0 && (
+            <div className="mb-5">
+              <SectionHeader>Professional Experience</SectionHeader>
+              <div className="mt-2 space-y-4">
+                {experienceItems.map((job, idx) => (
+                  <div key={idx}>
+                    <div className="flex justify-between items-baseline mb-0.5">
+                      <h3 className="text-xs font-bold" style={{ color: NAVY }}>
+                        {job.title}
+                      </h3>
+                      <span className="text-xs text-gray-600">{job.dates}</span>
+                    </div>
+                    <p className="text-xs text-gray-700 font-semibold mb-1.5">
+                      {job.company}
+                      {job.location && ` — ${job.location}`}
+                    </p>
+                    {job.bullets.length > 0 && (
+                      <ul className="space-y-0.5 ml-3">
+                        {job.bullets.slice(0, 3).map((bullet, bidx) => (
+                          <li key={bidx} className="text-xs text-gray-800 list-disc">
+                            {bullet}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className="flex-1  px-6 py-5" style={{ backgroundColor: LIGHT_BG }}>
+          {/* TECHNICAL SKILLS */}
           {skillLines.length > 0 && (
-            <SidebarSection title="Technical Skills">
-              {skillLines.map((skill, idx) => (
-                <div key={idx} className="text-xs leading-relaxed">
-                  {skill}
-                </div>
-              ))}
-            </SidebarSection>
+            <div className="mb-5">
+              <SectionHeader>Technical Skills</SectionHeader>
+              <div className="mt-2 space-y-1">
+                {skillLines.map((skill, idx) => {
+                  const parts = skill.split(":").map(p => p.trim());
+                  return (
+                    <div key={idx} className="text-xs text-gray-800 flex justify-between">
+                      <span>{parts[0]}</span>
+                      {parts[1] && <span className="text-right text-gray-600">{parts[1]}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
           {/* EDUCATION */}
           {educationBlocks.length > 0 && (
-            <SidebarSection title="Education">
-              {educationBlocks.map((edu, idx) => (
-                <div key={idx} className="text-xs leading-relaxed mb-2">
-                  <div className="font-semibold">{edu.degree}</div>
-                  <div className="text-neutral-700">{edu.school}</div>
-                  {edu.years && <div className="text-neutral-600 text-[10px]">{edu.years}</div>}
-                  {edu.extra && <div className="text-neutral-600 text-[10px]">{edu.extra}</div>}
-                </div>
-              ))}
-            </SidebarSection>
-          )}
-
-          {/* CERTIFICATIONS */}
-          {certifications.length > 0 && (
-            <SidebarSection title="Certifications">
-              {certifications.map((cert, idx) => (
-                <div key={idx} className="text-xs leading-relaxed mb-1.5">
-                  <div className="font-semibold">{cert.title}</div>
-                  {cert.body && <div className="text-neutral-700 text-[10px]">{cert.body}</div>}
-                </div>
-              ))}
-            </SidebarSection>
+            <div className="mb-5">
+              <SectionHeader>Education</SectionHeader>
+              <div className="mt-2 space-y-2">
+                {educationBlocks.map((edu, idx) => (
+                  <div key={idx}>
+                    <p className="text-xs font-semibold text-gray-900">{edu.degree}</p>
+                    <p className="text-xs text-gray-700">{edu.school}</p>
+                    {edu.years && <p className="text-xs text-gray-600">{edu.years}</p>}
+                    {edu.extra && <p className="text-xs text-gray-600">{edu.extra}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* LANGUAGES */}
           {languageLines.length > 0 && (
-            <SidebarSection title="Languages">
-              {languageLines.map((lang, idx) => (
-                <div key={idx} className="text-xs leading-relaxed">
-                  {lang}
-                </div>
-              ))}
-            </SidebarSection>
-          )}
-        </aside>
-
-        {/* MAIN CONTENT */}
-        <main className="flex-1 px-5 sm:px-6 py-8 print:py-6">
-          {/* SUMMARY */}
-          {summary && (
-            <MainSection title="Summary">
-              <p className="text-xs sm:text-sm leading-relaxed text-neutral-800">{summary}</p>
-            </MainSection>
-          )}
-
-          {/* EXPERIENCE */}
-          {experienceItems.length > 0 && (
-            <MainSection title="Professional Experience">
-              {experienceItems.map((job, idx) => (
-                <div key={idx} className="mb-4">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 mb-1">
-                    <h3 className="text-xs sm:text-sm font-bold" style={{ color: NAVY }}>
-                      {job.title}
-                    </h3>
-                    <span className="text-xs text-neutral-600">{job.dates}</span>
-                  </div>
-                  <p className="text-xs text-neutral-700 font-semibold mb-2">
-                    {job.company}
-                    {job.location && ` — ${job.location}`}
-                  </p>
-                  {job.bullets.length > 0 && (
-                    <ul className="space-y-1 ml-4">
-                      {job.bullets.slice(0, 4).map((bullet, bidx) => (
-                        <li key={bidx} className="text-xs text-neutral-800 list-disc">
-                          {bullet}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </MainSection>
-          )}
-
-          {/* ACHIEVEMENTS */}
-          {achievements.length > 0 && (
-            <MainSection title="Key Achievements">
-              <ul className="space-y-1.5">
-                {achievements.map((ach, idx) => (
-                  <li key={idx} className="text-xs text-neutral-800 list-disc ml-4">
-                    {ach}
-                  </li>
+            <div className="mb-5">
+              <SectionHeader>Languages</SectionHeader>
+              <div className="mt-2 space-y-1">
+                {languageLines.map((lang, idx) => (
+                  <p key={idx} className="text-xs text-gray-800">{lang}</p>
                 ))}
-              </ul>
-            </MainSection>
+              </div>
+            </div>
           )}
-        </main>
+
+          {/* CERTIFICATIONS */}
+          {certifications.length > 0 && (
+            <div>
+              <SectionHeader>Certifications</SectionHeader>
+              <div className="mt-2 space-y-2">
+                {certifications.map((cert, idx) => (
+                  <div key={idx}>
+                    <p className="text-xs font-semibold text-gray-900">{cert.title}</p>
+                    {cert.body && <p className="text-xs text-gray-700">{cert.body}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
