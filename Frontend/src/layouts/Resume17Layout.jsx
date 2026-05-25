@@ -25,6 +25,12 @@ function cleanLink(url) {
     .replace(/\/$/, "");
 }
 
+function twoColumns(list) {
+  if (list.length === 0) return [[], []];
+  const mid = Math.ceil(list.length / 2);
+  return [list.slice(0, mid), list.slice(mid)];
+}
+
 function parseFullName(raw) {
   const s = String(raw || "").trim();
   if (!s) return { first: "YOUR", last: "NAME" };
@@ -138,7 +144,9 @@ export default function Resume17Layout({ data }) {
 
   const educationBlocks = parseEducationBlocks(data?.education);
   const skillLines = flattenSkills(data?.skills);
+  const skillCols = twoColumns(skillLines);
   const languageLines = (data?.languageProficiency || "").split("\n").map(l => l.trim()).filter(Boolean);
+  const achievementItems = limitAchievements(data?.achievements);
   const certifications = (Array.isArray(data?.certifications) ? data.certifications : [])
     .map(parseCert)
     .filter((c) => c.title || c.body);
@@ -146,6 +154,10 @@ export default function Resume17Layout({ data }) {
   const experienceItems = (Array.isArray(data?.experience) ? data.experience : [])
     .map(parseExperience)
     .filter((j) => j.title || j.company || j.bullets.length > 0);
+
+  const projectItems = (Array.isArray(data?.projects) ? data.projects : [])
+    .map(parseProjectForResume)
+    .filter((project) => project.title || project.description || project.link);
 
   return (
     <div className={DOCUMENT_CLASS}>
@@ -194,7 +206,7 @@ export default function Resume17Layout({ data }) {
       {/* TWO-COLUMN LAYOUT */}
       <div className="flex flex-1">
         {/* LEFT COLUMN */}
-        <div className="flex-1 px-6 py-5 border-r border-gray-300">
+        <div className="flex-[3] px-6 py-5 border-r border-gray-300">
           {/* SUMMARY */}
           {summary && (
             <div className="mb-5">
@@ -234,24 +246,85 @@ export default function Resume17Layout({ data }) {
               </div>
             </div>
           )}
+
+          {/* PROJECTS */}
+          {projectItems.length > 0 && (
+            <div className="mb-5">
+              <SectionHeader>Projects</SectionHeader>
+              <div className="mt-2 space-y-3">
+                {projectItems.map((project, idx) => (
+                  <div key={idx}>
+                    {project.title && (
+                      <h3 className="text-xs font-bold" style={{ color: NAVY }}>
+                        {project.title}
+                      </h3>
+                    )}
+                    {project.link && (
+                      <p className="text-xs mt-0.5">
+                        <ResumeProjectLink url={project.link} className="text-blue-600 underline hover:opacity-70" />
+                      </p>
+                    )}
+                    {project.description && (
+                      <ul className="space-y-0.5 ml-3 mt-1">
+                        {project.description
+                          .split("\n")
+                          .map((bullet) => bullet.trim())
+                          .filter(Boolean)
+                          .map((bullet, bidx) => (
+                            <li key={bidx} className="text-xs text-gray-800 list-disc">
+                              {bullet.replace(/^\s*[•\-*]\s*/, "")}
+                            </li>
+                          ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* RIGHT COLUMN */}
-        <div className="flex-1  px-6 py-5" style={{ backgroundColor: LIGHT_BG }}>
+        <div className="flex-[2]  px-6 py-5" style={{ backgroundColor: LIGHT_BG }}>
           {/* TECHNICAL SKILLS */}
           {skillLines.length > 0 && (
             <div className="mb-5">
               <SectionHeader>Technical Skills</SectionHeader>
+              <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1">
+                <div className="space-y-1">
+                  {skillCols[0].map((skill, idx) => {
+                    const parts = skill.split(":").map(p => p.trim());
+                    return (
+                      <div key={idx} className="text-xs text-gray-800">
+                        <span>{parts[0]}</span>
+                        {parts[1] && <span className="text-gray-600 block text-[10px]">{parts[1]}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="space-y-1">
+                  {skillCols[1].map((skill, idx) => {
+                    const parts = skill.split(":").map(p => p.trim());
+                    return (
+                      <div key={idx} className="text-xs text-gray-800">
+                        <span>{parts[0]}</span>
+                        {parts[1] && <span className="text-gray-600 block text-[10px]">{parts[1]}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ACHIEVEMENTS */}
+          {achievementItems.length > 0 && (
+            <div className="mb-5">
+              <SectionHeader>Achievements</SectionHeader>
               <div className="mt-2 space-y-1">
-                {skillLines.map((skill, idx) => {
-                  const parts = skill.split(":").map(p => p.trim());
-                  return (
-                    <div key={idx} className="text-xs text-gray-800 flex justify-between">
-                      <span>{parts[0]}</span>
-                      {parts[1] && <span className="text-right text-gray-600">{parts[1]}</span>}
-                    </div>
-                  );
-                })}
+                {achievementItems.map((achievement, idx) => (
+                  <p key={idx} className="text-xs text-gray-800">• {achievement}</p>
+                ))}
               </div>
             </div>
           )}

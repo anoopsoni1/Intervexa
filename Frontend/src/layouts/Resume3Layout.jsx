@@ -179,12 +179,12 @@ export default function Resume3Layout({ data }) {
       <DotsPattern />
 
       {/* Header: name + role on left, contact beside (right) */}
-      <header className="px-4 sm:px-6 pt-5 pb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+      <header className="px-4 sm:px-6 pt-5 pb-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-zinc-800 tracking-tight">{name}</h1>
           <p className="text-sm text-zinc-500 mt-0.5">{role}</p>
         </div>
-        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-zinc-600 shrink-0">
+        <div className="grid gap-0.5 text-sm text-zinc-600 shrink-0">
           {data?.phone && (
             <a href={`tel:${data.phone}`} className="flex items-center gap-1.5">
               <Phone size={14} className="shrink-0 text-zinc-600" /> {data.phone}
