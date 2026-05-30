@@ -17,8 +17,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { setUser, clearUser } from "../../slices/user.slice";
 import { useLogout } from "../../utils/authUtils";
 import { apiJson } from "../../services/api";
-import OptimizedImage from "../ui/OptimizedImage.jsx";
-
+import OptimizedImage from "../ui/OptimizedImage.jsx";import NotificationBell from "../NotificationBell.jsx";
+import NotificationDropdown from "../NotificationDropdown.jsx";
+import { useNotification } from "../../hooks/useNotification";
 const MENU_ITEMS = [
   { to: "/", label: "Home", icon: FaHome },
   { to: "/templates", label: "Templates", icon: FileText },
@@ -47,11 +48,15 @@ export default function AppHeader() {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
   const closeTimeoutRef = useRef(null);
   const [size, setSize] = useState(() => ({
     width: typeof window !== "undefined" ? window.innerWidth : 1024,
     height: typeof window !== "undefined" ? window.innerHeight : 768,
   }));
+  
+  // Initialize notification hook for logged-in users
+  const notification = useNotification();
 
   // Only treat as logged in when Redux has user.
   const isLoggedIn = !!user;
@@ -205,7 +210,7 @@ export default function AppHeader() {
                     onClick={closeMenu}
                   />
                   <div
-                    className={`absolute left-0 top-0 bottom-0 w-[min(320px,88vw)] max-w-full flex flex-col rounded-r-3xl border-r border-white/[0.08] bg-zinc-950/98 shadow-[0_0_0_1px_rgba(255,255,255,0.04),12px_0_48px_-12px_rgba(79,70,229,0.35),24px_0_80px_-24px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                    className={`absolute left-0 top-0 bottom-0 w-[min(320px,88vw)] max-w-full flex flex-col rounded-r-3xl border-r border-white/8 bg-zinc-950/98 shadow-[0_0_0_1px_rgba(255,255,255,0.04),12px_0_48px_-12px_rgba(79,70,229,0.35),24px_0_80px_-24px_rgba(0,0,0,0.6)] backdrop-blur-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                       closing ? "-translate-x-full" : "translate-x-0"
                     }`}
                     onClick={(e) => e.stopPropagation()}
@@ -213,12 +218,12 @@ export default function AppHeader() {
                     aria-modal="true"
                     aria-label="Navigation menu"
                   >
-                    <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-indigo-400/25 to-transparent" aria-hidden />
+                    <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-linear-to-b from-transparent via-indigo-400/25 to-transparent" aria-hidden />
                     <ul className="flex flex-1 flex-col overflow-y-auto overscroll-contain py-3 text-white">
                       <li className="shrink-0 px-4 pb-4 pt-1">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex min-w-0 flex-1 items-center gap-3">
-                            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 p-0.5 shadow-lg shadow-indigo-500/30">
+                            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-2xl bg-linear-to-br from-indigo-500 to-violet-600 p-0.5 shadow-lg shadow-indigo-500/30">
                               <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-[0.65rem] bg-zinc-950">
                                 <OptimizedImage
                                   src="/lo.png"
@@ -231,7 +236,7 @@ export default function AppHeader() {
                               </div>
                             </div>
                             <div className="min-w-0 pt-0.5">
-                              <p className="truncate bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-lg font-bold tracking-tight text-transparent">
+                              <p className="truncate bg-linear-to-r from-white to-zinc-300 bg-clip-text text-lg font-bold tracking-tight text-transparent">
                                 Ansoyal AI
                               </p>
                               <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-zinc-500">
@@ -242,13 +247,13 @@ export default function AppHeader() {
                           <button
                             type="button"
                             onClick={closeMenu}
-                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-zinc-400 transition-all hover:border-white/20 hover:bg-white/[0.08] hover:text-white active:scale-95"
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/4 text-zinc-400 transition-all hover:border-white/20 hover:bg-white/8 hover:text-white active:scale-95"
                             aria-label="Close menu"
                           >
                             <RxCross2 className="h-5 w-5" />
                           </button>
                         </div>
-                        <div className="mt-4 h-px w-full bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+                        <div className="mt-4 h-px w-full bg-linear-to-r from-transparent via-white/15 to-transparent" />
                       </li>
                       <li className="px-3 pb-2">
                         <p className="px-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
@@ -272,8 +277,8 @@ export default function AppHeader() {
                             className={({ isActive }) =>
                               `group mb-0.5 flex items-center gap-3.5 rounded-xl px-3 py-3 transition-all duration-200 active:scale-[0.99] ${
                                 isActive
-                                  ? "border border-indigo-500/35 bg-indigo-500/[0.12] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]"
-                                  : "border border-transparent text-zinc-300 hover:bg-white/[0.06] hover:text-white"
+                                  ? "border border-indigo-500/35 bg-indigo-500/12 text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]"
+                                  : "border border-transparent text-zinc-300 hover:bg-white/6 hover:text-white"
                               }`
                             }
                           >
@@ -283,7 +288,7 @@ export default function AppHeader() {
                                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${
                                     isActive
                                       ? "bg-indigo-500/25 text-indigo-200"
-                                      : "bg-white/[0.06] text-zinc-400 group-hover:bg-white/10 group-hover:text-zinc-200"
+                                      : "bg-white/6 text-zinc-400 group-hover:bg-white/10 group-hover:text-zinc-200"
                                   }`}
                                 >
                                   <item.icon size={20} className="shrink-0" aria-hidden />
@@ -299,7 +304,7 @@ export default function AppHeader() {
                       ))}
                       <li className="mt-auto flex-1 min-h-4" aria-hidden />
                       <li
-                        className={`shrink-0 border-t border-white/[0.07] bg-gradient-to-t from-black/50 to-transparent px-2 pb-6 pt-3 transition-all duration-300 ease-out ${
+                        className={`shrink-0 border-t border-white/[0.07] bg-linear-to-t from-black/50 to-transparent px-2 pb-6 pt-3 transition-all duration-300 ease-out ${
                           closing ? "opacity-0 -translate-x-2" : "opacity-100 translate-x-0"
                         }`}
                         style={{
@@ -307,6 +312,13 @@ export default function AppHeader() {
                           transitionProperty: "opacity, transform",
                         }}
                       >
+                        {isLoggedIn && (
+                          <div className="mb-3">
+                            <NotificationBell 
+                              onDropdownToggle={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
+                            />
+                          </div>
+                        )}
                         {isLoggedIn ? (
                           <button
                             type="button"
@@ -314,7 +326,7 @@ export default function AppHeader() {
                               logout();
                               closeMenu();
                             }}
-                            className="flex w-full items-center gap-3.5 rounded-xl border border-rose-500/20 bg-rose-500/[0.08] px-3 py-3.5 text-left text-rose-200 transition-all hover:border-rose-500/40 hover:bg-rose-500/15 hover:text-rose-100 active:scale-[0.99]"
+                            className="flex w-full items-center gap-3.5 rounded-xl border border-rose-500/20 bg-rose-500/8 px-3 py-3.5 text-left text-rose-200 transition-all hover:border-rose-500/40 hover:bg-rose-500/15 hover:text-rose-100 active:scale-[0.99]"
                           >
                             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-500/20 text-rose-300">
                               <LogOut className="h-5 w-5" strokeWidth={2} aria-hidden />
@@ -342,7 +354,7 @@ export default function AppHeader() {
             {/* When menu is open, hide hamburger so only drawer's X is visible; avoids two buttons in one bar */}
             <motion.button
               type="button"
-              className={`flex items-center justify-center text-zinc-200 p-2 rounded-lg hover:bg-white/5 active:bg-white/10 min-w-[44px] min-h-[44px] transition-opacity duration-200 ${open && !closing ? "opacity-0 pointer-events-none" : ""}`}
+              className={`flex items-center justify-center text-zinc-200 p-2 rounded-lg hover:bg-white/5 active:bg-white/10 min-w-11 min-h-11 transition-opacity duration-200 ${open && !closing ? "opacity-0 pointer-events-none" : ""}`}
               onClick={() => (open ? closeMenu() : openMenu())}
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
@@ -354,6 +366,17 @@ export default function AppHeader() {
           </>
         ) : (
           <>
+            {isLoggedIn && (
+              <div className="relative">
+                <NotificationBell 
+                  onDropdownToggle={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
+                />
+                <NotificationDropdown 
+                   isOpen={notificationDropdownOpen}
+                  onClose={() => setNotificationDropdownOpen(false)}
+                />
+              </div>
+            )}
             {isLoggedIn ? (
               <motion.button
                 type="button"

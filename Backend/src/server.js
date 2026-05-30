@@ -32,9 +32,14 @@ connectDB().then(async () => {
   }
   try {
     const { attachSocketServer } = await import("./socket/index.js");
-    attachSocketServer(httpServer);
-    console.log("Socket.IO + WebRTC signaling ready on same port");
-  } catch {
+    const io = attachSocketServer(httpServer);
+    
+    // Register global Socket.IO instance for notification service
+    const { setGlobalIoInstance } = await import("./utils/notificationService.js");
+    setGlobalIoInstance(io);
+    
+    console.log("Socket.IO + WebRTC signaling + Real-time Notifications ready on same port");
+  } catch (err) {
     console.warn("[Socket] Not loaded. To enable: npm install socket.io");
   }
   httpServer.listen(PORT, () => {
@@ -43,5 +48,6 @@ connectDB().then(async () => {
 }).catch((err) => {
   console.error("DB connection failed:", err);
 });
+
 
 
