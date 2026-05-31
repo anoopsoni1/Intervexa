@@ -59,6 +59,7 @@ import authRouter from "./routes/auth.routes.js";
 import resumeRouter from "./routes/resume.routes.js";
 import dashboardRouter from "./routes/dashboard.routes.js";
 import notificationRouter from "./routes/notification.routes.js";
+import adminNotificationRouter from "./routes/adminNotification.routes.js";
 import { getJobStatus } from "./controller/queue.controller.js";
 import {
   aiInterviewRouter,
@@ -76,6 +77,7 @@ app.use("/api/dashboard", globalApiRateLimit, dashboardRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/resume", resumeRouter);
 app.use("/api/v1/notifications", globalApiRateLimit, notificationRouter);
+app.use("/api/v1/admin/notifications", globalApiRateLimit, adminNotificationRouter);
 const jobRouter = Router();
 jobRouter.get("/:jobId", getJobStatus);
 app.use("/api/v1/job", jobRouter);

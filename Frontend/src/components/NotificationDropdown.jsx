@@ -26,6 +26,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
    */
   const handleMarkAsRead = useCallback(
     (notificationId, event) => {
+      event.preventDefault();
       event.stopPropagation();
       markAsRead(notificationId);
     },
@@ -44,6 +45,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
    */
   const handleDelete = useCallback(
     (notificationId, event) => {
+      event.preventDefault();
       event.stopPropagation();
       deleteNotification(notificationId);
     },
@@ -132,6 +134,17 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
       <div className="notification-dropdown-content">
         {isLoading && notifications.length === 0 ? (
           <div className="loading-state">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="12" cy="12" r="1" />
+              <circle cx="19" cy="12" r="1" />
+              <circle cx="5" cy="12" r="1" />
+            </svg>
             <p>Loading notifications...</p>
           </div>
         ) : notifications.length === 0 ? (
@@ -186,6 +199,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
                       }
                       disabled={isMarkingRead}
                       title="Mark as read"
+                      type="button"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -203,7 +217,8 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
                     onClick={(e) =>
                       handleDelete(notification._id, e)
                     }
-                    title="Delete"
+                    title="Delete notification"
+                    type="button"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -229,6 +244,7 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
             className="load-more-btn"
             onClick={handleLoadMore}
             disabled={isLoading}
+            type="button"
           >
             {isLoading ? "Loading..." : "Load More"}
           </button>

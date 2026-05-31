@@ -261,6 +261,15 @@ export async function markNotificationAsRead(notificationId, userId) {
       throw new ApiError(404, "Notification not found");
     }
 
+    const io = getGlobalIoInstance();
+    if (io) {
+      io.to(`user:${userId}`).emit("notification:read", {
+        notificationId,
+        userId,
+        isRead: true,
+      });
+    }
+
     return notification;
   } catch (error) {
     console.error("[Mark as Read Error]", error);
@@ -280,6 +289,14 @@ export async function markAllNotificationsAsRead(userId) {
       { userId, isRead: false },
       { isRead: true }
     );
+
+    const io = getGlobalIoInstance();
+    if (io) {
+      io.to(`user:${userId}`).emit("notification:read-all", {
+        userId,
+        modifiedCount: result.modifiedCount,
+      });
+    }
 
     return {
       modifiedCount: result.modifiedCount,

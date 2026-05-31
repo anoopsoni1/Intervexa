@@ -124,12 +124,20 @@ function AdminDashboard() {
         <main className="flex-1 container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-8xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">Admin Dashboard</h1>
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 sm:px-4 py-2.5 text-sm font-medium text-white hover:border-indigo-400/50 hover:bg-indigo-500/20 hover:text-indigo-200 transition-all w-full sm:w-auto"
-          >
-            <span className="text-indigo-400">←</span> Back to Dashboard
-          </Link>
+          <div className="flex gap-3 flex-col sm:flex-row">
+            <Link
+              to="/admin/notifications"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-500/50 bg-indigo-500/10 px-3 sm:px-4 py-2.5 text-sm font-medium text-indigo-200 hover:border-indigo-400 hover:bg-indigo-500/20 transition-all w-full sm:w-auto"
+            >
+              <span>📢</span> Manage Notifications
+            </Link>
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-3 sm:px-4 py-2.5 text-sm font-medium text-white hover:border-indigo-400/50 hover:bg-indigo-500/20 hover:text-indigo-200 transition-all w-full sm:w-auto"
+            >
+              <span className="text-indigo-400">←</span> Back to Dashboard
+            </Link>
+          </div>
         </div>
 
         {loading && (

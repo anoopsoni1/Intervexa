@@ -19,6 +19,7 @@ import { useLogout } from "../../utils/authUtils";
 import { apiJson } from "../../services/api";
 import OptimizedImage from "../ui/OptimizedImage.jsx";import NotificationBell from "../NotificationBell.jsx";
 import NotificationDropdown from "../NotificationDropdown.jsx";
+// import NotificationBell from "../NotificationBell.jsx";
 import { useNotification } from "../../hooks/useNotification";
 const MENU_ITEMS = [
   { to: "/", label: "Home", icon: FaHome },
@@ -54,7 +55,7 @@ export default function AppHeader() {
     width: typeof window !== "undefined" ? window.innerWidth : 1024,
     height: typeof window !== "undefined" ? window.innerHeight : 768,
   }));
-  
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   // Initialize notification hook for logged-in users
   const notification = useNotification();
 
@@ -108,6 +109,30 @@ export default function AppHeader() {
       if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
     };
   }, []);
+
+
+const notificationRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setIsNotificationOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
+  }, []);
+
 
   // Lock body scroll when mobile menu is open (small screens only)
   useEffect(() => {
@@ -367,15 +392,24 @@ export default function AppHeader() {
         ) : (
           <>
             {isLoggedIn && (
-              <div className="relative">
-                <NotificationBell 
-                  onDropdownToggle={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
-                />
-                <NotificationDropdown 
-                   isOpen={notificationDropdownOpen}
-                  onClose={() => setNotificationDropdownOpen(false)}
-                />
-              </div>
+               <div
+      className="relative"
+      ref={notificationRef}
+    >
+      <NotificationBell
+        isOpen={isNotificationOpen}
+        onToggle={() =>
+          setIsNotificationOpen((prev) => !prev)
+        }
+      />
+
+      <NotificationDropdown
+        isOpen={isNotificationOpen}
+        onClose={() =>
+          setIsNotificationOpen(false)
+        }
+      />
+    </div>
             )}
             {isLoggedIn ? (
               <motion.button

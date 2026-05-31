@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://intervexa.onrender.com" ;
+const API_BASE_URL ="https://intervexa.onrender.com";
 
 const api = axios.create({
   baseURL: `${API_BASE_URL}/api/v1/notifications`,
@@ -51,10 +51,7 @@ const notificationService = {
 
   // Mark notification as read
   markAsRead: async (notificationId) => {
-    const response = await api.patch(
-      `/${notificationId}/read`
-    );
-
+    const response = await api.patch(`/${notificationId}/read`);
     return response.data.data;
   },
 

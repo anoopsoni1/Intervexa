@@ -1,4 +1,4 @@
-/* NotificationBell.css */
+/* NotificationBell.css - Dark Theme for ResumeAI */
 
 .notification-bell-container {
   position: relative;
@@ -14,15 +14,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 8px;
   transition: all 0.3s ease;
-  color: #333;
+  color: #cbd5e1;
   font-size: 24px;
+  hover: 0;
 }
 
 .notification-bell:hover {
-  background-color: #f0f0f0;
-  transform: scale(1.1);
+  background-color: rgba(129, 140, 248, 0.1);
+  color: #818cf8;
+  transform: scale(1.08);
 }
 
 .notification-bell:active {
@@ -34,16 +36,15 @@
   height: 24px;
   stroke: currentColor;
   stroke-width: 2;
-  animation: bellRing 0.6s ease-in-out;
+  transition: all 0.3s ease;
 }
 
-.bell-icon:hover {
+.notification-bell:hover .bell-icon {
   animation: bellRing 0.6s ease-in-out;
 }
 
 @keyframes bellRing {
-  0%,
-  100% {
+  0%, 100% {
     transform: rotate(0deg);
   }
   10% {
@@ -69,31 +70,30 @@
 /* Badge for unread count */
 .notification-badge {
   position: absolute;
-  top: 0;
-  right: 0;
-  background-color: #ef4444;
+  top: -2px;
+  right: -2px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
   border-radius: 50%;
-  min-width: 20px;
-  height: 20px;
+  min-width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-  border: 2px solid white;
+  font-size: 11px;
+  font-weight: 700;
+  border: 2px solid rgba(15, 23, 42, 0.95);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
   animation: badgePulse 2s ease-in-out infinite;
+  letter-spacing: -0.3px;
 }
 
 @keyframes badgePulse {
-  0% {
+  0%, 100% {
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
   }
-  70% {
-    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
   }
 }
 
@@ -102,15 +102,17 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin-top: 4px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin-top: 8px;
   font-size: 12px;
   white-space: nowrap;
   pointer-events: none;
   animation: slideDown 0.3s ease-out;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes slideDown {
@@ -125,12 +127,12 @@
 }
 
 .no-notifications {
-  color: #6b7280;
+  color: #94a3b8;
 }
 
 .notification-status-text {
-  color: #ef4444;
-  font-weight: 600;
+  color: #818cf8;
+  font-weight: 700;
 }
 
 /* Responsive design */
@@ -145,9 +147,10 @@
   }
 
   .notification-badge {
-    min-width: 18px;
-    height: 18px;
-    font-size: 11px;
-    border-width: 1px;
+    min-width: 20px;
+    height: 20px;
+    font-size: 10px;
   }
 }
+
+
