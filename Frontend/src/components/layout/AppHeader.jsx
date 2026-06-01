@@ -55,7 +55,7 @@ export default function AppHeader() {
     width: typeof window !== "undefined" ? window.innerWidth : 1024,
     height: typeof window !== "undefined" ? window.innerHeight : 768,
   }));
-    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    // const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   // Initialize notification hook for logged-in users
   const notification = useNotification();
 
@@ -391,7 +391,7 @@ const notificationRef = useRef(null);
           </>
         ) : (
           <>
-            {isLoggedIn && (
+            {/* {isLoggedIn && (
                <div
       className="relative"
       ref={notificationRef}
@@ -410,7 +410,7 @@ const notificationRef = useRef(null);
         }
       />
     </div>
-            )}
+            )} */}
             {isLoggedIn ? (
               <motion.button
                 type="button"

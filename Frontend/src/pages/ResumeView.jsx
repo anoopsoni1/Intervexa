@@ -7,7 +7,7 @@ import AppHeader from "../components/layout/AppHeader";
 import AppFooter from "../components/layout/AppFooter";
 import { useToast } from "../context/ToastContext";
 import { getResumeContentForView } from "../utils/detailApi.js";
-/** Modern layouts (Resume1–9) from the modern resume layouts page */
+/** Modern layouts (Resume1–19) from the modern resume layouts page */
 import {
   Resume1Layout,
   Resume2Layout,
@@ -27,6 +27,7 @@ import {
   Resume16Layout,
   Resume17Layout,
   Resume18Layout,
+  Resume19Layout,
 } from "../layouts/modernResumeLayouts";
 import ClassicLayout from "../layouts/ClassicLayout";
 import ClassicLayout1 from "../layouts/ClassicLayout1";
@@ -527,6 +528,7 @@ export default function ResumeView() {
               if (num === 16) return <Resume16Layout data={displayData} />;
               if (num === 17) return <Resume17Layout data={displayData} />;
               if (num === 18) return <Resume18Layout data={displayData} />;
+              if (num === 19) return <Resume19Layout data={displayData} />;
               return <Resume2Layout data={displayData} />;
             })()}
             <footer className="resume-doc-footer mt-auto pt-2 text-center text-zinc-500 text-[10px] sm:text-xs print:text-[10px] print:text-zinc-600">
