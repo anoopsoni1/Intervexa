@@ -8,7 +8,7 @@ import { parseProjectForResume } from "../utils/projectForm";
 import ResumeProjectLink from "../components/resume/ResumeProjectLink";
 
 const DOCUMENT_CLASS =
-  "resume-document w-full mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none  flex-1 min-h-0 flex flex-col antialiased";
+  "resume-document max-w-4xl mx-auto bg-white text-black shadow-2xl rounded-none sm:rounded-lg overflow-visible print:shadow-none  flex-1 min-h-0 flex flex-col antialiased";
 
 const DOC_FONT = { fontFamily: "var(--font-resume-premium-2)" };
 
@@ -144,11 +144,11 @@ export default function PremiumLayout2({ data }) {
 
   return (
     <article
-      className={`${DOCUMENT_CLASS} max-w-3xl px-3 py-3 sm:px-4 sm:py-3 print:px-2 print:py-2 print:max-w-none bg-white text-black`}
+      className={`${DOCUMENT_CLASS} max-w-4xl px-3 py-3 sm:p-8 sm:py-3 print:p-8 print:py-2 print:max-w-4xl bg-white text-black`}
       style={DOC_FONT}
     >
       <header className="text-center print:mt-2 print:mb-1.5 resume-section-avoid-break">
-        <h1 className="text-[10px] sm:text-[18px] font-bold tracking-tight text-black mt-2 leading-tight">{name}</h1>
+        <h1 className="text-[10px] sm:text-[20px] font-bold tracking-tight text-black mt-2 leading-tight">{name}</h1>
         {role ? <p className="text-[10px] italic text-black mt-0.5 leading-snug">{role}</p> : null}
         {(email || phone) && (
           <p className="mt-1 text-[10px] leading-snug text-black">
