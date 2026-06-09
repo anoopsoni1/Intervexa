@@ -6,6 +6,8 @@ import { Skeleton } from "../ui/Skeleton.jsx";
 import { AnimatedPercentText } from "./AnimatedPercentText.jsx";
 import { useDashboardAnalyticScore } from "../../hooks/useDashboardAnalyticScore.js";
 import { DashboardAttemptsTrendCard } from "./DashboardAttemptsTrendCard.jsx";
+// import { useSelector } from "react-redux";
+import {useUserData} from "../../hooks/useUserData.js"
 
 
 function StatCardSkeleton() {
@@ -211,6 +213,7 @@ function FuturisticAnalyticCard({
 }
 
 export function DashboardAnalyticScoreCards() {
+  const user = useUserData() ;
   const interview = useDashboardAnalyticScore("interview-score");
   const coding = useDashboardAnalyticScore("coding-score");
 
@@ -244,7 +247,7 @@ export function DashboardAnalyticScoreCards() {
         title="Interview score"
         subtitle="AI interview performance"
         footerLine={interviewFooter}
-        link="/dashboard/interviews"
+        link={user?.Premium ? "/dashboard/interviews" : "/price" }
         icon={<FiMic className="h-5 w-5" aria-hidden />}
         loading={interview.loading}
         hasData={iHas}
@@ -256,7 +259,7 @@ export function DashboardAnalyticScoreCards() {
         title="Coding interview score"
         subtitle="DSA + coding rounds"
         footerLine={codingFooter}
-        link="/coding-interview/start"
+        link={user?.Premium ? "/coding-interview/start" : "/price" }
         icon={<FiTerminal className="h-5 w-5" aria-hidden />}
         loading={coding.loading}
         hasData={cHas}

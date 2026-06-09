@@ -14,6 +14,7 @@ import {
 import { FiTrendingUp } from "react-icons/fi";
 import { Skeleton } from "../ui/Skeleton.jsx";
 import { useDashboardAttemptsTimeline } from "../../hooks/useDashboardAttemptsTimeline.js";
+import {useUserData} from "../../hooks/useUserData.js"
 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
@@ -41,6 +42,7 @@ function ChartSkeleton() {
 }
 
 export function DashboardAttemptsTrendCard() {
+  const user = useUserData() ;
   const chartUid = useMemo(() => `d${Math.random().toString(36).slice(2, 11)}`, []);
   const reduceMotion = useReducedMotion();
   const { data, loading, error } = useDashboardAttemptsTimeline();
@@ -59,7 +61,7 @@ export function DashboardAttemptsTrendCard() {
 
   return (
     <Link
-      to="/dashboard/interviews"
+       to={user?.Premium? "/dashboard/interviews" : "/price"}
       title="Open mock interviews — chart includes coding sessions too"
       className="group/card relative flex min-h-[248px] flex-col overflow-hidden rounded-2xl border border-emerald-500/25 bg-black/40 p-5 shadow-[0_0_20px_-8px_rgba(16,185,129,0.18),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition-all duration-200 hover:border-emerald-400/45 hover:bg-black/50 hover:shadow-[0_0_28px_-6px_rgba(52,211,153,0.28)] motion-safe:hover:-translate-y-0.5"
     >
