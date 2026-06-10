@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, {  useCallback } from "react";
 import { useNotification } from "../hooks/useNotification";
 import "../styles/NotificationDropdown.css";
 
@@ -13,12 +13,12 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     isLoading,
     isMarkingRead,
     markAsRead,
+    hasMore ,
     markAllAsRead,
     deleteNotification,
     loadNotifications,
   } = useNotification();
 
-  const [page, setPage] = useState(0);
   const limit = 10;
 
   /**
@@ -67,13 +67,14 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
     [markAsRead]
   );
 
-  /**
-   * Handle load more
-   */
-  const handleLoadMore = useCallback(() => {
-    setPage(page + 1);
-    loadNotifications(limit, (page + 1) * limit);
-  }, [page, limit, loadNotifications]);
+
+const handleLoadMore = useCallback(() => {
+  if (isLoading || !hasMore) return;
+
+  const nextSkip = notifications.length;
+
+  loadNotifications(limit, nextSkip);
+}, [isLoading, hasMore, notifications.length, limit, loadNotifications]);
 
   /**
    * Format date
@@ -238,18 +239,17 @@ const NotificationDropdown = ({ isOpen, onClose }) => {
       </div>
 
       {/* Footer */}
-      {notifications.length > 0 && (
-        <div className="notification-dropdown-footer">
-          <button
-            className="load-more-btn"
-            onClick={handleLoadMore}
-            disabled={isLoading}
-            type="button"
-          >
-            {isLoading ? "Loading..." : "Load More"}
-          </button>
-        </div>
-      )}
+    {hasMore && (
+  <div className="notification-dropdown-footer">
+    <button
+      className="load-more-btn"
+      onClick={handleLoadMore}
+      disabled={isLoading}
+    >
+      {isLoading ? "Loading..." : "Load More"}
+    </button>
+  </div>
+)}
     </div>
   );
 };

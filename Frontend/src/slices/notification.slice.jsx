@@ -184,23 +184,38 @@ const notificationSlice = createSlice({
     /**
      * Fetch Notifications
      */
-    builder.addCase(fetchNotifications.pending, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    });
-    builder.addCase(fetchNotifications.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.notifications = action.payload.notifications;
-      state.total = action.payload.total;
-      state.unreadCount = action.payload.unreadCount;
-      state.limit = action.payload.limit;
-      state.skip = action.payload.skip;
-      state.hasMore = action.payload.hasMore;
-    });
-    builder.addCase(fetchNotifications.rejected, (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    });
+   builder.addCase(fetchNotifications.fulfilled, (state, action) => {
+  state.isLoading = false;
+
+  const {
+    notifications,
+    total,
+    unreadCount,
+    limit,
+    skip,
+    hasMore,
+  } = action.payload;
+
+  if (skip === 0) {
+    // First load or refresh
+    state.notifications = notifications;
+  } else {
+    // Load more - append without duplicates
+    const existingIds = new Set(state.notifications.map((n) => n._id));
+
+    const newNotifications = notifications.filter(
+      (n) => !existingIds.has(n._id)
+    );
+
+    state.notifications.push(...newNotifications);
+  }
+
+  state.total = total;
+  state.unreadCount = unreadCount;
+  state.limit = limit;
+  state.skip = skip;
+  state.hasMore = hasMore;
+});
 
     /**
      * Fetch Unread Count

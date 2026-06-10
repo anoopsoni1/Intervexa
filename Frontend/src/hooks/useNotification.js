@@ -112,6 +112,7 @@ export const useNotification = () => {
    */
   const loadNotifications = useCallback(
     (limit = 20, skip = 0, unreadOnly = false) => {
+       console.log({ limit, skip, unreadOnly });
       dispatch(
         fetchNotifications({
           limit,

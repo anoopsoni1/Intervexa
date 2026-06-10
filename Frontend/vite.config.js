@@ -45,6 +45,8 @@ export default defineConfig({
         // /sitemap.xml, /robots.txt, etc. get the React app instead of real files.
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/(sitemap\.xml|robots\.txt)$/],
+         skipWaiting: true,
+         clientsClaim: true,
       },
       registerType: 'autoUpdate',
       manifest: {
