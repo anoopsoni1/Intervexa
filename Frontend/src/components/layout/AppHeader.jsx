@@ -16,11 +16,12 @@ import { FileText, LogOut } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser, clearUser } from "../../slices/user.slice";
 import { useLogout } from "../../utils/authUtils";
+import Notification from "../ui/Notification.jsx";
 import { apiJson } from "../../services/api";
 import OptimizedImage from "../ui/OptimizedImage.jsx";import NotificationBell from "../NotificationBell.jsx";
 import NotificationDropdown from "../NotificationDropdown.jsx";
 // import NotificationBell from "../NotificationBell.jsx";
-import { useNotification } from "../../hooks/useNotification";
+// import { useNotification } from "../../hooks/useNotification";
 const MENU_ITEMS = [
   { to: "/", label: "Home", icon: FaHome },
   { to: "/templates", label: "Templates", icon: FileText },
@@ -49,15 +50,15 @@ export default function AppHeader() {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
+  // const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
   const closeTimeoutRef = useRef(null);
   const [size, setSize] = useState(() => ({
     width: typeof window !== "undefined" ? window.innerWidth : 1024,
     height: typeof window !== "undefined" ? window.innerHeight : 768,
   }));
-    // const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
   // Initialize notification hook for logged-in users
-  const notification = useNotification();
+  // const notification = useNotification();
 
   // Only treat as logged in when Redux has user.
   const isLoggedIn = !!user;
@@ -111,27 +112,6 @@ export default function AppHeader() {
   }, []);
 
 
-const notificationRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(event.target)
-      ) {
-        setIsNotificationOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
-    };
-  }, []);
 
 
   // Lock body scroll when mobile menu is open (small screens only)
@@ -337,13 +317,7 @@ const notificationRef = useRef(null);
                           transitionProperty: "opacity, transform",
                         }}
                       >
-                        {isLoggedIn && (
-                          <div className="mb-3">
-                            <NotificationBell 
-                              onDropdownToggle={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
-                            />
-                          </div>
-                        )}
+  
                         {isLoggedIn ? (
                           <button
                             type="button"
@@ -377,6 +351,8 @@ const notificationRef = useRef(null);
                 document.body
               )}
             {/* When menu is open, hide hamburger so only drawer's X is visible; avoids two buttons in one bar */}
+            <div className="flex  place-items-center gap-2">
+              <Notification />
             <motion.button
               type="button"
               className={`flex items-center justify-center text-zinc-200 p-2 rounded-lg hover:bg-white/5 active:bg-white/10 min-w-11 min-h-11 transition-opacity duration-200 ${open && !closing ? "opacity-0 pointer-events-none" : ""}`}
@@ -386,32 +362,20 @@ const notificationRef = useRef(null);
               whileTap={{ scale: 0.92 }}
               transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
+               
+             
               <IoReorderThreeOutline size={28} />
+            
             </motion.button>
+              </div>
           </>
         ) : (
           <>
-            {/* {isLoggedIn && (
-               <div
-      className="relative"
-      ref={notificationRef}
-    >
-      <NotificationBell
-        isOpen={isNotificationOpen}
-        onToggle={() =>
-          setIsNotificationOpen((prev) => !prev)
-        }
-      />
-
-      <NotificationDropdown
-        isOpen={isNotificationOpen}
-        onClose={() =>
-          setIsNotificationOpen(false)
-        }
-      />
-    </div>
-            )} */}
+          
             {isLoggedIn ? (
+              <>
+              <div className="flex gap-2">
+              <Notification />
               <motion.button
                 type="button"
                 onClick={logout}
@@ -422,6 +386,8 @@ const notificationRef = useRef(null);
               >
                 Logout
               </motion.button>
+              </div>
+              </>
             ) : (
               <Link to="/login">
                 <motion.span

@@ -8,23 +8,23 @@ import { queryClient } from "./lib/queryClient.js";
 import { ToastProvider } from "./context/ToastContext";
 
 export default function RootProviders() {
-  useEffect(() => {
-    let updateSW;
-    import("virtual:pwa-register")
-      .then(({ registerSW }) => {
-        updateSW = registerSW({
-          onNeedRefresh() {
-            if (confirm("New content available. Reload?")) {
-              updateSW?.();
-            }
-          },
-          onOfflineReady() {
-            console.log("App ready to work offline");
-          },
-        });
-      })
-      .catch(() => {});
-  }, []);
+useEffect(() => {
+  import("virtual:pwa-register").then(({ registerSW }) => {
+    const updateSW = registerSW({
+      immediate: true,
+
+      onNeedRefresh() {
+        if (window.confirm("A new version is available. Reload now?")) {
+          updateSW(true);
+        }
+      },
+
+      onOfflineReady() {
+        console.log("Offline ready");
+      },
+    });
+  });
+}, []);
 
   return (
     <StrictMode>
