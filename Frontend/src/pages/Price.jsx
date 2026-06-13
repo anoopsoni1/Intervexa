@@ -23,7 +23,7 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "₹99",
+    price: "₹9",
     period: "/month",
     highlight: true,
     tag: "Most Popular",

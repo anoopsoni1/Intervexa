@@ -8,7 +8,7 @@ import AppFooter from "../components/layout/AppFooter";
 
 import { API_BASE } from "../config";
 
-const PAYMENT_AMOUNT = 99;
+const PAYMENT_AMOUNT = 9;
 
 function loadRazorpayScript() {
   return new Promise((resolve, reject) => {
