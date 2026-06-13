@@ -47,7 +47,7 @@ function StatCards({ atsScore, optimizeCount, optimizeLimit, user, usageStatus, 
     },
     {
       icon: <FiDownload className="w-5 h-5" />,
-      label: "Resume PDF (UTC today)", 
+      label: "Resume PDF (UTC today)",
       value:
         resumePdfStats &&
         typeof resumePdfStats.resumesGeneratedToday === "number" &&
