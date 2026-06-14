@@ -157,7 +157,7 @@ export default function AppHeader() {
             transition={{ type: "spring", stiffness: 400, damping: 22 }}
           >
             <OptimizedImage
-              src="/lo.png"
+              src=""
               alt="Ansoyal AI"
               width={192}
               height={192}

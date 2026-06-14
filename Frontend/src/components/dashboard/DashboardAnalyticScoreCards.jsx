@@ -213,7 +213,7 @@ function FuturisticAnalyticCard({
 }
 
 export function DashboardAnalyticScoreCards() {
-  const user = useUserData() ;
+  const { user } = useUserData();
   const interview = useDashboardAnalyticScore("interview-score");
   const coding = useDashboardAnalyticScore("coding-score");
 
