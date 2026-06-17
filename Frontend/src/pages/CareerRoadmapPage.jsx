@@ -39,6 +39,7 @@ export default function CareerRoadmapPage() {
   useEffect(() => {
     let cancelled = false;
     async function checkAuth() {
+      let granted = false;
       try {
         
         const headers = getAuthHeaders();
@@ -53,12 +54,18 @@ export default function CareerRoadmapPage() {
           return;
         }
         if (res.ok) {
-          await res.json().catch(() => ({}));
+          const data = await res.json().catch(() => ({}));
+          const profileUser = data?.user ?? data?.data?.user ?? data;
+          if (!profileUser?.Premium) {
+            navigate(`/price?from=${encodeURIComponent(returnPath)}`, { replace: true });
+            return;
+          }
+          granted = true;
         }
       } catch {
         if (!cancelled) navigate(`/login?from=${encodeURIComponent(returnPath)}`, { replace: true });
       } finally {
-        if (!cancelled) setAuthChecked(true);
+        if (!cancelled && granted) setAuthChecked(true);
       }
     }
     checkAuth();
@@ -151,7 +158,7 @@ export default function CareerRoadmapPage() {
     }
   };
 
-  if (!premiumChecked) {
+  if (!authChecked) {
     return (
       <div className="relative min-h-screen overflow-hidden bg-black flex items-center justify-center">
         <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm px-8 py-6 text-center">
