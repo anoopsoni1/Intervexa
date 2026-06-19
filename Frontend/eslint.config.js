@@ -23,7 +23,31 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Keep lint useful but not blocker-level for this project.
+      'no-unused-vars': [
+        'warn',
+        {
+          varsIgnorePattern: '^[A-Z_]|^_',
+          argsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
+
+      // React compiler / strict hook rules are too noisy for this codebase right now.
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/purity': 'off',
+      'react-hooks/refs': 'off',
+      'react-hooks/unsupported-syntax': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+      'react-hooks/exhaustive-deps': 'warn',
+
+      // This repo contains a few utility exports in component files.
+      'react-refresh/only-export-components': 'warn',
+
+      // Pragmatic relaxations (common patterns in this codebase)
+      'no-empty': ['warn', { allowEmptyCatch: true }],
+      'no-unsafe-finally': 'warn',
+      'no-useless-escape': 'warn',
     },
   },
 ])

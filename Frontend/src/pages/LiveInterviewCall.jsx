@@ -120,12 +120,6 @@ function LiveInterviewCall() {
     if (!interview || !user || loading) return;
 
     const roomId = interview.roomId || interview._id;
-    const io = getSocketIO();
-    if (!io) {
-      setSocketMissing(true);
-      setCallState("error");
-      return;
-    }
     let socket = io(API_BASE_URL, {
       withCredentials: true,
       transports: ["websocket", "polling"],
