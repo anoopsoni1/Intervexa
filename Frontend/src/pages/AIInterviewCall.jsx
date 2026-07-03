@@ -115,8 +115,8 @@ function AIInterviewCall() {
   }, []);
 
   const getHeaders = () => {
-    
-    return {};
+    const token = window.localStorage?.getItem("accessToken") || window.sessionStorage?.getItem("accessToken") || "";
+    return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
   useEffect(() => {
@@ -169,6 +169,25 @@ function AIInterviewCall() {
     return () => { cancelled = true; };
   }, [id, authChecking]);
 
+  const speakQuestion = (questionText) => {
+    if (!aiVoiceEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) {
+      return; // Voice disabled or not supported
+    }
+    const synth = window.speechSynthesis;
+    const utterance = new window.SpeechSynthesisUtterance(questionText);
+    utterance.lang = (typeof navigator !== "undefined" && navigator.language) ? navigator.language : "en-US";
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    applyFemaleVoice(utterance);
+    
+    utterance.onstart = () => setAiSpeaking(true);
+    utterance.onend = () => setAiSpeaking(false);
+    utterance.onerror = () => setAiSpeaking(false);
+    
+    synth.cancel();
+    synth.speak(utterance);
+  };
+
   const fetchNextQuestion = async () => {
     setQuestionLoading(true);
     try {
@@ -183,13 +202,19 @@ function AIInterviewCall() {
         setQuestion(json.data.question);
         setQuestionsAsked((q) => [...q, json.data.question]);
         setQuestionTimeLeft(QUESTION_DURATION_SECONDS);
+        // Speak the fetched question
+        speakQuestion(json.data.question);
       } else {
-        setQuestion("Thank you. Do you have any questions for us?");
+        const fallbackQ = "Thank you. Do you have any questions for us?";
+        setQuestion(fallbackQ);
         setQuestionTimeLeft(QUESTION_DURATION_SECONDS);
+        speakQuestion(fallbackQ);
       }
     } catch {
-      setQuestion("Tell me about yourself and your experience.");
+      const fallbackQ = "Tell me about yourself and your experience.";
+      setQuestion(fallbackQ);
       setQuestionTimeLeft(QUESTION_DURATION_SECONDS);
+      speakQuestion(fallbackQ);
     } finally {
       setQuestionLoading(false);
       setAdvancingQuestion(false);

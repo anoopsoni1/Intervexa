@@ -40,8 +40,8 @@ function LiveInterviewCall() {
   const remoteSocketIdRef = useRef(null);
 
   const getHeaders = () => {
-    
-    return {};
+    const token = window.localStorage?.getItem("accessToken") || window.sessionStorage?.getItem("accessToken") || "";
+    return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
   const endCall = useCallback(() => {
